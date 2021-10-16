@@ -12,6 +12,7 @@ class MyLogicCell:
 		self.flops = []     # registers 
 		self.functions = [] # logic/flop functions 
 		self.slope = []     # inport slope
+		self.cslope = 0     # inport slope
 		self.load = []      # outport load
 		self.isexport = 0
 
@@ -73,8 +74,8 @@ class MyLogicCell:
 
 	def add_flop(self, line="tmp"):
 		tmp_array = line.split('-')
-		# expected format : add_floop -n(name) DFFRS_X1 
-		#                             -l(logic)    DFFARAS : DFF w async RST adn async SET
+		# expected format : add_floop -n(name) DFFRS_X1 /
+		#                             -l(logic)    DFFARAS : DFF w async RST and async SET
 		#														  -i(inports)  DATA 
 		#														  -c(clock)    CLK 
 		#														  -s(set)      SET   (if used) 
@@ -87,39 +88,39 @@ class MyLogicCell:
 			# add_flop command 
 			if(re.match("^add_flop", options)):
 				continue
-			# -n option
+			# -n option (subckt name)
 			elif(re.match("^n ", options)):
 				tmp_array2 = options.split() 
 				self.cell = tmp_array2[1] 
 				#print (self.cell)
-			# -l option
+			# -l option (logic type)
 			elif(re.match("^l ", options)):
 				tmp_array2 = options.split() 
 				self.logic = tmp_array2[1] 
 				print (self.logic)
-			# -i option
+			# -i option (input name)
 			elif(re.match("^i ", options)):
 				tmp_array2 = options.split() 
 				for w in tmp_array2:
 					self.inports.append(w)
 				self.inports.pop(0) # delete first object("-i")
 				print (self.inports)
-			# -c option
+			# -c option (clock name)
 			elif(re.match("^c ", options)):
 				tmp_array2 = options.split() 
 				self.clock = tmp_array2[1] 
 				print (self.clock)
-			# -s option
+			# -s option (set name)
 			elif(re.match("^s ", options)):
 				tmp_array2 = options.split() 
 				self.set = tmp_array2[1] 
 				print (self.set)
-			# -r option
+			# -r option (reset name)
 			elif(re.match("^r ", options)):
 				tmp_array2 = options.split() 
 				self.reset = tmp_array2[1] 
 				print (self.reset)
-			# -o option
+			# -o option (output name)
 			# -f option override -o option
 			# currently, -o is meaningful
 			elif(re.match("^o ", options)):
@@ -128,14 +129,14 @@ class MyLogicCell:
 				#	self.outports.append(w)
 				#self.outports.pop(0) # delete first object("-o")
 				#print (self.outports)
-			# -q option
+			# -q option (storage name)
 			elif(re.match("^q ", options)):
 				tmp_array2 = options.split() 
 				for w in tmp_array2:
 					self.flops.append(w)
 				self.flops.pop(0) # delete first object("-i")
 				print (self.flops)
-			# -f option
+			# -f option (function name)
 			elif(re.match("^f ", options)):
 				tmp_array2 = options.split() 
 				#print (tmp_array2)
@@ -144,8 +145,6 @@ class MyLogicCell:
 					tmp_array3 = w.split('=') 
 					self.outports.append(tmp_array3[0])
 					self.functions.append(tmp_array3[1])
-				#self.functions.pop(0) # delete first object("-f")
-				#self.outports.pop(0) # delete first object("-o")
 				print (self.functions)
 				print (self.outports)
 			# undefined option 
@@ -236,6 +235,15 @@ class MyLogicCell:
 			print ("auto set simulation timestep\n")
 		else:
 			self.simulation_timestep = tmp_array[1] 
+			
+	def add_clock_slope(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 1/10 of min slope
+		if (tmp_array[1] == 'auto')):
+			self.cslope = float(self.slope[0]) 
+			print ("auto set clock slope as mininum slope.\n")
+		else:
+			self.cslope = tmp_array[1] 
 			
 	def set_exported(self):
 		self.isexport = 1 

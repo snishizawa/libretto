@@ -160,8 +160,14 @@ characterize
 export
 
 ## add circuit
-## DFF, positive unate, async reset, async set
-##add_flop -n DFFRS_1X -l DFFPARAS -i DATA -o Q QN -q IQ IQN -f Q=IQ QN=IQN -c CLK -s SET -r RST  
+## DFF, positive clock positive unate, async reset, async set
+##add_flop -n DFFRS_1X -l DFF_PCPU_ARAS -i DATA -c CLK -s SET -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
+## DFF, positive clock negtive unate, async reset, async set
+##add_flop -n DFFRS_1X -l DFF_PCNU_ARAS -i DATA -c CLK -s SET -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
+## DFF, positive clock both unate, async reset, async set
+##add_flop -n DFFRS_1X -l DFF_PCBU_ARAS -i DATA -c CLK -s SET -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
+## DFF, positive clock positive unate, async reset, async set
+##add_flop -n DFFRS_1X -l DFF_PCPU_ARAS -i DATA -c CLK -s SET -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
 ##add_slope {1 4 16 64} 
 ##add_load  {1 4 16 64} 
 ##add_netlist NETLIST/DFFRS_1X.spi
