@@ -2,12 +2,18 @@ import argparse, re, os, shutil, subprocess
 
 class MyConditionsAndResults:
 	def __init__ (self):
-		self.instance = None
-		self.target_inport = None
-		self.target_outport = None
-		self.stable_inport = []
-		self.stable_inport_val = [] 
-		self.nontarget_outport = []
+		self.instance = None          # instance name
+		self.target_inport = None     # target inport name
+		self.target_outport = None    # target outport name
+		self.stable_inport = []       # stable imports
+		self.stable_inport_val = []   # stable imports val
+		self.nontarget_outport = []   # nontarget outport
+		self.target_clock     = None  # target clock name
+		self.target_clock_val = None  # target clock value
+		self.target_reset     = None  # target reset name
+		self.target_reset_val = None  # target reset val
+		self.target_set     = None    # target set name
+		self.target_set_val = None    # target set val
 	
 	def set_direction(self, outport="tmp"):
 		if(outport == '01'):
@@ -80,6 +86,24 @@ class MyConditionsAndResults:
 	def set_nontarget_outport(self, outport="tmp"):
 		self.stable_nontarget.append(outport)
 		print(self.outport)
+
+	def set_target_clock(self, inport="tmp", val="01"):
+		self.target_clock = inport
+		self.target_clock_val = val
+		print(self.target_clock_val)
+		print(self.target_clock)
+
+	def set_target_reset(self, inport="tmp", val="01"):
+		self.target_reset = inport
+		self.target_reset_val = val
+		print(self.target_reset_val)
+		print(self.target_reset)
+
+	def set_target_set(self, inport="tmp", val="01"):
+		self.target_set = inport
+		self.target_set_val = val
+		print(self.target_set_val)
+		print(self.target_set)
 
 	def set_list2_prop(self, list2_prop=[]):
 		self.list2_prop = list2_prop 

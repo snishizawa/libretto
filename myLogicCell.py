@@ -1,5 +1,7 @@
 import argparse, re, os, shutil, subprocess
 
+from myFunc import my_exit
+
 class MyLogicCell:
 	def __init__ (self):
 		self.cell = None    # cell name
@@ -12,10 +14,22 @@ class MyLogicCell:
 		self.flops = []     # registers 
 		self.functions = [] # logic/flop functions 
 		self.slope = []     # inport slope
-		self.cslope = 0     # inport slope
+		self.cslope = 0     # inport clock slope
 		self.load = []      # outport load
+		self.simulation_timestep = 0      # simulation timestep 
+		# setup 
+		self.sim_setup_lowest = 0    # fastest simulation edge (pos. val.) 
+		self.sim_setup_highest = 0   # lowest simulation edge (pos. val.) 
+		self.sim_setup_timestep = 0  # timestep for setup search (pos. val.) 
+		# hold 
+		self.sim_hold_lowest = 0    # fastest simulation edge (pos. val.) 
+		self.sim_hold_highest = 0   # lowest simulation edge (pos. val.) 
+		self.sim_hold_timestep = 0  # timestep for hold search (pos. val.) 
 		self.isexport = 0
 
+#                                                #
+#-- add functions for both comb. and seq. cell --#		
+#                                                #
 	def add_cell(self, line="tmp"):
 		tmp_array = line.split('-')
 		# expected format : add_cell -n(name) AND_X1 
@@ -71,87 +85,6 @@ class MyLogicCell:
 			else:
 				print("ERROR: undefined option:"+options+"\n")	
 		print ("finish add_cell")
-
-	def add_flop(self, line="tmp"):
-		tmp_array = line.split('-')
-		# expected format : add_floop -n(name) DFFRS_X1 /
-		#                             -l(logic)    DFFARAS : DFF w async RST and async SET
-		#														  -i(inports)  DATA 
-		#														  -c(clock)    CLK 
-		#														  -s(set)      SET   (if used) 
-		#														  -r(reset)    RESET (if used)
-		#														  -o(outports) Q QN
-		#														  -q(flops)    IQ IQN
-		#														  -f(function) Q=IQ QN=IQN
-		for options in tmp_array:
-
-			# add_flop command 
-			if(re.match("^add_flop", options)):
-				continue
-			# -n option (subckt name)
-			elif(re.match("^n ", options)):
-				tmp_array2 = options.split() 
-				self.cell = tmp_array2[1] 
-				#print (self.cell)
-			# -l option (logic type)
-			elif(re.match("^l ", options)):
-				tmp_array2 = options.split() 
-				self.logic = tmp_array2[1] 
-				print (self.logic)
-			# -i option (input name)
-			elif(re.match("^i ", options)):
-				tmp_array2 = options.split() 
-				for w in tmp_array2:
-					self.inports.append(w)
-				self.inports.pop(0) # delete first object("-i")
-				print (self.inports)
-			# -c option (clock name)
-			elif(re.match("^c ", options)):
-				tmp_array2 = options.split() 
-				self.clock = tmp_array2[1] 
-				print (self.clock)
-			# -s option (set name)
-			elif(re.match("^s ", options)):
-				tmp_array2 = options.split() 
-				self.set = tmp_array2[1] 
-				print (self.set)
-			# -r option (reset name)
-			elif(re.match("^r ", options)):
-				tmp_array2 = options.split() 
-				self.reset = tmp_array2[1] 
-				print (self.reset)
-			# -o option (output name)
-			# -f option override -o option
-			# currently, -o is meaningful
-			elif(re.match("^o ", options)):
-				tmp_array2 = options.split() 
-				#for w in tmp_array2:
-				#	self.outports.append(w)
-				#self.outports.pop(0) # delete first object("-o")
-				#print (self.outports)
-			# -q option (storage name)
-			elif(re.match("^q ", options)):
-				tmp_array2 = options.split() 
-				for w in tmp_array2:
-					self.flops.append(w)
-				self.flops.pop(0) # delete first object("-i")
-				print (self.flops)
-			# -f option (function name)
-			elif(re.match("^f ", options)):
-				tmp_array2 = options.split() 
-				#print (tmp_array2)
-				tmp_array2.pop(0) # delete first object("-f")
-				for w in tmp_array2:
-					tmp_array3 = w.split('=') 
-					self.outports.append(tmp_array3[0])
-					self.functions.append(tmp_array3[1])
-				print (self.functions)
-				print (self.outports)
-			# undefined option 
-			else:
-				print("ERROR: undefined option:"+options+"\n")	
-				sys.exit()
-		print ("finish add_flop")
 
 	def add_slope(self, line="tmp"):
 		line = re.sub('\{','',line)
@@ -235,15 +168,158 @@ class MyLogicCell:
 			print ("auto set simulation timestep\n")
 		else:
 			self.simulation_timestep = tmp_array[1] 
-			
+
+	def set_exported(self):
+		self.isexport = 1 
+
+#                                 #
+#-- add functions for seq. cell --#		
+#                                 #
+	def add_flop(self, line="tmp"):
+		tmp_array = line.split('-')
+		# expected format : add_floop -n(name) DFFRS_X1 /
+		#                             -l(logic)    DFFARAS : DFF w async RST and async SET
+		#														  -i(inports)  DATA 
+		#														  -c(clock)    CLK 
+		#														  -s(set)      SET   (if used) 
+		#														  -r(reset)    RESET (if used)
+		#														  -o(outports) Q QN
+		#														  -q(flops)    IQ IQN
+		#														  -f(function) Q=IQ QN=IQN
+		for options in tmp_array:
+
+			# add_flop command 
+			if(re.match("^add_flop", options)):
+				continue
+			# -n option (subckt name)
+			elif(re.match("^n ", options)):
+				tmp_array2 = options.split() 
+				self.cell = tmp_array2[1] 
+				#print (self.cell)
+			# -l option (logic type)
+			elif(re.match("^l ", options)):
+				tmp_array2 = options.split() 
+				self.logic = tmp_array2[1] 
+				print (self.logic)
+			# -i option (input name)
+			elif(re.match("^i ", options)):
+				tmp_array2 = options.split() 
+				for w in tmp_array2:
+					self.inports.append(w)
+				self.inports.pop(0) # delete first object("-i")
+				print (self.inports)
+			# -c option (clock name)
+			elif(re.match("^c ", options)):
+				tmp_array2 = options.split() 
+				self.clock = tmp_array2[1] 
+				print (self.clock)
+			# -s option (set name)
+			elif(re.match("^s ", options)):
+				tmp_array2 = options.split() 
+				self.set = tmp_array2[1] 
+				print (self.set)
+			# -r option (reset name)
+			elif(re.match("^r ", options)):
+				tmp_array2 = options.split() 
+				self.reset = tmp_array2[1] 
+				print (self.reset)
+			# -o option (output name)
+			# -f option override -o option
+			# currently, -o is meaningful
+			elif(re.match("^o ", options)):
+				tmp_array2 = options.split() 
+				#for w in tmp_array2:
+				#	self.outports.append(w)
+				#self.outports.pop(0) # delete first object("-o")
+				#print (self.outports)
+			# -q option (storage name)
+			elif(re.match("^q ", options)):
+				tmp_array2 = options.split() 
+				for w in tmp_array2:
+					self.flops.append(w)
+				self.flops.pop(0) # delete first object("-i")
+				print (self.flops)
+			# -f option (function name)
+			elif(re.match("^f ", options)):
+				tmp_array2 = options.split() 
+				#print (tmp_array2)
+				tmp_array2.pop(0) # delete first object("-f")
+				for w in tmp_array2:
+					tmp_array3 = w.split('=') 
+					self.outports.append(tmp_array3[0])
+					self.functions.append(tmp_array3[1])
+				print (self.functions)
+				print (self.outports)
+			# undefined option 
+			else:
+				print("ERROR: undefined option:"+options+"\n")	
+				sys.exit()
+		print ("finish add_flop")
+
 	def add_clock_slope(self, line="tmp"):
 		tmp_array = line.split()
-		# if auto, amd slope is defined, use 1/10 of min slope
-		if (tmp_array[1] == 'auto')):
+		# if auto, amd slope is defined, use mininum slope
+		if (tmp_array[1] == 'auto'):
 			self.cslope = float(self.slope[0]) 
 			print ("auto set clock slope as mininum slope.\n")
 		else:
 			self.cslope = tmp_array[1] 
+
+	# this defines lowest limit of setup edge
+	def add_simulation_setup_lowest(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 10 of min slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_setup_lowest = float(self.slope[0]) * 10 
+			print ("auto set setup simulation time lowest limit\n")
+		else:
+			self.sim_setup_lowest = tmp_array[1] 
 			
-	def set_exported(self):
-		self.isexport = 1 
+	# this defines highest limit of setup edge
+	def add_simulation_setup_highest(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 20 of min slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_setup_highest = float(self.slope[0]) * 20 
+			print ("auto set setup simulation time highest limit\n")
+		else:
+			self.sim_setup_highest = tmp_array[1] 
+			
+	def add_simulation_setup_timestep(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 1/10 of min slope
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_setup_timestep = float(self.slope[0])/10 
+			print ("auto set setup simulation timestep\n")
+		else:
+			self.sim_setup_timestep = tmp_array[1] 
+			
+	# this defines lowest limit of hold edge
+	def add_simulation_hold_lowest(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 10 of min slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_hold_lowest = float(self.slope[0]) * 10 
+			print ("auto set hold simulation time lowest limit\n")
+		else:
+			self.sim_hold_lowest = tmp_array[1] 
+			
+	# this defines highest limit of hold edge
+	def add_simulation_hold_highest(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 20 of min slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_hold_highest = float(self.slope[0]) * 20 
+			print ("auto set hold simulation time highest limit\n")
+		else:
+			self.sim_hold_highest = tmp_array[1] 
+			
+	def add_simulation_hold_timestep(self, line="tmp"):
+		tmp_array = line.split()
+		# if auto, amd slope is defined, use 1/10 of min slope
+		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
+			self.sim_hold_timestep = float(self.slope[0])/10 
+			print ("auto set hold simulation timestep\n")
+		else:
+			self.sim_hold_timestep = tmp_array[1] 
+

@@ -1,4 +1,5 @@
 import argparse, re, os, shutil, subprocess
+from myFunc import my_exit
 
 class MyLibrarySetting:
 	def __init__ (self):
