@@ -160,26 +160,26 @@ initialize
 #export
 
 ## add circuit
-## DFF, positive clock positive unate, async reset, async set
-add_flop -n DFF_ARAS_1X -l DFF_PCPU_ARAS -i DATA -c CLK -s NSET -r NRST -o Q -q IQ IQN -f Q=IQ QN=IQN 
+## DFF, positive clock positive unate, async neg-reset, async neg-set
+add_flop -n DFF_ARAS_1X -l DFF_PCPU_NRNS -i DATA -c CLK -s NSET -r NRST -o Q -q IQ IQN -f Q=IQ QN=IQN 
 ## DFF, positive clock negtive unate, async reset, async set
 ##add_flop -n DFFRS_1X -l DFF_PCNU_ARAS -i DATA -c CLK -s SET -r RST -o QN -q IQ IQN -f Q=IQ QN=IQN 
 ## DFF, positive clock positive unate, async reset
 ##add_flop -n DFFRS_1X -l DFF_PCBU_AR -i DATA -c CLK -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
 ## DFF, positive clock positive unate
 ##add_flop -n DFFRS_1X -l DFF_PCPU -i DATA -c CLK -o Q -q IQ IQN -f Q=IQ QN=IQN 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
+add_slope {1 4} 
+add_load  {1 4} 
 add_clock_slope auto 
 add_netlist NETLIST/DFF_ARAS_1X.spi
 add_model NETLIST/model.sp
 add_simulation_timestep auto
 ## --
-add_simulation_setup_auto
+#add_simulation_setup_auto
 ## or 
-##add_simulation_setup_lowest auto
-##add_simulation_setup_highest auto
-##add_simulation_setup_timestep auto
+add_simulation_setup_lowest -10
+add_simulation_setup_highest 10
+add_simulation_setup_timestep 5
 ## --
 add_simulation_hold_auto
 ## or 

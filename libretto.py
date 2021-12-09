@@ -338,17 +338,17 @@ def characterizeFiles(targetLib, targetCell):
 
 	# Branch to sequencial logics
 	# DFF, both unate, async reset, async set
-	elif(targetCell.logic == 'DFF_PCPU_ARAS'):
-		print ("DFF, positive clock, positive unate, async reset, async set\n")
+	elif(targetCell.logic == 'DFF_PCPU_NRNS'):
+		print ("DFF, positive clock, positive unate, async neg-reset, async neg-set\n")
 		# D1 & C01 -> Q01 QN10
 		# D0 & C01 -> Q10 QN01
 		# R01      -> Q10 QN01
 		# S01      -> Q01 QN10
 		# 									 [D,   C,  S,   R,    Q]
-		expectationList2 = [['01','01','0', '0', '01'], \
-										  	['10','01','0', '0', '10'], \
-										  	['0','0','01', '0', '01'], \
-										  	['0','0', '0','01', '10']]
+		expectationList2 = [['01','01','1', '1', '01'], \
+										  	['10','01','1', '1', '10'], \
+										  	['0','0','10', '1', '01'], \
+										  	['0','0', '1','10', '10']]
 		# run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 
