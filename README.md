@@ -168,7 +168,7 @@ Other **add command** for sequential cells
 | add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
 | add_netlist | NETLIST/DFF_ARAS_1X.spi | location of netlist | 
 | add_model | NETLIST/model.sp | location of model file (include simulation options) | 
-| add_clock_slope | real val/auto | slope for clock. If **auto** is selected then simulator automatically min. slope |
+| add_clock_slope | real val/auto | slope for clock. If **auto** is selected then simulator automatically select min. slope |
 | add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
 | add_simulation_setup_auto | n/a | automatically set setup simulation time (lowest, highest, timestep) |
 | add_simulation_setup_lowest | -10 | manually set lowest time for setup simulation (real val, unit in set_time_unit) |
