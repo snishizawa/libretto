@@ -111,25 +111,36 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				tmp_min_setup = tmp_max_val_loop # temporal value for setup 
 				tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
 				# C2Q and setup search
-				#print ("targetCell.sim_setup_lowest: "+  str(targetCell.sim_setup_lowest ))
-				#print ("targetCell.sim_setup_highest: "+ str(targetCell.sim_setup_highest))
-				#print ("targetCell.sim_setup_timestep: "+str(targetCell.sim_setup_timestep))
+				# perform two-stage simulation
+				# 1st stage: sim w/  10-% output swing
+				# 2nd stage: sim w/ 100-% output swing
+				tsimendmag = [1000, 10000]; # magnify parameter of _tsimend
+				tranmag = [0.1, 1];        # magnify parameter of transient simulation
 				for tsetup in np.arange (targetCell.sim_setup_lowest, targetCell.sim_setup_highest, targetCell.sim_setup_timestep):
-					print("tsetup: "+str(f'{tsetup:,.4f}'))
-					cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-					slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-					cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
-					tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
-					thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
-					spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
-          
-					res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
-						= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-																tsetup_line, thold_line, spicefo)
-					
-					print("spice deck: "+spicefo)
+					first_stage_fail = 0
+					for j in range(len(tranmag)):
+						if(first_stage_fail == 0):
+							print("tsetup: "+str(f'{tsetup:,.4f}')+" stage:"+str(j))
+							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
+							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
+							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
+							tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
+							thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
+							tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
+							spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
+              
+							res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
+								= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
+																		tsetup_line, thold_line, tsimend_line, spicefo)
+					  
+							#  check 1st and 2nd run of simulation
+							# if res_trans_out failed, it may failed in both run -> exit 
+							if(res_trans_out == "failed"):
+								first_stage_fail = 1
+
+					#  check second run of simulation
 					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)):
+					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
 						if(tmp_max_val_loop == tmp_min_prop_in_out):
 							print("Error: simulation failed! Check spice deck!")
 							print("spice deck: "+spicefo)
@@ -184,7 +195,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		#targetHarness.print_lut_tran()
 		
 
-def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tsetup_line, thold_line, spicef):
+def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tsetup_line, thold_line, tsimend_line, spicef):
 	#print (spicef)
 	#print ("generate AND2\n")
 	#print(dir(targetLib))
@@ -203,6 +214,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".param cslew = 100p \n")
 		outlines.append(".param tsetup = 100p \n")
 		outlines.append(".param thold = 100p \n")
+		outlines.append(".param tsimendmag = 100 tranmag = 1\n")
 		outlines.append(".param _tslew = slew\n")
 		outlines.append(".param _tclk1 = slew\n")                # ^ first clock
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")   # | 
@@ -214,7 +226,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".param _tend2 = '_tend1 + _tslew'\n")    # v varied w/ dedge
 		outlines.append(".param _tclk5 = 'slew * 30'\n")             # ^ second clock
 		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")    # v 
-		outlines.append(".param _tsimend = '_tslew * 1000' \n")
+		outlines.append(".param _tsimend = '_tslew * tsimendmag' \n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
 		outlines.append("VSS_DYN VSS_DYN 0 DC '_vss' \n")
@@ -307,7 +319,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
 			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
 			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		# case, input 01 -> output 01
@@ -315,7 +327,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
 			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
 			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
 		# case, input 10 -> output 01
@@ -323,7 +335,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
 			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
 			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
 		# case, input 10 -> output 10
@@ -331,7 +343,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
 			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
 			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		else:
@@ -534,6 +546,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(cslew_line)
 		outlines.append(tsetup_line)
 		outlines.append(thold_line)
+		outlines.append(tsimend_line)
 				
 ## for ngspice batch mode 
 		outlines.append("*enable .control to show graph in ngspice \n")
