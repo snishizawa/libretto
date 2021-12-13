@@ -1,6 +1,6 @@
 # libretto
 ## Introduction
-An open cell library characterization.
+An open cell library characterizer.
 Current version support timing characterization of combinational cells and sequential cells.
 
 Support for power characterization is TBA.
@@ -97,7 +97,7 @@ Combinational cells and sequential cells requires different
 | -o outport | -o YB | outport list |
 | -f verilog_func| YB = !(A\|B) | verilog function | 
 
-Supported logic cells (\*) are listed as follow,
+Supported logic functions (\*) are listed as follow,
 | logic def |  Description |
 |:-----------|:------------|
 | INV | 1-input 1-output inverter | 
@@ -142,7 +142,7 @@ Other **add cell** for combinational cells
 | -q storage | -q IQ IQN | storage elements |
 | -f func| Q=IQ QN=IQN | operation function | 
 
-Supported logic cells (\*) are listed as follow,
+Supported sequential functions (\*) are listed as follow,
 | logic def |  Description |
 |:-----------|:------------|
 | DFF_PCPU | D-Flip-Flop with pos-edge clock and positive unate output | 
