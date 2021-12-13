@@ -102,6 +102,13 @@ Supported logic functions (\*) are listed as follow,
 | logic def |  Description |
 |:-----------|:------------|
 | INV | 1-input 1-output inverter | 
+| BUF | 1-input 1-output inverter | 
+| AND2 | 2-input 1-output AND | 
+| AND3 | 3-input 1-output AND | 
+| AND4 | 4-input 1-output AND | 
+| OR2 | 2-input 1-output OR | 
+| OR3 | 3-input 1-output OR | 
+| OR4 | 4-input 1-output OR | 
 | NAND2 | 2-input 1-output NAND | 
 | NAND3 | 3-input 1-output NAND | 
 | NAND4 | 4-input 1-output NAND | 
