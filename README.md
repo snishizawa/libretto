@@ -71,7 +71,7 @@ to initialize characterizor.
 ### individual characterization commands
 Define individual settings for cells.
 (called **add command**)
-Except **add_cell** command, **add_command** requires one argument.
+Except **add_cell** command, other **add command** requires one argument.
 **add_cell** command requires several arguments with option.
 
 **add command** block should be start from **add_cell** command,
@@ -119,7 +119,7 @@ Supported logic functions (\*) are listed as follow,
 | XNOR2 | 2-input 1-output XNOR | 
 | SEL2 | 2-input 1-select 1-output selector | 
 
-Other **add cell** for combinational cells
+Other **add command** for combinational cells
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
