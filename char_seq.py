@@ -121,7 +121,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 					first_stage_fail = 0
 					for j in range(len(tranmag)):
 						if(first_stage_fail == 0):
-							print("setup: "+str(f'{tsetup:,.4f}')+" hold: "+str(f'{tmp_min_hold:,.4f}')+" stage:"+str(j))
+							print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{tmp_min_hold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
 							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
 							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
@@ -147,7 +147,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 							print("Error: simulation failed! Check spice deck!")
 							print("spice deck: "+spicefo)
 							my_exit()
-						print("Min. D2Q found. Break loop at tsetup: "+str(f'{tsetup:,.4f}'))
+						print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
 						tmp_tsetup = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
 						break
 					
@@ -182,7 +182,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 					first_stage_fail = 0
 					for j in range(len(tranmag)):
 						if(first_stage_fail == 0):
-							print("setup: "+str(f'{tmp_tsetup:,.4f}')+" hold: "+str(f'{thold:,.4f}')+" stage:"+str(j))
+							Print("dSetup: "+str(f'{tmp_tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
 							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
 							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
@@ -208,7 +208,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 							print("Error: simulation failed! Check spice deck!")
 							print("spice deck: "+spicefo)
 							my_exit()
-						print("Min. D2Q found. Break loop at thold: "+str(f'{thold:,.4f}'))
+						print("Min. D2Q found. Break loop at dHold: "+str(f'{thold:,.4f}'))
 						break
 					
 					# update C2Q(res_prop_in_out) 
@@ -260,10 +260,10 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".option brief nopage nomod post=1 ingold=2 autostop\n")
 		outlines.append(".inc '../"+str(targetCell.model)+"'\n")
 		outlines.append(".inc '../"+str(targetCell.netlist)+"'\n")
-		outlines.append(".param _vdd = "+str(targetLib.vdd_voltage)+"\n")
-		outlines.append(".param _vss = "+str(targetLib.vss_voltage)+"\n")
-		outlines.append(".param _vnw = "+str(targetLib.nwell_voltage)+"\n")
-		outlines.append(".param _vpw = "+str(targetLib.pwell_voltage)+"\n")
+		outlines.append(".param _vdd = "+str(targetLib.vdd_voltage)+str(targetLib.voltage_mag)+"\n")
+		outlines.append(".param _vss = "+str(targetLib.vss_voltage)+str(targetLib.voltage_mag)+"\n")
+		outlines.append(".param _vnw = "+str(targetLib.nwell_voltage)+str(targetLib.voltage_mag)+"\n")
+		outlines.append(".param _vpw = "+str(targetLib.pwell_voltage)+str(targetLib.voltage_mag)+"\n")
 		outlines.append(".param cap = 10f \n")
 		outlines.append(".param slew = 100p \n")
 		outlines.append(".param cslew = 100p \n")
@@ -273,13 +273,13 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".param _tslew = slew\n")
 		outlines.append(".param _tclk1 = slew\n")                # ^ first clock
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")   # | 
-		outlines.append(".param _tclk3 = '_tclk2 + slew * 10 '\n")    # | 
+		outlines.append(".param _tclk3 = '_tclk2 + slew * 20 '\n")    # | 
 		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")   # v 
-		outlines.append(".param _tstart1 = 'slew * 30 + tsetup'\n")    # ^ data input start 
+		outlines.append(".param _tstart1 = 'slew * 150 + tsetup'\n")    # ^ data input start 
 		outlines.append(".param _tstart2 = '_tstart1 + _tslew'\n")     # v varied w/ dedge
 		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
 		outlines.append(".param _tend2 = '_tend1 + _tslew'\n")    # v varied w/ dedge
-		outlines.append(".param _tclk5 = 'slew * 30'\n")             # ^ second clock
+		outlines.append(".param _tclk5 = 'slew * 150'\n")             # ^ second clock
 		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")    # v 
 		outlines.append(".param _tsimend = '_tslew * tsimendmag' \n")
 		outlines.append(" \n")
@@ -605,10 +605,10 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 				
 ## for ngspice batch mode 
 		outlines.append("*enable .control to show graph in ngspice \n")
-		outlines.append("*.control \n")
-		outlines.append("*run \n")
-		outlines.append("*plot V("+V_in_target+") V(VOUT) V(VCIN) \n")
-		outlines.append("*.endc \n")
+		outlines.append(".control \n")
+		outlines.append("run \n")
+		outlines.append("plot V("+V_in_target+") V(VOUT) V(VCIN) \n")
+		outlines.append(".endc \n")
 		outlines.append(".end \n") 
 		f.writelines(outlines)
 	f.close()
