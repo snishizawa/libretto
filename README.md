@@ -1,7 +1,6 @@
 # libretto
 
 An open cell library characterization.
-Current version support timing characterization of combinational cells.
+Current version support timing characterization of combinational cells and sequential cells.
 
-Support for timing characterization of sequential cells is TBA.
-Also, support for power characterization is TBA.
+Support for power characterization is TBA.
