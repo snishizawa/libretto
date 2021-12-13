@@ -22,7 +22,7 @@ python3 libretto.py -b [.cmd file]
 Define common settings for target library.
 (called **set command**)
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | set_lib_name | OSU035 | library name |
 | set_dotlib_name | OSU035.lib | .lib file name |
 | set_verilog_name | OSU035.v | .v file name |
@@ -44,7 +44,7 @@ Define common settings for target library.
 Define common settings for logic cells.
 (called **set command**)
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | set_process | typ | define process condition (written into .lib) | 
 | set_temperature | 25 | simulation temperature  (written into .lib) |
 | set_vdd_voltage | 3.5 | simulation vdd voltage (unit in set_voltage_unit)|
@@ -65,7 +65,7 @@ Define common settings for logic cells.
 If common characterization commands are done, use **initialize command**
 to initialize characterizor.
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | initialize | n/a | initialize characteizer | 
 
 ### individual characterization commands
@@ -89,13 +89,13 @@ Combinational cells and sequential cells requires different
 **add_cell** for combinational cells
 (**add_cell** command shoul be one-line)
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | add_cell |  | add cell for characterize | 
 | -n cell_name | -n NAND2_1X | cell name in netlist|
 | -l logic_def. | -l NAND2 | logic of target cell (\*) |
 | -i inport | -i A B | inport list |
 | -o outport | -o YB | outport list |
-| -f verilog_func| YB = !(A|B) | verilog function | 
+| -f verilog_func| YB = !(A\|B) | verilog function | 
 
 Supported logic cells (\*) are listed as follow,
 | logic def |  Description |
@@ -113,7 +113,7 @@ Supported logic cells (\*) are listed as follow,
 
 Other **add cell** for combinational cells
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
 | add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
 | add_netlist | NETLIST/INV_1X.spi | location of netlist | 
@@ -122,7 +122,7 @@ Other **add cell** for combinational cells
 
 **characterize** and **export** commands
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | characterize | n/a | run characterization |
 | export| n/a | export data into .lib and .v| 
 
@@ -130,7 +130,7 @@ Other **add cell** for combinational cells
 **add_cell** for sequential cells
 (**add_cell** command shoul be one-line)
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | add_cell |  | add cell for characterize | 
 | -n cell_name | -n DFF_ARAS_1X | cell name in netlist|
 | -l logic_def. | -l DFF_PCPU_NRNS | logic of target cell (\*) |
@@ -154,7 +154,7 @@ Supported logic cells (\*) are listed as follow,
 
 Other **add command** for sequential cells
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
 | add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
 | add_netlist | NETLIST/DFF_ARAS_1X.spi | location of netlist | 
@@ -171,12 +171,12 @@ Other **add command** for sequential cells
 
 **characterize** and **export** commands
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | characterize | n/a | run characterization |
 | export| n/a | export data into .lib and .v| 
 
 ### exit
 use **exit** command to return into shell.
 | Command | Argument example | Description |
-|:-----------|------------:|:------------:|
+|:-----------|------------:|:------------|
 | exit | n/a | exit |
