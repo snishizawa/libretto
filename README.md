@@ -14,6 +14,10 @@ python3 libretto.py -b [.cmd file]
 
 ## How to prepare .cmd file
 .cmd file composes three blocks.
+(1) common settings for library
+(2) common settings for cell
+(3) individual settings for cell
+
 ### common settings for library
 Define common settings for target library.
 (called **set command**)
@@ -57,3 +61,122 @@ Define common settings for logic cells.
 | set_energy_meas_high_threshold | 0.99 | threshold to define voltage high for energy calculation (ratio:0~1) |
 | set_energy_meas_time_extent | 4 | simulation time extension for energy calculation target large output slew (real val.) |
 | set_operating_conditions | PVT_3P5V_25C | define operation condition (written into .lib) |
+
+If common characterization commands are done, use **initialize command**
+to initialize characterizor.
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| initialize | n/a | initialize characteizer | 
+
+### individual characterization commands
+Define individual settings for cells.
+(called **add command**)
+Except **add_cell** command, **add_command** requires one argument.
+**add_cell** command requires several arguments with option.
+
+**add command** block should be start from **add_cell** command,
+**characterize**and **export** commands finalize the 
+simulation output into .lib and .v.
+If another **add command** is applied before running
+the **characterize** and **export** commands, latest 
+**add command** overwrite the previous setting.
+
+Combinational cells and sequential cells requires different 
+**add command**. 
+
+(1) **add command** for combinational cells
+
+**add_cell** for combinational cells
+(**add_cell** command shoul be one-line)
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| add_cell |  | add cell for characterize | 
+| -n cell_name | -n NAND2_1X | cell name in netlist|
+| -l logic_def. | -l NAND2 | logic of target cell (\*) |
+| -i inport | -i A B | inport list |
+| -o outport | -o YB | outport list |
+| -f verilog_func| YB = !(A|B) | verilog function | 
+
+Supported logic cells (\*) are listed as follow,
+| logic def |  Description |
+|:-----------|:------------|
+| INV | 1-input 1-output inverter | 
+| NAND2 | 2-input 1-output NAND | 
+| NAND3 | 3-input 1-output NAND | 
+| NAND4 | 4-input 1-output NAND | 
+| NOR2 | 2-input 1-output NOR | 
+| NOR3 | 3-input 1-output NOR | 
+| NOR4 | 4-input 1-output NOR | 
+| XOR2 | 2-input 1-output XOR | 
+| XNOR2 | 2-input 1-output XNOR | 
+| SEL2 | 2-input 1-select 1-output selector | 
+
+Other **add cell** for combinational cells
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
+| add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_netlist | NETLIST/INV_1X.spi | location of netlist | 
+| add_model | NETLIST/model.sp | location of model file (include simulation options) | 
+| add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
+
+**characterize** and **export** commands
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| characterize | n/a | run characterization |
+| export| n/a | export data into .lib and .v| 
+
+(2) **add command** for sequential cells
+**add_cell** for sequential cells
+(**add_cell** command shoul be one-line)
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| add_cell |  | add cell for characterize | 
+| -n cell_name | -n DFF_ARAS_1X | cell name in netlist|
+| -l logic_def. | -l DFF_PCPU_NRNS | logic of target cell (\*) |
+| -i inport | -i DATA | inport |
+| -c clock port | -c CLK | clock port |
+| -s set inport | -s NSET | set port (optional) |
+| -r reset inport | -r NRST | reset port (optional) |
+| -o outport | -o Q | outport |
+| -q storage | -q IQ IQN | storage elements |
+| -f func| Q=IQ QN=IQN | operation function | 
+
+Supported logic cells (\*) are listed as follow,
+| logic def |  Description |
+|:-----------|:------------|
+| DFF_PCPU | D-Flip-Flop with pos-edge clock and positive unate output | 
+| DFF_PCPN | D-Flip-Flop with pos-edge clock and negative unate output | 
+| DFF_NCPU | D-Flip-Flop with neg-edge clock and positive unate output | 
+| DFF_NCPN | D-Flip-Flop with neg-edge clock and negative unate output | 
+| DFF_PCPU_NR | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset | 
+| DFF_PCPU_NRNS | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset, neg-edge set | 
+
+Other **add command** for sequential cells
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
+| add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_netlist | NETLIST/DFF_ARAS_1X.spi | location of netlist | 
+| add_model | NETLIST/model.sp | location of model file (include simulation options) | 
+| add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
+| add_simulation_setup_auto | n/a | automatically set setup simulation time (lowest, highest, timestep) |
+| add_simulation_setup_lowest | -10 | manually set lowest time for setup simulation (real val, unit in set_time_unit) |
+| add_simulation_setup_highest | 16 | manually set highst time for setup simulation (real val, unit in set_time_unit) |
+| add_simulation_setup_timestep | 5 | manually set timestep for setup simulation (real val, unit in set_time_unit) |
+| add_simulation_hold_auto | n/a | automatically set setup simulation time (lowest, highest, timestep) |
+| add_simulation_hold_lowest | -10 | manually set lowest time for hold simulation (real val, unit in set_time_unit) |
+| add_simulation_hold_highest | 16 | manually set highst time for hold simulation (real val, unit in set_time_unit) |
+| add_simulation_hold_timestep | 5 | manually set timestep for hold simulation (real val, unit in set_time_unit) |
+
+**characterize** and **export** commands
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| characterize | n/a | run characterization |
+| export| n/a | export data into .lib and .v| 
+
+### exit
+use **exit** command to return into shell.
+| Command | Argument example | Description |
+|:-----------|------------:|:------------:|
+| exit | n/a | exit |
