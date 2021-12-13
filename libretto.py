@@ -340,7 +340,58 @@ def characterizeFiles(targetLib, targetCell):
 
 
 	# Branch to sequencial logics
-	# DFF, both unate, async reset, async set
+	elif(targetCell.logic == 'DFF_PCPU'):
+		print ("DFF, positive clock, positive unate\n")
+		# D1 & C01 -> Q01
+		# D0 & C01 -> Q10
+		# 									 [D,   C,     Q]
+		expectationList2 = [['01','0101', '01'], \
+										  	['10','0101', '10']] 
+		# run spice deck for flop
+		return runFlop(targetLib, targetCell, expectationList2)
+
+	elif(targetCell.logic == 'DFF_PCNU'):
+		print ("DFF, positive clock, negative unate\n")
+		# D1 & C01 -> Q01
+		# D0 & C01 -> Q10
+		# 									 [D,   C,     Q]
+		expectationList2 = [['01','0101', '10'], \
+										  	['10','0101', '01']] 
+		# run spice deck for flop
+		return runFlop(targetLib, targetCell, expectationList2)
+
+	elif(targetCell.logic == 'DFF_NCPU'):
+		print ("DFF, negative clock, positive unate\n")
+		# D1 & C01 -> Q01
+		# D0 & C01 -> Q10
+		# 									 [D,   C,     Q]
+		expectationList2 = [['01','1010', '01'], \
+										  	['10','1010', '10']] 
+		# run spice deck for flop
+		return runFlop(targetLib, targetCell, expectationList2)
+
+	elif(targetCell.logic == 'DFF_NCNU'):
+		print ("DFF, negative clock, negative unate\n")
+		# D1 & C01 -> Q01
+		# D0 & C01 -> Q10
+		# 									 [D,   C,     Q]
+		expectationList2 = [['01','1010', '10'], \
+										  	['10','1010', '01']] 
+		# run spice deck for flop
+		return runFlop(targetLib, targetCell, expectationList2)
+
+	elif(targetCell.logic == 'DFF_PCPU_NR'):
+		print ("DFF, positive clock, positive unate, async neg-reset\n")
+		# D1 & C01 -> Q01
+		# D0 & C01 -> Q10
+		# R01      -> Q10
+		# 									 [D,   C,    R,    Q]
+		expectationList2 = [['01','0101', '1', '01'], \
+										  	['10','0101', '1', '10'], \
+										  	[ '0', '010','10', '10']]
+		# run spice deck for flop
+		return runFlop(targetLib, targetCell, expectationList2)
+
 	elif(targetCell.logic == 'DFF_PCPU_NRNS'):
 		print ("DFF, positive clock, positive unate, async neg-reset, async neg-set\n")
 		# D1 & C01 -> Q01 QN10
@@ -348,10 +399,10 @@ def characterizeFiles(targetLib, targetCell):
 		# R01      -> Q10 QN01
 		# S01      -> Q01 QN10
 		# 									 [D,   C,  S,   R,    Q]
-		expectationList2 = [['01','01','1', '1', '01'], \
-										  	['10','01','1', '1', '10'], \
-										  	['0','0','10', '1', '01'], \
-										  	['0','0', '1','10', '10']]
+		expectationList2 = [['01','0101','1', '1', '01'], \
+										  	['10','0101','1', '1', '10'], \
+										  	['0','010','10', '1', '01'], \
+										  	['0','010', '1','10', '10']]
 		# run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 

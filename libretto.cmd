@@ -1,5 +1,4 @@
 # common settings for library
-initializ_library OSU035
 set_lib_name OSU035
 set_dotlib_name OSU035.lib
 set_verilog_name OSU035.v
@@ -105,8 +104,8 @@ initialize
 #export
 #
 add_cell -n NOR3_1X -l NOR3 -i A B C -o YB -f YB=!(A|B|C) 
-add_slope {1 4} 
-add_load  {1 4} 
+add_slope {1 4 16 64} 
+add_load  {1 4 16 64} 
 add_netlist NETLIST/NOR3_1X.spi
 add_model NETLIST/model.sp
 add_simulation_timestep auto
@@ -168,18 +167,18 @@ add_flop -n DFF_ARAS_1X -l DFF_PCPU_NRNS -i DATA -c CLK -s NSET -r NRST -o Q -q 
 ##add_flop -n DFFRS_1X -l DFF_PCBU_AR -i DATA -c CLK -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
 ## DFF, positive clock positive unate
 ##add_flop -n DFFRS_1X -l DFF_PCPU -i DATA -c CLK -o Q -q IQ IQN -f Q=IQ QN=IQN 
-add_slope {1 4} 
-add_load  {1 4} 
+add_slope {1 4 16 64} 
+add_load  {1 4 16 64} 
 add_clock_slope auto 
 add_netlist NETLIST/DFF_ARAS_1X.spi
 add_model NETLIST/model.sp
 add_simulation_timestep auto
 ## --
-#add_simulation_setup_auto
+add_simulation_setup_auto
 ## or 
-add_simulation_setup_lowest -10
-add_simulation_setup_highest 16
-add_simulation_setup_timestep 5
+#add_simulation_setup_lowest -10
+#add_simulation_setup_highest 16
+#add_simulation_setup_timestep 5
 ## --
 add_simulation_hold_auto
 ## or 

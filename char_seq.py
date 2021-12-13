@@ -36,13 +36,13 @@ def runFlop(targetLib, targetCell, expectationList2):
 
 		# select simulation type: clock(D2Q, D2C, C2Q, C2D), reset, set
 		# normal operation (clock edge)
-		if((CLK_val == '01') or (CLK_val == '10')):
+		if((CLK_val == '0101') or (CLK_val == '1010')):
 			tmp_Harness.set_timing_flop_inout(D_val, Q_val)
 		# reset operation (reset edge)
-		elif((RST_val == '01') or (RST_val == '10')):
+		elif(((CLK_val == '010') or (CLK_val == '101'))and((RST_val == '01') or (RST_val == '10'))):
 			tmp_Harness.set_timing_flop_reset(RST_val, Q_val)
 		# set operation (set edge)
-		elif((SET_val == '01') or (SET_val == '10')):
+		elif(((CLK_val == '010') or (CLK_val == '101'))and((SET_val == '01') or (SET_val == '10'))):
 			tmp_Harness.set_timing_flop_set(SET_val, Q_val)
 		else:
 			print("any input vector is inputted! error\n")
@@ -127,26 +127,31 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 						= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
 																tsetup_line, thold_line, spicefo)
 					
+					print("spice deck: "+spicefo)
 					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_cin_out == "failed")or(float(res_prop_cin_out) > tmp_min_prop_cin_out)):
-						if(tmp_max_val_loop == tmp_min_prop_cin_out):
+					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)):
+						if(tmp_max_val_loop == tmp_min_prop_in_out):
 							print("Error: simulation failed! Check spice deck!")
-							print("spice deck:"+spicefo)
+							print("spice deck: "+spicefo)
 							my_exit()
 						print("Min. D2Q found. Break loop at tsetup: "+str(f'{tsetup:,.4f}'))
 						break
 					
 					# update C2Q(res_prop_in_out) 
 					tmp_min_prop_in_out  = float(res_prop_in_out)
-					tmp_min_prop_cin_out = float(res_prop_cin_out)
+					# in set/reset sim, res_prop_cin_out is not measured
+					if(res_prop_cin_out != "failed"):
+						tmp_min_prop_cin_out = float(res_prop_cin_out)
 					tmp_min_trans_out    = float(res_trans_out)
 					tmp_min_energy_start = float(res_energy_start)
 					tmp_min_energy_end   = float(res_energy_end)
-					tmp_min_setup = float(res_setup)
-					tmp_min_hold = float(res_hold)
+					if(res_setup != "failed"):
+						tmp_min_setup = float(res_setup)
+					if(res_hold != "failed"):
+						tmp_min_hold = float(res_hold)
 
-				#tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
-				tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
+				tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
+				#tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
 				tmp_list_setup.append(tmp_min_setup)
 				tmp_list_hold.append(tmp_min_hold)
 				tmp_list_tran.append(tmp_min_trans_out)
@@ -245,16 +250,20 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append("VLOW VLOW 0 DC '_vss' \n")
 
 		# CLOCK
-		if(targetHarness.target_clock_val == "01"):
+		# two clock pulses are used (one for set init., another for C2Q)
+		if(targetHarness.target_clock_val == "0101"):
 			outlines.append("VCIN VCIN 0 PWL(0 '_vss' '_tclk1' '_vss' '_tclk2' '_vdd' '_tclk3' '_vdd' '_tclk4' '_vss' '_tclk5' '_vss' '_tclk6' '_vdd' '_tsimend' '_vdd') \n")
 			#V_in_target = 'VCIN'
-		elif(targetHarness.target_clock_val == "10"):
+		elif(targetHarness.target_clock_val == "1010"):
 			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tclk5' '_vdd' '_tclk6' '_vss' '_tsimend' '_vss') \n")
 			#V_in_target = 'VCIN'
-		elif((targetHarness.target_clock_val == "11")or(targetHarness.target_clock_val == "1")):
-			outlines.append("VCIN VCIN 0 DC '_vdd' \n")
-		elif((targetHarness.target_clock_val == "00")or(targetHarness.target_clock_val == "0")):
-			outlines.append("VCIN VCIN 0 DC '_vss' \n")
+		# one clock pulse is used (for set init.)
+		elif(targetHarness.target_clock_val == "010"):
+			outlines.append("VCIN VCIN 0 PWL(0 '_vss' '_tclk1' '_vss' '_tclk2' '_vdd' '_tclk3' '_vdd' '_tclk4' '_vss' '_tsimend' '_vss') \n")
+			#outlines.append("VCIN VCIN 0 DC '_vdd' \n")
+		elif(targetHarness.target_clock_val == "101"):
+			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tsimend' '_vdd') \n")
+			#outlines.append("VCIN VCIN 0 DC '_vss' \n")
 		else:
 			print("Error: no VCIN difinition!")
 			my_exit()
@@ -335,19 +344,19 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 
 		outlines.append("* Prop delay (C2Q)\n")
 		# case, clock 01 -> output 10
-		if((targetHarness.target_clock_val == "01")and(targetHarness.target_outport_val == "10")):
+		if((targetHarness.target_clock_val == "0101")and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
 		# case, clock 01 -> output 01
-		elif((targetHarness.target_clock_val == "01")and(targetHarness.target_outport_val == "01")):
+		elif((targetHarness.target_clock_val == "0101")and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		# case, clock 10 -> output 10
-		elif((targetHarness.target_clock_val == "10")and(targetHarness.target_outport_val == "10")):
+		elif((targetHarness.target_clock_val == "1010")and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
 		# case, clock 10 -> output 01
-		elif((targetHarness.target_clock_val == "01")and(targetHarness.target_outport_val == "01")):
+		elif((targetHarness.target_clock_val == "1010")and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		else:
@@ -357,19 +366,19 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		# measure D2C(setup)
 		outlines.append("* Prop delay (D2C,setup)\n")
 		# case, D 01 -> CLK 01
-		if((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "01")):
+		if((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock  
 		# case, D 10 -> CLK 01
-		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "01")):
+		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock  
 		# case, D 01 -> CLK 10
-		elif((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "10")):
+		elif((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
 		# case, D 10 -> CLK 10
-		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "10")):
+		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
 		else:
@@ -379,19 +388,19 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append("* Prop delay (C2D,HOLD)\n")
 		
 		# case, CLK 01 -> D (01->)10 
-		if((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "01")):
+		if((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
 		# case, CLK 01 -> D (10->)01 
-		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "01")):
+		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		# case, CLK 10 -> D (01->)10 
-		elif((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "10")):
+		elif((targetHarness.target_inport_val == "01")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
 		# case, CLK 10 -> D (10->)01 
-		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "10")):
+		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		else:

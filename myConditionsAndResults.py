@@ -73,13 +73,13 @@ class MyConditionsAndResults:
 		else:
 			print("Illegal input: "+self.outport+", check unate")
 	
-	def set_timing_flop_clock(self, inport="01", outport="01"):
+	def set_timing_flop_clock(self, inport="0101", outport="01"):
 		# inport
-		if((inport == "01")or(inport.upper() == "RISE")or(inport.upper() == "pos")or(inport.upper() == "posedge")):
+		if(inport == "0101"):
 			self.timing_type_edge = "riseing_edge"
 			self.timing_type_setup = "setup_riseing"
 			self.timing_type_hold = "hold_riseing"
-		elif((inport == "10")or(inport.upper() == "FALL")or(inport.upper() == "neg")or(inport.upper() == "negedge")):
+		elif(inport == "1010"):
 			self.timing_type_edge = "falling_edge"
 			self.timing_type_setup = "setup_falling"
 			self.timing_type_hold = "hold_falling"
@@ -334,6 +334,7 @@ class MyConditionsAndResults:
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
+		self.lut_tran.append(outline)
 		# values
 		self.lut_tran.append("values ( \\")
 		for i in range(len(ilist)):

@@ -197,7 +197,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 		outlines.append("    }\n")
 
 		# define flop
-		outlines.append("    ff ("+str(targetCell.flops)+"){\n") 
+		outlines.append("    ff ("+str(targetCell.flops[0])+","+str(targetCell.flops[1])+"){\n") 
 		outlines.append("    clocked_on : \""+targetCell.clock+"\";\n") 
 		for target_outport in targetCell.outports:
 			outlines.append("    next_state : \""+target_outport+"\";\n") 
@@ -235,7 +235,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("        }\n") 
 				## fall
 				outlines.append("        "+harnessList2[index1][index2*2+1].direction_setup+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2].lut_setup:
+				for lut_line in harnessList2[index1][index2*2+1].lut_setup:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
@@ -251,11 +251,11 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("        }\n") 
 				## fall
 				outlines.append("        "+harnessList2[index1][index2*2+1].direction_hold+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2].lut_hold:
+				for lut_line in harnessList2[index1][index2*2+1].lut_hold:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-			outlines.append("    }\n") ## inport pin end
+		outlines.append("    }\n") ## inport pin end
 		##
 		## clock, reset, set  
 		##
@@ -338,7 +338,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-			outlines.append("    }\n") ## out pin end
+			#outlines.append("    }\n") ## out pin end
 			## reset (one directrion)
 			if targetCell.reset is not None:
 				#target_inport = targetCell.reset
@@ -371,7 +371,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-			outlines.append("    }\n") ## out pin end
+			#outlines.append("    }\n") ## out pin end
 			## set (one directrion)
 			if targetCell.set is not None:
 				#target_inport = targetCell.set
@@ -398,11 +398,12 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("        }\n") 
 				# transition delay
 				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_set_tran+" (delay_template) {\n")
-				for lut_line in harnessList2[index1][index2*2].lut_tran:
+				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_tran:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-			outlines.append("    }\n") ## out pin end
+			#outlines.append("    }\n") ## out pin end
+		outlines.append("    }\n") ## out pin end
 
 
 		outlines.append("  }\n") ## cell end
@@ -526,13 +527,13 @@ def exportVerilogFlop(targetLib, targetCell):
 					setlines.append('if('+str(targetCell.set)+')begin\n')
 					setlines.append('  '+str(target_outport)+'<=1;\n')
 					setlines.append('end\n')
-					setlines.append('else\n')
+					setlines.append('else begin\n')
 				elif(re.search('NS', targetCell.set)):	# negedge async. set 
 					line=str(line)+" or negedge "+str(targetCell.set)
 					setlines.append('if(!'+str(targetCell.set)+')begin\n')
 					setlines.append('  '+str(target_outport)+'<=1;\n')
 					setlines.append('end\n')
-					setlines.append('else\n')
+					setlines.append('else begin\n')
 				line=str(line)+")begin\n"
 				outlines.append(line)
 				if targetCell.set is not None:	
