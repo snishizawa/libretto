@@ -36,8 +36,8 @@ Define common settings for target library.
 | set_time_unit | ns | time unit |
 | set_vdd_name | VDD | vdd name, used to detect vdd |
 | set_vss_name | VSS | vss name, used to detect vss |
-| set_pwell_name | VPW | pwell name (option), used to detect pwell |
-| set_nwell_name | VNW |  (option), used to detect nwell |
+| set_pwell_name | VPW | pwell name, used to detect pwell (option)|
+| set_nwell_name | VNW | nwell name, used to detect nwell (option)|
 
 
 ### common characterization conditions
@@ -98,6 +98,7 @@ Combinational cells and sequential cells requires different
 | -f verilog_func| YB = !(A\|B) | verilog function | 
 
 Supported logic functions (\*) are listed as follow,
+(Dec. 2021)
 | logic def |  Description |
 |:-----------|:------------|
 | INV | 1-input 1-output inverter | 
@@ -143,6 +144,7 @@ Other **add cell** for combinational cells
 | -f func| Q=IQ QN=IQN | operation function | 
 
 Supported sequential functions (\*) are listed as follow,
+(Dec. 2021)
 | logic def |  Description |
 |:-----------|:------------|
 | DFF_PCPU | D-Flip-Flop with pos-edge clock and positive unate output | 
