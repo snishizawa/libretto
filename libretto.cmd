@@ -103,16 +103,16 @@ initialize
 #characterize
 #export
 #
-add_cell -n NOR3_1X -l NOR3 -i A B C -o YB -f YB=!(A|B|C) 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
-add_netlist NETLIST/NOR3_1X.spi
-add_model NETLIST/model.sp
-add_simulation_timestep auto
+#add_cell -n NOR3_1X -l NOR3 -i A B C -o YB -f YB=!(A|B|C) 
+#add_slope {1 4 16 64} 
+#add_load  {1 4 16 64} 
+#add_netlist NETLIST/NOR3_1X.spi
+#add_model NETLIST/model.sp
+#add_simulation_timestep auto
 #
 ## characterize
-characterize
-export
+#characterize
+#export
 #
 #add_cell -n NOR4_1X -l NOR4 -i A B C D -o Y -f Y=!(A|B|C|D) 
 #add_slope {1 4 16 64} 
@@ -167,8 +167,8 @@ add_flop -n DFF_ARAS_1X -l DFF_PCPU_NRNS -i DATA -c CLK -s NSET -r NRST -o Q -q 
 ##add_flop -n DFFRS_1X -l DFF_PCBU_AR -i DATA -c CLK -r RST -o Q -q IQ IQN -f Q=IQ QN=IQN 
 ## DFF, positive clock positive unate
 ##add_flop -n DFFRS_1X -l DFF_PCPU -i DATA -c CLK -o Q -q IQ IQN -f Q=IQ QN=IQN 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
+add_slope {1 4 16} 
+add_load  {1 4 16} 
 add_clock_slope auto 
 add_netlist NETLIST/DFF_ARAS_1X.spi
 add_model NETLIST/model.sp
@@ -182,9 +182,9 @@ add_simulation_setup_auto
 ## --
 add_simulation_hold_auto
 ## or 
-##add_simulation_hold_lowest auto
-##add_simulation_hold_highest auto
-##add_simulation_hold_timestep auto
+#add_simulation_hold_lowest -11
+#add_simulation_hold_highest 20
+#add_simulation_hold_timestep 5
 ##
 ### characterize
 characterize

@@ -259,11 +259,57 @@ def characterizeFiles(targetLib, targetCell):
 		expectationList2 = [['01','10'],['10','01']]
 		return runCombIn1Out1(targetLib, targetCell, expectationList2,"neg")
 
+	elif(targetCell.logic == 'BUF'):
+		print ("INV\n")
+		# [in0, in1, out0]
+		expectationList2 = [['01','01'],['10','10']]
+		return runCombIn1Out1(targetLib, targetCell, expectationList2,"pos")
+
 	elif(targetCell.logic == 'AND2'):
 		print ("AND2\n")
 		# [in0, in1, out0]
 		expectationList2 = [['01','1','01'],['10','1','10'],['1','01','01'],['1','10','10']]
 		return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'AND3'):
+		print ("AND3\n")
+		# [in0, in1, in2, out0]
+		expectationList2 = [['01','1','1','01'],['10','1','1','10'],\
+												['1','01','1','01'],['1','10','1','10'],\
+												['1','1','01','01'],['1','1','10','10']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'AND4'):
+		print ("AND4\n")
+		# [in0, in1, in2, out0]
+		expectationList2 = [['01','1','1','1','01'],['10','1','1','1','10'],\
+												['1','01','1','1','01'],['1','10','1','1','10'],\
+												['1','1','01','1','01'],['1','1','10','1','10'],\
+												['1','1','1','01','01'],['1','1','1','10','10']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
+	
+	elif(targetCell.logic == 'OR2'):
+		print ("OR2\n")
+		# [in0, in1, out0]
+		expectationList2 = [['01','0','01'],['10','0','10'],['0','01','01'],['0','10','10']]
+		return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'OR3'):
+		print ("OR3\n")
+		# [in0, in1, out0]
+		expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
+												['0','01','0','01'],['0','10','0','10'],\
+												['0','0','01','01'],['0','0','10','10']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'OR4'):
+		print ("OR4\n")
+		# [in0, in1, out0]
+		expectationList2 = [['01','0','0','0','01'],['10','0','0','0','10'],\
+												['0','01','0','0','01'],['0','10','0','0','10'],\
+												['0','0','01','0','01'],['0','0','10','0','10'],\
+												['0','0','0','01','01'],['0','0','0','10','10']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
 	elif(targetCell.logic == 'NAND2'):
 		print ("NAND2\n")
