@@ -159,7 +159,7 @@ Supported sequential functions (\*) are listed as follow,
 | DFF_NCPU | D-Flip-Flop with neg-edge clock and positive unate output | 
 | DFF_NCPN | D-Flip-Flop with neg-edge clock and negative unate output | 
 | DFF_PCPU_NR | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset | 
-| DFF_PCPU_NRNS | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset, neg-edge set | 
+| DFF_PCPU_NRNS | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset, async. neg-edge set | 
 
 Other **add command** for sequential cells
 | Command | Argument example | Description |
@@ -173,7 +173,7 @@ Other **add command** for sequential cells
 | add_simulation_setup_lowest | -10 | manually set lowest time for setup simulation (real val, unit in set_time_unit) |
 | add_simulation_setup_highest | 16 | manually set highst time for setup simulation (real val, unit in set_time_unit) |
 | add_simulation_setup_timestep | 5 | manually set timestep for setup simulation (real val, unit in set_time_unit) |
-| add_simulation_hold_auto | n/a | automatically set setup simulation time (lowest, highest, timestep) |
+| add_simulation_hold_auto | n/a | automatically set hold simulation time (lowest, highest, timestep) |
 | add_simulation_hold_lowest | -10 | manually set lowest time for hold simulation (real val, unit in set_time_unit) |
 | add_simulation_hold_highest | 16 | manually set highst time for hold simulation (real val, unit in set_time_unit) |
 | add_simulation_hold_timestep | 5 | manually set timestep for hold simulation (real val, unit in set_time_unit) |
