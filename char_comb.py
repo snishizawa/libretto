@@ -24,8 +24,8 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 			tmp_Harness.set_target_inport (targetCell.inports[0], tmp_inp0_val)
 			tmp_Harness.set_stable_inport ("NULL", "NULL")
 		else:
-			print ("Illiegal input vector type!!\n")
-			print ("Check logic definition of this program!!\n")
+			print ("Illiegal input vector type!!")
+			print ("Check logic definition of this program!!")
 			
 		#tmp_Harness.set_leak_inportval ("1")
 		#tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
@@ -58,8 +58,8 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
 			tmp_Harness.set_target_inport (targetCell.inports[1], tmp_inp1_val)
 			tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
 		else:
-			print ("Illiegal input vector type!!\n")
-			print ("Check logic definition of this program!!\n")
+			print ("Illiegal input vector type!!")
+			print ("Check logic definition of this program!!")
 			
 		#tmp_Harness.set_leak_inportval ("1")
 		#tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
@@ -101,8 +101,8 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
 			tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
 			tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
 		else:
-			print ("Illiegal input vector type!!\n")
-			print ("Check logic definition of this program!!\n")
+			print ("Illiegal input vector type!!")
+			print ("Check logic definition of this program!!")
 			
 		#tmp_Harness.set_leak_inportval ("1")
 		#tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
@@ -153,8 +153,8 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 			tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
 			tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
 		else:
-			print ("Illiegal input vector type!!\n")
-			print ("Check logic definition of this program!!\n")
+			print ("Illiegal input vector type!!")
+			print ("Check logic definition of this program!!")
 			
 		#tmp_Harness.set_leak_inportval ("1")
 		#tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
@@ -290,28 +290,28 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		outlines.append(".control \n")
 		outlines.append("run \n")
 		outlines.append("plot V(VIN) V(VOUT) \n")
-		if(targetHarness.target_inport_val == "01"):
-			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-		elif(targetHarness.target_inport_val == "10"):
-			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-		if(targetHarness.target_outport_val == "10"):
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-		elif(targetHarness.target_outport_val == "01"):
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-		if(targetHarness.target_outport_val == "10"):
-			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
-		elif(targetHarness.target_outport_val == "01"):
-			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-		if(targetHarness.target_inport_val == "01"):
-			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-		elif(targetHarness.target_inport_val == "10"):
-			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-		if(targetHarness.target_outport_val == "01"):
-			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
-		elif(targetHarness.target_outport_val == "10"):
-			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+#		if(targetHarness.target_inport_val == "01"):
+#			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+#		elif(targetHarness.target_inport_val == "10"):
+#			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+#		if(targetHarness.target_outport_val == "10"):
+#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+#		elif(targetHarness.target_outport_val == "01"):
+#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+#		if(targetHarness.target_outport_val == "10"):
+#			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
+#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
+#		elif(targetHarness.target_outport_val == "01"):
+#			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' rise=1\n")
+#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+#		if(targetHarness.target_inport_val == "01"):
+#			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
+#		elif(targetHarness.target_inport_val == "10"):
+#			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
+#		if(targetHarness.target_outport_val == "01"):
+#			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+#		elif(targetHarness.target_outport_val == "10"):
+#			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		outlines.append(".endc \n")
 
 #		outlines.append("* \n")
@@ -369,7 +369,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 #		outlines.append(" \n")
 #		outlines.append(" \n")
 		outlines.append("XINV VIN VOUT VHIGH VLOW VDD_DYN VSS_DYN VNW_DYN VPW_DYN DUT \n")
-		outlines.append("C0 VOUT VSS_DYN cap\n")
+		outlines.append("C0 VOUT VSS_DYN 'cap'\n")
 		outlines.append(" \n")
 		outlines.append(".SUBCKT DUT IN OUT HIGH LOW VDD VSS VNW VPW \n")
 		# parse subckt definition
@@ -393,14 +393,12 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 					elif(index_val == '0'):
 						tmp_line += ' LOW'
 					else:
-						print('Illigal input value for stable input\n')
-			# search target outport
-			#print("**"+targetHarness.target_outport[0])
-			#print("**"+targetHarness.target_outport[1])
-			for w2 in targetHarness.target_outport:
-				#print(w1+" "+w2+"\n")
-				if(w1 == w2):
-					tmp_line += ' OUT'
+						print('Illigal input value for stable input')
+			# one target outport for one simulation
+			w2 = targetHarness.target_outport
+			#print(w1+" "+w2+"\n")
+			if(w1 == w2):
+				tmp_line += ' OUT'
 			# search non-terget outport
 			for w2 in targetHarness.nontarget_outport:
 				if(w1 == w2):
@@ -425,7 +423,6 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		outlines.append(" \n")
 		outlines.append(cap_line)
 		outlines.append(slew_line)
-		outlines.append(cslew_line)
 				
 		outlines.append(".end \n") 
 		f.writelines(outlines)
@@ -473,25 +470,25 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 	try:
 		res_prop_in_out
 	except NameError:
-		print("Value res_prop_in_out is not defined!!\n")
-		print("Check simulation result in work directory\n")
+		print("Value res_prop_in_out is not defined!!")
+		print("Check simulation result in work directory")
 		sys.exit()
 	try:
 		res_trans_out
 	except NameError:
-		print("Value res_trans_out is not defined!!\n")
-		print("Check simulation result in work directory\n")
+		print("Value res_trans_out is not defined!!")
+		print("Check simulation result in work directory")
 		sys.exit()
 	try:
 		res_energy_start
 	except NameError:
-		print("Value res_energy_start is not defined!!\n")
-		print("Check simulation result in work directory\n")
+		print("Value res_energy_start is not defined!!")
+		print("Check simulation result in work directory")
 		sys.exit()
 	try:
 		res_energy_end
 	except NameError:
-		print("Value res_energy_end is not defined!!\n")
-		print("Check simulation result in work directory\n")
+		print("Value res_energy_end is not defined!!")
+		print("Check simulation result in work directory")
 		sys.exit()
 	return res_prop_in_out, res_trans_out, res_energy_start, res_energy_end

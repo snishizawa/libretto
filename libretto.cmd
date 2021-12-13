@@ -104,16 +104,16 @@ initialize
 #characterize
 #export
 #
-#add_cell -n NOR3_1X -l NOR3 -i A B C -o Y -f Y=!(A|B|C) 
-#add_slope {1 4 16 64} 
-#add_load  {1 4 16 64} 
-#add_netlist NETLIST/NOR3_1X.spi
-#add_model NETLIST/model.sp
-#add_simulation_timestep auto
+add_cell -n NOR3_1X -l NOR3 -i A B C -o YB -f YB=!(A|B|C) 
+add_slope {1 4} 
+add_load  {1 4} 
+add_netlist NETLIST/NOR3_1X.spi
+add_model NETLIST/model.sp
+add_simulation_timestep auto
 #
 ## characterize
-#characterize
-#export
+characterize
+export
 #
 #add_cell -n NOR4_1X -l NOR4 -i A B C D -o Y -f Y=!(A|B|C|D) 
 #add_slope {1 4 16 64} 
@@ -178,7 +178,7 @@ add_simulation_timestep auto
 #add_simulation_setup_auto
 ## or 
 add_simulation_setup_lowest -10
-add_simulation_setup_highest 10
+add_simulation_setup_highest 16
 add_simulation_setup_timestep 5
 ## --
 add_simulation_hold_auto

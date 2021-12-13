@@ -8,46 +8,84 @@ import numpy as np
 from myFunc import my_exit
 
 def runFlop(targetLib, targetCell, expectationList2):
-	# Harness #0
-	targetHarness0 = mcar.MyConditionsAndResults() # Q_val 01
-	targetHarness1 = mcar.MyConditionsAndResults() # QN_val 10
-	targetHarness2 = mcar.MyConditionsAndResults() # Q_val 10
-	targetHarness3 = mcar.MyConditionsAndResults() # QN_val 01
-	targetHarness4 = mcar.MyConditionsAndResults() # SET Q_val 01
-	targetHarness5 = mcar.MyConditionsAndResults() # SET QN_val 10
-	targetHarness6 = mcar.MyConditionsAndResults() # RST Q_val 10
-	targetHarness7 = mcar.MyConditionsAndResults() # RST QN_val 01
+	harnessList = []   # harness for each trial
+	harnessList2 = []  # list of harnessList
+
 	D_val = None
 	CLK_val = None
 	SET_val = None
 	RST_val = None
 	Q_val = None
-	QN_val = None
 
-	# positive unate, async neg-reset, async neg-set
-	if(targetCell.logic == 'DFF_PCPU_NRNS'):
-		#D_val, CLK_val, SET_val, RST_val, Q_val, QN_val = expectationList2[0]
-		D_val, CLK_val, SET_val, RST_val, Q_val = expectationList2[0]
-		targetHarness0.set_timing_type_seqRise()
-		targetHarness0.set_timing_sense("pos")
-		targetHarness0.set_target_inport (targetCell.inports[0], D_val)
-		targetHarness0.set_target_outport (targetCell.outports[0], targetCell.functions[0], Q_val)
-		#targetHarness0.set_nontarget_outport (targetCell.outports[1])
-		targetHarness0.set_target_clock (targetCell.clock, CLK_val)
-		targetHarness0.set_target_reset (targetCell.reset, RST_val)
-		targetHarness0.set_target_set (targetCell.set, SET_val)
-	
-		spicef = "c2q1_"+str(targetCell.cell)+"_"\
+	for trial in range(len(expectationList2)):
+		tmp_Harness = mcar.MyConditionsAndResults() 
+		if(targetCell.logic == 'DFF_PCPU_NRNS'):
+			D_val, CLK_val, SET_val, RST_val, Q_val = expectationList2[trial]
+		elif(targetCell.logic == 'DFF_PCPU_NR'):
+			D_val, CLK_val, RST_val, Q_val = expectationList2[trial]
+		else:
+			print("Error! target cell "+str(targetCell.logic)+" is not defined!")
+			my_exit()
+
+
+		tmp_Harness.set_target_inport (targetCell.inports[0], D_val)
+		tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], Q_val)
+		tmp_Harness.set_target_clock (targetCell.clock, CLK_val)
+		#tmp_Harness.set_nontarget_outport (targetCell.outports[1])
+		tmp_Harness.set_timing_flop_clock(CLK_val)
+
+		# select simulation type: clock(D2Q, D2C, C2Q, C2D), reset, set
+		# normal operation (clock edge)
+		if((CLK_val == '01') or (CLK_val == '10')):
+			tmp_Harness.set_timing_flop_inout(D_val, Q_val)
+		# reset operation (reset edge)
+		elif((RST_val == '01') or (RST_val == '10')):
+			tmp_Harness.set_timing_flop_reset(RST_val, Q_val)
+		# set operation (set edge)
+		elif((SET_val == '01') or (SET_val == '10')):
+			tmp_Harness.set_timing_flop_set(SET_val, Q_val)
+		else:
+			print("any input vector is inputted! error\n")
+			my_exit()
+
+		# activate RST and SET if defined
+		#print("RST:"+str(RST_val))
+		#print("SET:"+str(SET_val))
+		if((RST_val != None)and(SET_val != None)):
+			tmp_Harness.set_target_set (targetCell.set, SET_val)
+			tmp_Harness.set_target_reset (targetCell.reset, RST_val)
+			spicef = "c2q1_"+str(targetCell.cell)+"_"\
+					+str(targetCell.inports[0])+str(D_val)+"_"\
+					+str(targetCell.clock)+str(CLK_val)+"_"\
+					+str(targetCell.set)+str(SET_val)+"_"\
+					+str(targetCell.reset)+str(RST_val)+"_"\
+					+str(targetCell.outports[0])+str(Q_val)
+		elif(SET_val != None):
+			tmp_Harness.set_target_set (targetCell.set, SET_val)
+			spicef = "c2q1_"+str(targetCell.cell)+"_"\
+					+str(targetCell.inports[0])+str(D_val)+"_"\
+					+str(targetCell.clock)+str(CLK_val)+"_"\
+					+str(targetCell.set)+str(SET_val)+"_"\
+					+str(targetCell.outports[0])+str(Q_val)
+		elif(RST_val != None):
+			tmp_Harness.set_target_reset (targetCell.reset, RST_val)
+			spicef = "c2q1_"+str(targetCell.cell)+"_"\
 					+str(targetCell.inports[0])+str(D_val)+"_"\
 					+str(targetCell.clock)+str(CLK_val)+"_"\
 					+str(targetCell.reset)+str(RST_val)+"_"\
-					+str(targetCell.set)+str(SET_val)+"_"\
 					+str(targetCell.outports[0])+str(Q_val)
+		else:	
+			spicef = "c2q1_"+str(targetCell.cell)+"_"\
+					+str(targetCell.inports[0])+str(D_val)+"_"\
+					+str(targetCell.clock)+str(CLK_val)+"_"\
+					+str(targetCell.outports[0])+str(Q_val)
+
 		# run spice and store result
-		runSpiceFlopDelay(targetLib, targetCell, targetHarness0, spicef)
-	else:
-		print("Error! target cell "+str(targetCell.logic)+" is not defined!")
-		my_exit()
+		runSpiceFlopDelay(targetLib, targetCell, tmp_Harness, spicef)
+		harnessList.append(tmp_Harness)
+		harnessList2.append(harnessList)
+
+	return harnessList2
 
 def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		list2_prop =   []
@@ -64,15 +102,20 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			tmp_list_estart = []
 			tmp_list_eend =   []
 			for tmp_slope in targetCell.slope:
-				tmp_min_prop  = 1000 # temporal value for D2Qmin search
-				tmp_min_setup = 1000 # temporal value for setup 
-				tmp_min_hold  = 1000 # temporal value for setup 
+				tmp_max_val_loop = 100
+				tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+				tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
 				# C2Q and setup search
 				#print ("targetCell.sim_setup_lowest: "+  str(targetCell.sim_setup_lowest ))
 				#print ("targetCell.sim_setup_highest: "+ str(targetCell.sim_setup_highest))
 				#print ("targetCell.sim_setup_timestep: "+str(targetCell.sim_setup_timestep))
 				for tsetup in np.arange (targetCell.sim_setup_lowest, targetCell.sim_setup_highest, targetCell.sim_setup_timestep):
-					print("tsetup: "+str(f'{tsetup:,.4f}')+"\n")
+					print("tsetup: "+str(f'{tsetup:,.4f}'))
 					cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 					slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
 					cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
@@ -85,22 +128,30 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 																tsetup_line, thold_line, spicefo)
 					
 					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_cin_out == "failed")or(float(res_prop_in_out) > tmp_min_prop)):
-						print(str(res_prop_cin_out)+" "+str(res_prop_in_out))
-						print("break loop at tsetup: "+str(f'{tsetup:,.4f}')+"\n")
+					if((res_prop_cin_out == "failed")or(float(res_prop_cin_out) > tmp_min_prop_cin_out)):
+						if(tmp_max_val_loop == tmp_min_prop_cin_out):
+							print("Error: simulation failed! Check spice deck!")
+							print("spice deck:"+spicefo)
+							my_exit()
+						print("Min. D2Q found. Break loop at tsetup: "+str(f'{tsetup:,.4f}'))
 						break
 					
 					# update C2Q(res_prop_in_out) 
-					tmp_min_prop = float(res_prop_in_out)
+					tmp_min_prop_in_out  = float(res_prop_in_out)
+					tmp_min_prop_cin_out = float(res_prop_cin_out)
+					tmp_min_trans_out    = float(res_trans_out)
+					tmp_min_energy_start = float(res_energy_start)
+					tmp_min_energy_end   = float(res_energy_end)
 					tmp_min_setup = float(res_setup)
 					tmp_min_hold = float(res_hold)
 
-				tmp_list_prop.append(res_prop_cin_out) # store C2Q (not D2Q)
-				tmp_list_setup.append(res_setup)
-				tmp_list_hold.append(res_hold)
-				tmp_list_tran.append(res_trans_out)
-				tmp_list_estart.append(res_energy_start)
-				tmp_list_eend.append(res_energy_end)
+				#tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
+				tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
+				tmp_list_setup.append(tmp_min_setup)
+				tmp_list_hold.append(tmp_min_hold)
+				tmp_list_tran.append(tmp_min_trans_out)
+				tmp_list_estart.append(tmp_min_energy_start)
+				tmp_list_eend.append(tmp_min_energy_end)
 			list2_prop.append(tmp_list_prop)
 			list2_setup.append(tmp_list_setup)
 			list2_hold.append(tmp_list_hold)
@@ -114,10 +165,19 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
 		targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
 		#targetHarness.print_lut_prop()
+		targetHarness.set_list2_setup(list2_setup)
+		#targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
+		targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
+		#targetHarness.print_lut_setup()
+		targetHarness.set_list2_hold(list2_hold)
+		#targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
+		targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
+		#targetHarness.print_lut_hold()
 		targetHarness.set_list2_tran(list2_tran)
 		#targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
 		targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
 		#targetHarness.print_lut_tran()
+		
 
 def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tsetup_line, thold_line, spicef):
 	#print (spicef)
@@ -191,9 +251,9 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		elif(targetHarness.target_clock_val == "10"):
 			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tclk5' '_vdd' '_tclk6' '_vss' '_tsimend' '_vss') \n")
 			#V_in_target = 'VCIN'
-		elif(targetHarness.target_clock_val == "11"):
+		elif((targetHarness.target_clock_val == "11")or(targetHarness.target_clock_val == "1")):
 			outlines.append("VCIN VCIN 0 DC '_vdd' \n")
-		elif(targetHarness.target_clock_val == "00"):
+		elif((targetHarness.target_clock_val == "00")or(targetHarness.target_clock_val == "0")):
 			outlines.append("VCIN VCIN 0 DC '_vss' \n")
 		else:
 			print("Error: no VCIN difinition!")
@@ -266,7 +326,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
 			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		else:
-			print ("Target input of DFF is not registered for characterization!, die!\n")
+			print ("Target input of DFF is not registered for characterization!, die!")
 			print ("inport_val:"+str(targetHarness.target_inport_val))
 			print ("set_val:"+str(targetHarness.target_set_val))
 			print ("reset_val:"+str(targetHarness.target_reset_val))
@@ -291,10 +351,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		else:
-			print ("Target input of DFF is not registered for characterization!, die!\n")
-			print ("clock_val:"+str(targetHarness.target_clock_val))
-			print ("outport_val:"+str(targetHarness.target_outport_val))
-			my_exit()
+			print ("Skip C2Q simulation")
 
 
 		# measure D2C(setup)
@@ -316,10 +373,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
 		else:
-			print ("Target input of DFF is not registered for characterization!, die!\n")
-			print ("inport_val:"+str(targetHarness.target_inport_val))
-			print ("clock_val:"+str(targetHarness.target_clock_val))
-			my_exit()
+			print ("Skip D2C(setup) simulation")
 
 		# measure C2D(HOLD)
 		outlines.append("* Prop delay (C2D,HOLD)\n")
@@ -341,10 +395,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 		else:
-			print ("Target input of DFF is not registered for characterization!, die!\n")
-			print ("inport_val:"+str(targetHarness.target_inport_val))
-			print ("clock_val:"+str(targetHarness.target_clock_val))
-			my_exit()
+			print ("Skip C2D(hold) simulation")
 
 
 #		outlines.append("* \n")
@@ -426,7 +477,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 					elif(index_val == '0'):
 						tmp_line += ' LOW'
 					else:
-						print('Illigal input value for stable input\n')
+						print('Illigal input value for stable input')
 			# search target clock
 			w2 = targetHarness.target_clock
 			if(w1 == w2):
@@ -512,7 +563,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 			if(re.match("prop_in_out", inline)):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_prop_in_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			if(re.match("prop_cin_out", inline)):
+			elif(re.match("prop_cin_out", inline)):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_prop_cin_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
 			elif(re.match("trans_out", inline)):
@@ -537,44 +588,44 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 	try:
 		res_prop_in_out
 	except NameError:
-		print("Value res_prop_in_out is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_prop_in_out is not defined!!")
+		print("DFF simulation failed!!")
 		res_prop_in_out = "failed"	
 	try:
 		res_prop_cin_out
 	except NameError:
-		print("Value res_cprop_in_out is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_cprop_in_out is not defined!!")
+		print("DFF simulation failed!!")
 		res_prop_cin_out = "failed"	
 	try:
 		res_trans_out
 	except NameError:
-		print("Value res_trans_out is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_trans_out is not defined!!")
+		print("DFF simulation failed!!")
 		res_trans_out = "failed"	
 	try:
 		res_energy_start
 	except NameError:
-		print("Value res_energy_start is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_energy_start is not defined!!")
+		print("DFF simulation failed!!")
 		res_energy_start = "failed"	
 	try:
 		res_energy_end
 	except NameError:
-		print("Value res_energy_end is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_energy_end is not defined!!")
+		print("DFF simulation failed!!")
 		res_energy_end = "failed"	
 	try:
 		res_setup
 	except NameError:
-		print("Value res_setup is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_setup is not defined!!")
+		print("DFF simulation failed!!")
 		res_setup = "failed"	
 	try:
 		res_hold
 	except NameError:
-		print("Value res_hold is not defined!!\n")
-		print("DFF simulation failed!!\n")
+		print("Value res_hold is not defined!!")
+		print("DFF simulation failed!!")
 		res_hold = "failed"	
 	return res_prop_in_out, res_prop_cin_out, res_trans_out, \
 					res_energy_start, res_energy_end, res_setup, res_hold

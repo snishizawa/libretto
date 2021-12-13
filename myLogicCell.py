@@ -17,6 +17,8 @@ class MyLogicCell:
 		self.cslope = 0     # inport clock slope
 		self.load = []      # outport load
 		self.simulation_timestep = 0      # simulation timestep 
+		self.isexport = 0   # exported or not
+		self.isflop = 0   # DFF or not
 		# setup 
 		self.sim_setup_lowest = 0    # fastest simulation edge (pos. val.) 
 		self.sim_setup_highest = 0   # lowest simulation edge (pos. val.) 
@@ -25,7 +27,6 @@ class MyLogicCell:
 		self.sim_hold_lowest = 0    # fastest simulation edge (pos. val.) 
 		self.sim_hold_highest = 0   # lowest simulation edge (pos. val.) 
 		self.sim_hold_timestep = 0  # timestep for hold search (pos. val.) 
-		self.isexport = 0
 
 #                                                #
 #-- add functions for both comb. and seq. cell --#		
@@ -51,14 +52,14 @@ class MyLogicCell:
 			elif(re.match("^l ", options)):
 				tmp_array2 = options.split() 
 				self.logic = tmp_array2[1] 
-				print (self.logic)
+				#print (self.logic)
 			# -i option
 			elif(re.match("^i ", options)):
 				tmp_array2 = options.split() 
 				for w in tmp_array2:
 					self.inports.append(w)
 				self.inports.pop(0) # delete first object("-i")
-				print (self.inports)
+				#print (self.inports)
 			# -o option
 			# -f option override -o option
 			# currently, -o is not used
@@ -77,13 +78,13 @@ class MyLogicCell:
 					tmp_array3 = w.split('=') 
 					self.outports.append(tmp_array3[0])
 					self.functions.append(tmp_array3[1])
-				#self.functions.pop(0) # delete first object("-f")
-				#self.outports.pop(0) # delete first object("-o")
-				print (self.functions)
-				print (self.outports)
+				#print ("func:"+str(self.functions))
+				#print ("outp:"+str(self.outports))
+				#print (self.functions)
+				#print (self.outports)
 			# undefined option 
 			else:
-				print("ERROR: undefined option:"+options+"\n")	
+				print("ERROR: undefined option:"+options)	
 		print ("finish add_cell")
 
 	def add_slope(self, line="tmp"):
@@ -93,7 +94,7 @@ class MyLogicCell:
 		for w in tmp_array:
 			self.slope.append(w)
 		self.slope.pop(0) # delete first object("add_slope")
-		print (self.slope)
+		#print (self.slope)
 
 	def add_load(self, line="tmp"):
 		line = re.sub('\{','',line)
@@ -102,7 +103,7 @@ class MyLogicCell:
 		for w in tmp_array:
 			self.load.append(w)
 		self.load.pop(0) # delete first object("add_load")
-		print (self.load)
+		#print (self.load)
 
 	def return_slope(self):
 		jlist = self.slope
@@ -133,7 +134,7 @@ class MyLogicCell:
 			#print("self.cell.lower:"+str(self.cell.lower()))
 			#print("line.lower:"+str(line.lower()))
 			if((self.cell.lower() in line.lower()) and (".subckt" in line.lower())):
-				print("Cell definition found!\n")
+				print("Cell definition found!")
 				#print(line)
 				self.definition = line
 				# generate circuit call
@@ -153,7 +154,7 @@ class MyLogicCell:
 				
 		# if cell name is not found, show error
 		if(self.definition == None):
-			print("Cell definition not found. Please use add_cell command to add your cell\n")
+			print("Cell definition not found. Please use add_cell command to add your cell")
 			sys.exit()
 
 	def add_model(self, line="tmp"):
@@ -165,7 +166,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 1/10 of min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.simulation_timestep = float(self.slope[0])/10 
-			print ("auto set simulation timestep\n")
+			print ("auto set simulation timestep")
 		else:
 			self.simulation_timestep = float(tmp_array[1])
 
@@ -186,6 +187,7 @@ class MyLogicCell:
 		#														  -o(outports) Q QN
 		#														  -q(flops)    IQ IQN
 		#														  -f(function) Q=IQ QN=IQN
+		self.isflop = 1  # set as flop
 		for options in tmp_array:
 
 			# add_flop command 
@@ -200,37 +202,35 @@ class MyLogicCell:
 			elif(re.match("^l ", options)):
 				tmp_array2 = options.split() 
 				self.logic = tmp_array2[1] 
-				print (self.logic)
+				#print (self.logic)
 			# -i option (input name)
 			elif(re.match("^i ", options)):
 				tmp_array2 = options.split() 
 				for w in tmp_array2:
 					self.inports.append(w)
 				self.inports.pop(0) # delete first object("-i")
-				print (self.inports)
+				#print (self.inports)
 			# -c option (clock name)
 			elif(re.match("^c ", options)):
 				tmp_array2 = options.split() 
 				self.clock = tmp_array2[1] 
-				print (self.clock)
+				#print (self.clock)
 			# -s option (set name)
 			elif(re.match("^s ", options)):
 				tmp_array2 = options.split() 
 				self.set = tmp_array2[1] 
-				print (self.set)
+				#print (self.set)
 			# -r option (reset name)
 			elif(re.match("^r ", options)):
 				tmp_array2 = options.split() 
 				self.reset = tmp_array2[1] 
-				print (self.reset)
+				#print (self.reset)
 			# -o option (output name)
-			# -f option override -o option
-			# currently, -o is meaningful
 			elif(re.match("^o ", options)):
 				tmp_array2 = options.split() 
-				#for w in tmp_array2:
-				#	self.outports.append(w)
-				#self.outports.pop(0) # delete first object("-o")
+				for w in tmp_array2:
+					self.outports.append(w)
+				self.outports.pop(0) # delete first object("-o")
 				#print (self.outports)
 			# -q option (storage name)
 			elif(re.match("^q ", options)):
@@ -238,7 +238,7 @@ class MyLogicCell:
 				for w in tmp_array2:
 					self.flops.append(w)
 				self.flops.pop(0) # delete first object("-i")
-				print (self.flops)
+				#print (self.flops)
 			# -f option (function name)
 			elif(re.match("^f ", options)):
 				tmp_array2 = options.split() 
@@ -246,10 +246,10 @@ class MyLogicCell:
 				tmp_array2.pop(0) # delete first object("-f")
 				for w in tmp_array2:
 					tmp_array3 = w.split('=') 
-					self.outports.append(tmp_array3[0])
-					self.functions.append(tmp_array3[1])
-				print (self.functions)
-				print (self.outports)
+					for o in self.outports:
+						if(o == tmp_array3[0]):
+							self.functions.append(tmp_array3[1])
+				#print (self.functions)
 			# undefined option 
 			else:
 				print("ERROR: undefined option:"+options+"\n")	
@@ -261,7 +261,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use mininum slope
 		if (tmp_array[1] == 'auto'):
 			self.cslope = float(self.slope[0]) 
-			print ("auto set clock slope as mininum slope.\n")
+			print ("auto set clock slope as mininum slope.")
 		else:
 			self.cslope = float(tmp_array[1]) 
 
@@ -271,7 +271,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 10 of min slope 
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_setup_lowest = float(self.slope[0]) * -10 
-			print ("auto set setup simulation time lowest limit\n")
+			print ("auto set setup simulation time lowest limit")
 		else:
 			self.sim_setup_lowest = float(tmp_array[1]) 
 			
@@ -281,7 +281,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 20 of min slope 
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_setup_highest = float(self.slope[0]) * 10 
-			print ("auto set setup simulation time highest limit\n")
+			print ("auto set setup simulation time highest limit")
 		else:
 			self.sim_setup_highest = float(tmp_array[1])
 			
@@ -290,7 +290,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 1/10 of min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_setup_timestep = float(self.slope[0])/10 
-			print ("auto set setup simulation timestep\n")
+			print ("auto set setup simulation timestep")
 		else:
 			self.sim_setup_timestep = float(tmp_array[1])
 			
@@ -300,7 +300,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 10 of min slope 
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_hold_lowest = float(self.slope[0]) * -10 
-			print ("auto set hold simulation time lowest limit\n")
+			print ("auto set hold simulation time lowest limit")
 		else:
 			self.sim_hold_lowest = float(tmp_array[1])
 			
@@ -310,7 +310,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 20 of min slope 
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_hold_highest = float(self.slope[0]) * 10 
-			print ("auto set hold simulation time highest limit\n")
+			print ("auto set hold simulation time highest limit")
 		else:
 			self.sim_hold_highest = float(tmp_array[1])
 			
@@ -319,7 +319,7 @@ class MyLogicCell:
 		# if auto, amd slope is defined, use 1/10 of min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
 			self.sim_hold_timestep = float(self.slope[0])/10 
-			print ("auto set hold simulation timestep\n")
+			print ("auto set hold simulation timestep")
 		else:
 			self.sim_hold_timestep = float(tmp_array[1])
 

@@ -20,6 +20,8 @@ def main():
 
 	targetLib = mls.MyLibrarySetting() 
 
+	num_gen_file = 0
+
 	# file open
 	with open(args.batch, 'r') as f:
 		lines = f.readlines()
@@ -232,10 +234,11 @@ def main():
 			# export
 			elif(line.startswith('export')):
 				me.exportFiles(targetLib, targetCell, harnessList2) 
+				num_gen_file += 1
 
 			# exit
 			elif(line.startswith('quit') or line.startswith('exit')):
-				me.exitFiles(targetLib) 
+				me.exitFiles(targetLib, num_gen_file) 
 
 
 
