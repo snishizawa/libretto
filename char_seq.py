@@ -102,7 +102,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			tmp_list_estart = []
 			tmp_list_eend =   []
 			for tmp_slope in targetCell.slope:
-				tmp_max_val_loop = 100
+				tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
 				tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
 				tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
 				tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
@@ -115,8 +115,8 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				# perform two-stage simulation
 				# 1st stage: sim w/  10-% output swing
 				# 2nd stage: sim w/ 100-% output swing
-				tsimendmag = [1000, 10000]; # magnify parameter of _tsimend
-				tranmag = [0.1, 1];         # magnify parameter of transient simulation
+				tsimendmag = [1, 10]; # magnify parameter of _tsimend
+				tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
 				for tsetup in np.arange (targetCell.sim_setup_lowest, targetCell.sim_setup_highest, targetCell.sim_setup_timestep):
 					first_stage_fail = 0
 					for j in range(len(tranmag)):
@@ -140,6 +140,8 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 							if(res_trans_out == "failed"):
 								first_stage_fail = 1
 
+					tmp_tsetup = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
+
 					#  check second run of simulation
 					# if (current D2Q > prev. D2Q), exceeds min D2Q
 					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
@@ -154,35 +156,25 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 					# update C2Q(res_prop_in_out) 
 					tmp_min_prop_in_out  = float(res_prop_in_out)
 					# in set/reset sim, res_prop_cin_out is not measured
-					if(res_prop_cin_out != "failed"):
-						tmp_min_prop_cin_out = float(res_prop_cin_out)
+					if(res_prop_cin_out == "failed"):
+						tmp_min_prop_cin_out = float(res_prop_in_out)
 					tmp_min_trans_out    = float(res_trans_out)
 					tmp_min_energy_start = float(res_energy_start)
 					tmp_min_energy_end   = float(res_energy_end)
 					if(res_setup != "failed"):
-						tmp_min_setup = float(res_setup)
+						tmp_min_setup = float(tmp_tsetup)
 					#if(res_hold != "failed"):
 					#	tmp_min_hold = float(res_hold)
-
-				tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
-				#tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
-				tmp_list_setup.append(tmp_min_setup)
-				tmp_list_hold.append(tmp_min_hold)
-				tmp_list_tran.append(tmp_min_trans_out)
-				tmp_list_estart.append(tmp_min_energy_start)
-				tmp_list_eend.append(tmp_min_energy_end)
 
 				# hold search
 				# perform two-stage simulation
 				# 1st stage: sim w/  10-% output swing
 				# 2nd stage: sim w/ 100-% output swing
-				tsimendmag = [1000, 10000]; # magnify parameter of _tsimend
-				tranmag = [0.1, 1];         # magnify parameter of transient simulation
 				for thold in np.arange (targetCell.sim_hold_highest, targetCell.sim_hold_lowest, -targetCell.sim_hold_timestep):
 					first_stage_fail = 0
 					for j in range(len(tranmag)):
 						if(first_stage_fail == 0):
-							Print("dSetup: "+str(f'{tmp_tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
+							print("dSetup: "+str(f'{tmp_tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
 							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
 							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
@@ -214,8 +206,8 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 					# update C2Q(res_prop_in_out) 
 					tmp_min_prop_in_out  = float(res_prop_in_out)
 					# in set/reset sim, res_prop_cin_out is not measured
-					if(res_prop_cin_out != "failed"):
-						tmp_min_prop_cin_out = float(res_prop_cin_out)
+					if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
+						tmp_min_prop_cin_out = float(res_prop_in_out)
 					tmp_min_trans_out    = float(res_trans_out)
 					tmp_min_energy_start = float(res_energy_start)
 					tmp_min_energy_end   = float(res_energy_end)
@@ -223,6 +215,23 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 						tmp_min_setup = float(res_setup)
 					if(res_hold != "failed"):
 						tmp_min_hold = float(res_hold)
+				# end setup/hold search
+				tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
+				#tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
+				tmp_list_setup.append(tmp_min_setup)
+				tmp_list_hold.append(tmp_min_hold)
+				tmp_list_tran.append(tmp_min_trans_out)
+				tmp_list_estart.append(tmp_min_energy_start)
+				tmp_list_eend.append(tmp_min_energy_end)
+
+				print("tmp_min_prop_in_out : "+str(tmp_min_prop_in_out))  
+				print("tmp_min_prop_cin_out: "+str(tmp_min_prop_cin_out))  
+				print("tmp_min_setup       : "+str(tmp_min_setup))
+				print("tmp_min_hold        : "+str(tmp_min_hold))
+				print("tmp_min_trans_out   : "+str(tmp_min_trans_out))
+				print("tmp_min_energy_start: "+str(tmp_min_energy_start))
+				print("tmp_min_energy_end  : "+str(tmp_min_energy_end))
+
 			list2_prop.append(tmp_list_prop)
 			list2_setup.append(tmp_list_setup)
 			list2_hold.append(tmp_list_hold)
@@ -260,28 +269,28 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".option brief nopage nomod post=1 ingold=2 autostop\n")
 		outlines.append(".inc '../"+str(targetCell.model)+"'\n")
 		outlines.append(".inc '../"+str(targetCell.netlist)+"'\n")
-		outlines.append(".param _vdd = "+str(targetLib.vdd_voltage)+str(targetLib.voltage_mag)+"\n")
-		outlines.append(".param _vss = "+str(targetLib.vss_voltage)+str(targetLib.voltage_mag)+"\n")
-		outlines.append(".param _vnw = "+str(targetLib.nwell_voltage)+str(targetLib.voltage_mag)+"\n")
-		outlines.append(".param _vpw = "+str(targetLib.pwell_voltage)+str(targetLib.voltage_mag)+"\n")
+		outlines.append(".param _vdd = '"+str(targetLib.vdd_voltage)+"*"+str(targetLib.voltage_mag)+"'\n")
+		outlines.append(".param _vss = '"+str(targetLib.vss_voltage)+"*"+str(targetLib.voltage_mag)+"'\n")
+		outlines.append(".param _vnw = '"+str(targetLib.nwell_voltage)+"*"+str(targetLib.voltage_mag)+"'\n")
+		outlines.append(".param _vpw = '"+str(targetLib.pwell_voltage)+"*"+str(targetLib.voltage_mag)+"'\n")
 		outlines.append(".param cap = 10f \n")
 		outlines.append(".param slew = 100p \n")
 		outlines.append(".param cslew = 100p \n")
 		outlines.append(".param tsetup = 100p \n")
 		outlines.append(".param thold = 100p \n")
 		outlines.append(".param tsimendmag = 100 tranmag = 1\n")
-		outlines.append(".param _tslew = slew\n")
-		outlines.append(".param _tclk1 = slew\n")                # ^ first clock
+		outlines.append(".param _tslew = slew \n")
+		outlines.append(".param _tclk1 = slew \n")                # ^ first clock
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")   # | 
-		outlines.append(".param _tclk3 = '_tclk2 + slew * 20 '\n")    # | 
+		outlines.append(".param _tclk3 = '_tclk2 + _tslew '\n")    # | 
 		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")   # v 
-		outlines.append(".param _tstart1 = 'slew * 150 + tsetup'\n")    # ^ data input start 
+		outlines.append(".param _tstart1 = '_tslew * 50 + tsetup'\n")    # ^ data input start 
 		outlines.append(".param _tstart2 = '_tstart1 + _tslew'\n")     # v varied w/ dedge
 		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
 		outlines.append(".param _tend2 = '_tend1 + _tslew'\n")    # v varied w/ dedge
-		outlines.append(".param _tclk5 = 'slew * 150'\n")             # ^ second clock
+		outlines.append(".param _tclk5 = '_tslew * 50'\n")             # ^ second clock
 		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")    # v 
-		outlines.append(".param _tsimend = '_tslew * tsimendmag' \n")
+		outlines.append(".param _tsimend = '_tslew * 100 * tsimendmag' \n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
 		outlines.append("VSS_DYN VSS_DYN 0 DC '_vss' \n")
@@ -426,8 +435,8 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		elif((targetHarness.target_clock_val == "1010")and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
-		else:
-			print ("Skip C2Q simulation")
+		#else:
+			#print ("Skip C2Q simulation")
 
 
 		# measure D2C(setup)
@@ -448,8 +457,8 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
-		else:
-			print ("Skip D2C(setup) simulation")
+		#else:
+			#print ("Skip D2C(setup) simulation")
 
 		# measure C2D(HOLD)
 		outlines.append("* Prop delay (C2D,HOLD)\n")
@@ -470,8 +479,8 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		elif((targetHarness.target_inport_val == "10")and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
 			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
-		else:
-			print ("Skip C2D(hold) simulation")
+		#else:
+			#print ("Skip C2D(hold) simulation")
 
 
 #		outlines.append("* \n")
@@ -665,44 +674,44 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 	try:
 		res_prop_in_out
 	except NameError:
-		print("Value res_prop_in_out is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_prop_in_out is not defined!!")
+		#print("DFF simulation failed!!")
 		res_prop_in_out = "failed"	
 	try:
 		res_prop_cin_out
 	except NameError:
-		print("Value res_cprop_in_out is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_cprop_in_out is not defined!!")
+		#print("DFF simulation failed!!")
 		res_prop_cin_out = "failed"	
 	try:
 		res_trans_out
 	except NameError:
-		print("Value res_trans_out is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_trans_out is not defined!!")
+		#print("DFF simulation failed!!")
 		res_trans_out = "failed"	
 	try:
 		res_energy_start
 	except NameError:
-		print("Value res_energy_start is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_energy_start is not defined!!")
+		#print("DFF simulation failed!!")
 		res_energy_start = "failed"	
 	try:
 		res_energy_end
 	except NameError:
-		print("Value res_energy_end is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_energy_end is not defined!!")
+		#print("DFF simulation failed!!")
 		res_energy_end = "failed"	
 	try:
 		res_setup
 	except NameError:
-		print("Value res_setup is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_setup is not defined!!")
+		#print("DFF simulation failed!!")
 		res_setup = "failed"	
 	try:
 		res_hold
 	except NameError:
-		print("Value res_hold is not defined!!")
-		print("DFF simulation failed!!")
+		#print("Value res_hold is not defined!!")
+		#print("DFF simulation failed!!")
 		res_hold = "failed"	
 	return res_prop_in_out, res_prop_cin_out, res_trans_out, \
 					res_energy_start, res_energy_end, res_setup, res_hold
