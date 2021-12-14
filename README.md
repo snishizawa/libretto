@@ -124,6 +124,7 @@ Other **add command** for combinational cells
 |:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
 | add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_area  | 1 | area (real val, no unit) | 
 | add_netlist | NETLIST/INV_1X.spi | location of netlist | 
 | add_model | NETLIST/model.sp | location of model file (include simulation options) | 
 | add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
@@ -166,6 +167,7 @@ Other **add command** for sequential cells
 |:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
 | add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_area  | 1  | area (real val, no unit) | 
 | add_netlist | NETLIST/DFF_ARAS_1X.spi | location of netlist | 
 | add_model | NETLIST/model.sp | location of model file (include simulation options) | 
 | add_clock_slope | real val/auto | slope for clock. If **auto** is selected then simulator automatically select min. slope |
