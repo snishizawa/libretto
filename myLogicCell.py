@@ -5,6 +5,7 @@ from myFunc import my_exit
 class MyLogicCell:
 	def __init__ (self):
 		self.cell = None    # cell name
+		self.area = None     # set area 
 		self.functions = [] # cell function
 		self.inports = []   # inport pins
 		self.clock = None   # clock pin for flop
@@ -122,6 +123,10 @@ class MyLogicCell:
 			outline += str(jlist[j])+", " 
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		return outline
+
+	def add_area(self, line="tmp"):
+		tmp_array = line.split()
+		self.area = tmp_array[1] 
 
 	def add_netlist(self, line="tmp"):
 		tmp_array = line.split()

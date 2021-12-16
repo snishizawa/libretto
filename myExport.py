@@ -111,7 +111,7 @@ def exportHarness(targetLib, targetCell, harnessList2):
 	with open(targetLib.dotlib_name, 'a') as f:
 		outlines = []
 		outlines.append("  cell ("+targetCell.cell+") {\n") ## cell start
-#		outlines.append("    area : "+targetCell.area+";\n")
+		outlines.append("    area : "+str(targetCell.area)+";\n")
 #		outlines.append("    cell_leakage_power : "+targetCell.leak+";\n")
 		outlines.append("    pg_pin ("+targetLib.vdd_name+"){\n")
 		outlines.append("      pg_type : primary_power;\n")
@@ -185,7 +185,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 	with open(targetLib.dotlib_name, 'a') as f:
 		outlines = []
 		outlines.append("  cell ("+targetCell.cell+") {\n") ## cell start
-#		outlines.append("    area : "+targetCell.area+";\n")
+		outlines.append("    area : "+str(targetCell.area)+";\n")
 #		outlines.append("    cell_leakage_power : "+targetCell.leak+";\n")
 		outlines.append("    pg_pin ("+targetLib.vdd_name+"){\n")
 		outlines.append("      pg_type : primary_power;\n")
@@ -218,7 +218,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			## select inport with setup/hold informatioin
 			index2 = targetCell.inports.index(target_inport) 
 			index1 = targetCell.outports.index(target_outport) 
-			if((harnessList2[index1][index2*2].timing_type_setup == "setup_riseing") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
+			print(harnessList2[index1][index2*2].timing_type_setup)
+			if((harnessList2[index1][index2*2].timing_type_setup == "setup_rising") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
 				outlines.append("    pin ("+target_inport+"){\n") ## inport pin start 
 				outlines.append("      direction : input;\n")
 				outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
@@ -229,12 +230,12 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
 				outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_setup+"\";\n")
 				## rise
-				outlines.append("        "+harnessList2[index1][index2*2].direction_setup+" (constraint_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2].timing_sense_setup+" (constraint_template) {\n")
 				for lut_line in harnessList2[index1][index2*2].lut_setup:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				## fall
-				outlines.append("        "+harnessList2[index1][index2*2+1].direction_setup+" (constraint_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_setup+" (constraint_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+1].lut_setup:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
@@ -245,17 +246,17 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
 				outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_hold+"\";\n")
 				## rise
-				outlines.append("        "+harnessList2[index1][index2*2].direction_hold+" (constraint_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2].timing_sense_hold+" (constraint_template) {\n")
 				for lut_line in harnessList2[index1][index2*2].lut_hold:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				## fall
-				outlines.append("        "+harnessList2[index1][index2*2+1].direction_hold+" (constraint_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_hold+" (constraint_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+1].lut_hold:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-		outlines.append("    }\n") ## inport pin end
+		outlines.append("    }::\n") ## inport pin end
 		##
 		## clock, reset, set  
 		##
