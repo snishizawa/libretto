@@ -30,7 +30,7 @@ Define common settings for target library.
 | set_cell_name_prefix | \_V1 | cell name prefix (option) |
 | set_voltage_unit | V | voltage unit |
 | set_capacitance_unit | pF | capacitance unit |
-| set_resistance_unit | Ohm | resitannce unit |
+| set_resistance_unit | Ohm | resistance unit |
 | set_current_unit | mA | current unit |
 | set_leakage_power_unit | pW | power unit | 
 | set_time_unit | ns | time unit |
@@ -87,7 +87,7 @@ Combinational cells and sequential cells requires different
 (1) **add command** for combinational cells
 
 **add_cell** for combinational cells
-(**add_cell** command shoul be one-line)
+(**add_cell** command should be one-line)
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
 | add_cell |  | add cell for characterize | 
@@ -119,7 +119,7 @@ Supported logic functions (\*) are listed as follow,
 | XNOR2 | 2-input 1-output XNOR | 
 | SEL2 | 2-input 1-select 1-output selector | 
 
-Other **add command** for combinational cells
+Other **add command**(s) for combinational cells
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
@@ -156,13 +156,13 @@ Supported sequential functions (\*) are listed as follow,
 | logic def |  Description |
 |:-----------|:------------|
 | DFF_PCPU | D-Flip-Flop with pos-edge clock and positive unate output | 
-| DFF_PCPN | D-Flip-Flop with pos-edge clock and negative unate output | 
+| DFF_PCNU | D-Flip-Flop with pos-edge clock and negative unate output | 
 | DFF_NCPU | D-Flip-Flop with neg-edge clock and positive unate output | 
-| DFF_NCPN | D-Flip-Flop with neg-edge clock and negative unate output | 
+| DFF_NCNU | D-Flip-Flop with neg-edge clock and negative unate output | 
 | DFF_PCPU_NR | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset | 
 | DFF_PCPU_NRNS | D-Flip-Flop with pos-edge clock, positive unate output, async. neg-edge reset, async. neg-edge set | 
 
-Other **add command** for sequential cells
+Other **add command**(s) for sequential cells
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
 | add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
