@@ -26,10 +26,12 @@ class MyConditionsAndResults:
 	def set_direction_rise(self):
 		self.direction_prop = "cell_rise"
 		self.direction_tran = "rise_transition"
+		self.direction_power = "rise_power"
 
 	def set_direction_fall(self):
 		self.direction_prop = "cell_fall"
 		self.direction_tran = "fall_transition"
+		self.direction_power = "fall_power"
 
 	def set_timing_type_comb(self):
 		self.timing_type = "combinational"
@@ -182,6 +184,7 @@ class MyConditionsAndResults:
 		#print(self.target_set_val)
 		#print(self.target_set)
 
+	# propagation delay table
 	def set_list2_prop(self, list2_prop=[]):
 		self.list2_prop = list2_prop 
 
@@ -223,6 +226,177 @@ class MyConditionsAndResults:
 				outline += str(self.list2_prop[i][len(jlist)-1])+"\", \\"
 			self.lut_prop.append(outline)
 		self.lut_prop.append(");")
+
+	# transient delay table
+	def set_list2_tran(self, list2_tran=[]):
+		self.list2_tran = list2_tran 
+
+	def print_list2_tran(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_tran[i][j])
+	
+	def print_lut_tran(self):
+		for i in range(len(self.lut_tran)):
+			print(self.lut_tran[i])
+
+	def write_list2_tran(self, targetLib, ilist, jlist):
+		# index_1
+		outline = "index_1(\""
+		self.lut_tran = []
+		for j in range(len(jlist)-1):
+			outline += str(jlist[j])+", " 
+		outline += str(jlist[len(jlist)-1])+"\");" 
+		#print(outline)
+		self.lut_tran.append(outline)
+		# index_2
+		outline = "index_2(\""
+		for i in range(len(ilist)-1):
+			outline += str(ilist[i])+", " 
+		outline += str(ilist[len(ilist)-1])+"\");" 
+		self.lut_tran.append(outline)
+		# values
+		self.lut_tran.append("values ( \\")
+		for i in range(len(ilist)):
+			outline = "\""
+			for j in range(len(jlist)-1):
+				outline += str(self.list2_tran[i][j])+", "
+			if(i == (len(ilist)-1)): 
+				outline += str(self.list2_tran[i][len(jlist)-1])+"\" \\"
+			#  add "," for else 
+			else:	
+				outline += str(self.list2_tran[i][len(jlist)-1])+"\", \\"
+			self.lut_tran.append(outline)
+		self.lut_tran.append(");")
+
+	# internal power (energy) table 
+	def set_list2_eintl(self, list2_eintl=[]):
+		self.list2_eintl = list2_eintl 
+
+	def print_list2_eintl(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_eintl[i][j])
+	
+	def print_lut_eintl(self):
+		for i in range(len(self.lut_eintl)):
+			print(self.lut_eintl[i])
+
+	def write_list2_eintl(self, targetLib, ilist, jlist):
+		# index_1
+		outline = "index_1(\""
+		self.lut_eintl = []
+		for j in range(len(jlist)-1):
+			outline += str(jlist[j])+", " 
+		outline += str(jlist[len(jlist)-1])+"\");" 
+		#print(outline)
+		self.lut_eintl.append(outline)
+		# index_2
+		outline = "index_2(\""
+		for i in range(len(ilist)-1):
+			outline += str(ilist[i])+", " 
+		outline += str(ilist[len(ilist)-1])+"\");" 
+		self.lut_eintl.append(outline)
+		# values
+		self.lut_eintl.append("values ( \\")
+		for i in range(len(ilist)):
+			outline = "\""
+			for j in range(len(jlist)-1):
+				outline += str(self.list2_eintl[i][j])+", "
+			if(i == (len(ilist)-1)): 
+				outline += str(self.list2_eintl[i][len(jlist)-1])+"\" \\"
+			#  add "," for else 
+			else:	
+				outline += str(self.list2_eintl[i][len(jlist)-1])+"\", \\"
+			self.lut_eintl.append(outline)
+		self.lut_eintl.append(");")
+
+	## input energy 
+	def set_list2_ein(self, list2_ein=[]):
+		self.list2_ein = list2_ein 
+
+	def print_list2_ein(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_ein[i][j])
+	
+	def print_lut_ein(self):
+		for i in range(len(self.lut_ein)):
+			print(self.lut_ein[i])
+
+	def write_list2_ein(self, targetLib, ilist, jlist):
+		# index_1
+		outline = "index_1(\""
+		self.lut_ein = []
+		for j in range(len(jlist)-1):
+			outline += str(jlist[j])+", " 
+		outline += str(jlist[len(jlist)-1])+"\");" 
+		#print(outline)
+		self.lut_ein.append(outline)
+		# index_2
+		outline = "index_2(\""
+		for i in range(len(ilist)-1):
+			outline += str(ilist[i])+", " 
+		outline += str(ilist[len(ilist)-1])+"\");" 
+		self.lut_ein.append(outline)
+		# values
+		self.lut_ein.append("values ( \\")
+		for i in range(len(ilist)):
+			outline = "\""
+			for j in range(len(jlist)-1):
+				outline += str(self.list2_ein[i][j])+", "
+			if(i == (len(ilist)-1)): 
+				outline += str(self.list2_ein[i][len(jlist)-1])+"\" \\"
+			#  add "," for else 
+			else:	
+				outline += str(self.list2_ein[i][len(jlist)-1])+"\", \\"
+			self.lut_ein.append(outline)
+		self.lut_ein.append(");")
+
+	## input capacitance 
+	def set_list2_cin(self, list2_ein=[]):
+		self.list2_cin = list2_ein 
+
+	def print_list2_cin(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_cin[i][j])
+	
+	def print_lut_cin(self):
+		for i in range(len(self.lut_cin)):
+			print(self.lut_cin[i])
+
+	def average_list2_cin(self, targetLib, ilist, jlist):
+		# output average of input capacitance
+		# (do not write table)
+		self.lut_cin = 0;
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				self.lut_cin += self.list2_cin[i][j]
+		self.cin = self.lut_cin / (len(ilist) * len(jlist)) # use average
+		print("store cin:"+str(self.cin))
+
+	# leak power
+	def set_list2_pleak(self, list2_pleak=[]):
+		self.list2_pleak = list2_pleak 
+
+	def print_list2_pleak(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_pleak[i][j])
+	
+	def print_lut_pleak(self):
+		for i in range(len(self.lut_pleak)):
+			print(self.lut_pleak[i])
+
+	def write_list2_pleak(self, targetLib, ilist, jlist):
+		# output average of leak power
+		# (do not write table)
+		self.lut_pleak = 0;
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				self.lut_pleak += self.list2_pleak[i][j]
+		self.pleak = str(self.lut_pleak / (len(ilist) * len(jlist))) # use average
 
 	def set_list2_setup(self, list2_setup=[]):
 		self.list2_setup = list2_setup 
@@ -308,43 +482,3 @@ class MyConditionsAndResults:
 			self.lut_hold.append(outline)
 		self.lut_hold.append(");")
 
-	def set_list2_tran(self, list2_tran=[]):
-		self.list2_tran = list2_tran 
-
-	def print_list2_tran(self, ilist, jlist):
-		for i in range(len(ilist)):
-			for j in range(len(jlist)):
-				print(self.list2_tran[i][j])
-	
-	def print_lut_tran(self):
-		for i in range(len(self.lut_tran)):
-			print(self.lut_tran[i])
-
-	def write_list2_tran(self, targetLib, ilist, jlist):
-		# index_1
-		outline = "index_1(\""
-		self.lut_tran = []
-		for j in range(len(jlist)-1):
-			outline += str(jlist[j])+", " 
-		outline += str(jlist[len(jlist)-1])+"\");" 
-		#print(outline)
-		self.lut_tran.append(outline)
-		# index_2
-		outline = "index_2(\""
-		for i in range(len(ilist)-1):
-			outline += str(ilist[i])+", " 
-		outline += str(ilist[len(ilist)-1])+"\");" 
-		self.lut_tran.append(outline)
-		# values
-		self.lut_tran.append("values ( \\")
-		for i in range(len(ilist)):
-			outline = "\""
-			for j in range(len(jlist)-1):
-				outline += str(self.list2_tran[i][j])+", "
-			if(i == (len(ilist)-1)): 
-				outline += str(self.list2_tran[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
-			else:	
-				outline += str(self.list2_tran[i][len(jlist)-1])+"\", \\"
-			self.lut_tran.append(outline)
-		self.lut_tran.append(");")

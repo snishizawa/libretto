@@ -36,6 +36,8 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 
+	targetCell.set_cin_avg(harnessList) # average cin of each harness
+
 	return harnessList2
 #end runCombIn1Out1
 def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
@@ -70,6 +72,13 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
 		runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
+
+		# calculate avd of pleak
+		if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
+			targetCell.set_inport_cap_pleak(0, tmp_Harness)
+		# case input0 is target input pin
+		elif ((tmp_inp1_val == '01') or (tmp_inp1_val == '10')):
+			targetCell.set_inport_cap_pleak(1, tmp_Harness)
 
 	return harnessList2
 #end runCombIn2Out1
@@ -115,6 +124,8 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
 		runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
+
+	# calculate avd of pleak
 
 	return harnessList2
 #end runCombIn3Out1
@@ -168,51 +179,112 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 		runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
+	
+	# calculate avd of pleak
 
 	return harnessList2
 #end  runCombIn4Out1
 
 def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
-		list2_prop =   []
-		list2_tran =   []
-		list2_estart = []
-		list2_eend =   []
-		for tmp_load in targetCell.load:
-			tmp_list_prop =   []
-			tmp_list_tran =   []
-			tmp_list_estart = []
-			tmp_list_eend =   []
-			for tmp_slope in targetCell.slope:
-				cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-				slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-				spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+".sp"
+	list2_prop =   []
+	list2_tran =   []
+	list2_estart = []
+	list2_eend =   []
+	list2_eintl =   []
+	list2_ein =   []
+	list2_cin =   []
+	list2_pleak =   []
+	for tmp_load in targetCell.load:
+		tmp_list_prop =   []
+		tmp_list_tran =   []
+		tmp_list_estart = []
+		tmp_list_eend =   []
+		tmp_list_eintl =   []
+		tmp_list_ein =   []
+		tmp_list_cin =   []
+		tmp_list_pleak =   []
+		for tmp_slope in targetCell.slope:
+			cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
+			slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
+			temp_line = ".temp "+str(targetLib.temperature)+"\n"
+			spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+".sp"
 
-				res_prop_in_out, res_trans_out, res_energy_start, res_energy_end \
-					= genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, spicefo)
-#				print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end))
-				tmp_list_prop.append(res_prop_in_out)
-				tmp_list_tran.append(res_trans_out)
-				tmp_list_estart.append(res_energy_start)
-				tmp_list_eend.append(res_energy_end)
-			list2_prop.append(tmp_list_prop)
-			list2_tran.append(tmp_list_tran)
-			list2_estart.append(tmp_list_estart)
-			list2_eend.append(tmp_list_eend)
+			## 1st trial, extract energy_start and energy_end
+			res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
+				= genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, "none", "none", spicefo)
 
-		#print(list2_prop)
+			estart_line = ".param ENERGY_START = "+str(float(res_energy_start)*targetLib.time_mag)+"\n"
+			eend_line = ".param ENERGY_END = "+str(float(res_energy_end)*targetLib.time_mag)+"\n"
 
-		targetHarness.set_list2_prop(list2_prop)
-		#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
-		targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
-		#targetHarness.print_lut_prop()
-		targetHarness.set_list2_tran(list2_tran)
-		#targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
-		targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
-		#targetHarness.print_lut_tran()
+			## 2nd trial, extract energy
+			res_prop_in_out, res_trans_out, \
+				res_q_in_dyn, res_q_out_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
+				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak \
+				= genFileLogic_trial1(targetLib, targetCell, targetHarness, 1, cap_line, slew_line, temp_line, estart_line, eend_line, spicefo)
+			#print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end))
+			tmp_list_prop.append(res_prop_in_out)
+			tmp_list_tran.append(res_trans_out)
+			#tmp_list_estart.append(res_energy_start)
+			#tmp_list_eend.append(res_energy_end)
+
+			## intl. energy calculation
+			## larger Ql: contain short circuit Q, intl. Q, load Q 
+			## smaller Qs: short circuit Q
+			## E = (Ql - Qs)V
+			tmp_list_eintl.append((abs(abs(res_q_vdd_dyn) - abs(res_q_vss_dyn)) - abs(res_q_out_dyn))*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
+			tmp_list_ein.append(abs(res_q_in_dyn)*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
+			## C = Q / V
+			tmp_list_cin.append(abs(res_q_in_dyn)/float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
+			print("calculated cin: "+str(abs(res_q_in_dyn)/float(targetLib.vdd_voltage)*float(targetLib.voltage_mag)))
+			print("q: "+str(abs(res_q_in_dyn)))
+			print("vdd: "+str(targetLib.vdd_voltage))
+			print("vddm: "+str(float(targetLib.voltage_mag)))
+			## Pleak = average of Pleak_vdd and Pleak_vss
+			## P = I * V
+			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag)) #
+			print("calculated pleak: "+str(float(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))) #
+		list2_prop.append(tmp_list_prop)
+		list2_tran.append(tmp_list_tran)
+		#list2_estart.append(tmp_list_estart)
+		#list2_eend.append(tmp_list_eend)
+		list2_eintl.append(tmp_list_eintl)
+		list2_ein.append(tmp_list_ein)
+		list2_cin.append(tmp_list_cin)
+		list2_pleak.append(tmp_list_pleak)
+
+	#print(list2_prop)
+
+	targetHarness.set_list2_prop(list2_prop)
+	#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_prop()
+	targetHarness.set_list2_tran(list2_tran)
+	#targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_tran()
+	targetHarness.set_list2_eintl(list2_eintl)
+	#targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_eintl()
+	targetHarness.set_list2_ein(list2_ein)
+	#targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_ein()
+	targetHarness.set_list2_cin(list2_cin)
+	#targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
+	targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_cin()
+	targetHarness.set_list2_pleak(list2_pleak)
+	#targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_pleak()
 		
 
 
-def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, spicef):
+def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_line, slew_line, temp_line, estart_line, eend_line, spicef):
+	#print (spicef)
+	#print (estart_line)
+	#print (eend_line)
 	#print (spicef)
 	#print ("generate AND2\n")
 	#print(dir(targetLib))
@@ -222,6 +294,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		outlines.append(".option brief nopage nomod post=1 ingold=2 autostop\n")
 		outlines.append(".inc '../"+str(targetCell.model)+"'\n")
 		outlines.append(".inc '../"+str(targetCell.netlist)+"'\n")
+		outlines.append(temp_line)
 		outlines.append(".param _vdd = "+str(targetLib.vdd_voltage)+"\n")
 		outlines.append(".param _vss = "+str(targetLib.vss_voltage)+"\n")
 		outlines.append(".param _vnw = "+str(targetLib.nwell_voltage)+"\n")
@@ -232,20 +305,24 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		outlines.append(".param _tstart = slew\n")
 		outlines.append(".param _tend = '_tstart + _tslew'\n")
 		outlines.append(".param _tsimend = '_tslew * 100000' \n")
+		outlines.append(".param _Energy_meas_end_extent = "+str(targetLib.energy_meas_time_extent)+"\n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
 		outlines.append("VSS_DYN VSS_DYN 0 DC '_vss' \n")
 		outlines.append("VNW_DYN VNW_DYN 0 DC '_vnw' \n")
 		outlines.append("VPW_DYN VPW_DYN 0 DC '_vpw' \n")
-		outlines.append("VDD_LEAK VDD_LEAK 0 DC '_vdd' \n")
-		outlines.append("VSS_LEAK VSS_LEAK 0 DC '_vss' \n")
-		outlines.append("VNW_LEAK VNW_LEAK 0 DC '_vnw' \n")
-		outlines.append("VPW_LEAK VPW_LEAK 0 DC '_vpw' \n")
+		outlines.append("* output load calculation\n")
+		outlines.append("VOCAP VOUT WOUT DC 0\n")
+		#outlines.append("VDD_LEAK VDD_LEAK 0 DC '_vdd' \n")
+		#outlines.append("VSS_LEAK VSS_LEAK 0 DC '_vss' \n")
+		#outlines.append("VNW_LEAK VNW_LEAK 0 DC '_vnw' \n")
+		#outlines.append("VPW_LEAK VPW_LEAK 0 DC '_vpw' \n")
 		outlines.append(" \n")
-		# in auto mode, simulation timestep is 1/10 of min. input slew
-		# simulation runs 1000x of input slew time
+		## in auto mode, simulation timestep is 1/10 of min. input slew
+		## simulation runs 1000x of input slew time
 		outlines.append(".tran "+str(targetCell.simulation_timestep)+str(targetLib.time_unit)+" '_tsimend'\n")
 		outlines.append(" \n")
+
 		if(targetHarness.target_inport_val == "01"):
 			outlines.append("VIN VIN 0 PWL(1p '_vss' '_tstart' '_vss' '_tend' '_vdd' '_tsimend' '_vdd') \n")
 		elif(targetHarness.target_inport_val == "10"):
@@ -257,6 +334,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		outlines.append("VHIGH VHIGH 0 DC '_vdd' \n")
 		outlines.append("VLOW VLOW 0 DC '_vss' \n")
 
+		##
+		## delay measurement 
 		outlines.append("** Delay \n")
 		outlines.append("* Prop delay \n")
 		if(targetHarness.target_inport_val == "01"):
@@ -276,100 +355,53 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' rise=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 
-		outlines.append("* For energy calculation \n")
-		if(targetHarness.target_inport_val == "01"):
-			outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-		elif(targetHarness.target_inport_val == "10"):
-			outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-		if(targetHarness.target_outport_val == "01"):
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
-		elif(targetHarness.target_outport_val == "10"):
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+		# get ENERGY_START and ENERGY_END for energy calculation in 2nd round 
+		if(meas_energy == 0):
+			outlines.append("* For energy calculation \n")
+			if(targetHarness.target_inport_val == "01"):
+				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
+			elif(targetHarness.target_inport_val == "10"):
+				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
+			if(targetHarness.target_outport_val == "01"):
+				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+			elif(targetHarness.target_outport_val == "10"):
+				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 
-## for ngspice batch mode 
+		##
+		## energy measurement 
+		elif(meas_energy == 1):
+			outlines.append(estart_line)
+			outlines.append(eend_line)
+			outlines.append("* \n")
+			outlines.append("** In/Out Q, Capacitance \n")
+			outlines.append("* \n")
+			outlines.append(".measure Tran Q_IN_DYN integ i(VIN) from='ENERGY_START' to='ENERGY_END'  \n")
+			outlines.append(".measure Tran Q_OUT_DYN integ i(VOCAP) from='ENERGY_START' to='ENERGY_END*_Energy_meas_end_extent' \n")
+			outlines.append(" \n")
+			outlines.append("* \n")
+			outlines.append("** Energy \n")
+			outlines.append("*  (Total charge, Short-Circuit Charge) \n")
+			outlines.append(".measure Tran Q_VDD_DYN integ i(VDD_DYN) from='ENERGY_START' to='ENERGY_END*_Energy_meas_end_extent'  \n")
+			outlines.append(".measure Tran Q_VSS_DYN integ i(VSS_DYN) from='ENERGY_START' to='ENERGY_END*_Energy_meas_end_extent'  \n")
+			outlines.append(" \n")
+			outlines.append("* Leakage current \n")
+			outlines.append(".measure Tran I_VDD_LEAK avg i(VDD_DYN) from='_tstart*0.1' to='_tstart'  \n")
+			outlines.append(".measure Tran I_VSS_LEAK avg i(VSS_DYN) from='_tstart*0.1' to='_tstart'  \n")
+			outlines.append(" \n")
+			outlines.append("* Gate leak current \n")
+			outlines.append(".measure Tran I_IN_LEAK avg i(VIN) from='_tstart*0.1' to='_tstart'  \n")
+		else:
+			print("Error, meas_energy should 0 (disable) or 1 (enable)")
+			my_error()
+
+		## for ngspice batch mode 
 		outlines.append(".control \n")
 		outlines.append("run \n")
 		outlines.append("plot V(VIN) V(VOUT) \n")
-#		if(targetHarness.target_inport_val == "01"):
-#			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-#		elif(targetHarness.target_inport_val == "10"):
-#			outlines.append("meas Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-#		if(targetHarness.target_outport_val == "10"):
-#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-#		elif(targetHarness.target_outport_val == "01"):
-#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-#		if(targetHarness.target_outport_val == "10"):
-#			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
-#		elif(targetHarness.target_outport_val == "01"):
-#			outlines.append("meas Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' rise=1\n")
-#			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-#		if(targetHarness.target_inport_val == "01"):
-#			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-#		elif(targetHarness.target_inport_val == "10"):
-#			outlines.append("meas Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-#		if(targetHarness.target_outport_val == "01"):
-#			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
-#		elif(targetHarness.target_outport_val == "10"):
-#			outlines.append("meas Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		outlines.append(".endc \n")
 
-#		outlines.append("* \n")
-#		outlines.append("** Capacitance \n")
-#		outlines.append("* \n")
-#		outlines.append(".measure Tran Cur_IN_rd integ i(VIN_rd) from='Start_rd' to='End_rd' print=0 \n")
-#		outlines.append(".measure Cap_IN_rd param='abs(Cur_IN_rd/_Effect_volt)' \n")
-#		outlines.append(".measure Tran Cur_IN_fd integ i(VIN_fd) from='Start_fd' to='End_fd' print=0 \n")
-#		outlines.append(".measure Cap_IN_fd param='abs(Cur_IN_fd/_Effect_volt)' \n")
-#		outlines.append(" \n")
-#		outlines.append("* \n")
-#		outlines.append("** Energy \n")
-#		outlines.append("* \n")
-#		outlines.append("* Internal energy (Internal Cap, Short-Circuit) \n")
-#		outlines.append(".measure Tran Cur_Vdd_rd integ i(VDD_rd) from='Start_rd' to='End_rd*_Energy_meas_end_extent' print=0 \n")
-#		outlines.append(".measure Tran Cur_Vss_rd integ i(VSS_rd) from='Start_rd' to='End_rd*_Energy_meas_end_extent' print=0 \n")
-#		outlines.append("* select current source includes internal cap charge/discharge \n")
-#		outlines.append(".measure Flag_cur_vdd_rd param='(abs(Cur_Vdd_rd)>abs(Cur_Vss_rd))' print=0 \n")
-#		outlines.append(".measure Flag_cur_vss_rd param='(abs(Cur_Vss_rd)>abs(Cur_Vdd_rd))' print=0 \n")
-#		outlines.append(" \n")
-#		outlines.append("* Internal energy (Internal Cap, Short-Circuit) \n")
-#		outlines.append(".measure Tran Cur_Vdd_fd integ i(VDD_fd) from='Start_fd' to='End_fd*_Energy_meas_end_extent' print=0 \n")
-#		outlines.append(".measure Tran Cur_Vss_fd integ i(VSS_fd) from='Start_fd' to='End_fd*_Energy_meas_end_extent' print=0 \n")
-#		outlines.append("* select current source includes internal cap charge/discharge \n")
-#		outlines.append(".measure Flag_cur_vdd_fd param='(abs(Cur_Vdd_fd)>abs(Cur_Vss_fd))' print=0 \n")
-#		outlines.append(".measure Flag_cur_vss_fd param='(abs(Cur_Vss_fd)>abs(Cur_Vdd_fd))' print=0 \n")
-#		outlines.append("* calc internal power/energy \n")
-#		outlines.append(".measure Power_rd param='(abs(Cur_Vdd_rd)*Flag_cur_vdd_rd + abs(Cur_Vss_rd)*Flag_cur_vss_rd)*_Effect_volt' print=1 \n")
-#		outlines.append(".measure Power_fd param='(abs(Cur_Vdd_fd)*Flag_cur_vdd_fd + abs(Cur_Vss_fd)*Flag_cur_vss_fd)*_Effect_volt' print=1 \n")
-#		outlines.append(".measure Energy_rd param='Power_rd/(End_rd - Start_rd)' print=1 \n")
-#		outlines.append(".measure Energy_fd param='Power_fd/(End_fd - Start_fd)' print=1 \n")
-#		outlines.append(" \n")
-#		outlines.append("* Static energy \n")
-#		outlines.append(".measure Tran Cur_Vdd_rs integ i(VDD_rs) from='Start_rd' to='End_rd' print=0 \n")
-#		outlines.append(".measure Tran Cur_Vss_rs integ i(VSS_rs) from='Start_rd' to='End_rd' print=0 \n")
-#		outlines.append(".measure Tran Cur_Vdd_fs integ i(VDD_fs) from='Start_fd' to='End_fd' print=0 \n")
-#		outlines.append(".measure Tran Cur_Vss_fs integ i(VSS_fs) from='Start_fd' to='End_fd' print=0 \n")
-#		outlines.append(" \n")
-#		outlines.append(".measure Power_rs param='(abs(Cur_Vdd_rs) + abs(Cur_Vss_rs))/2*_Effect_volt' print=0 \n")
-#		outlines.append(".measure Power_fs param='(abs(Cur_Vdd_fs) + abs(Cur_Vss_fs))/2*_Effect_volt' print=0 \n")
-#		outlines.append(".measure Power_avg_rs param='Power_rs/(End_rd - Start_rd)' print=1 \n")
-#		outlines.append(".measure Power_avg_fs param='Power_fs/(End_fd - Start_fd)' print=1 \n")
-#		outlines.append(".measure Energy_rs param='Power_rs/(End_rd - Start_rd)' print=0 \n")
-#		outlines.append(".measure Energy_fs param='Power_fs/(End_fd - Start_fd)' print=0 \n")
-#		outlines.append(" \n")
-#		outlines.append("* Gate leak \n")
-#		outlines.append(".measure Tran Cur_IN_rs integ i(VIN_rs) from='Start_rd' to='End_rd' print=0 \n")
-#		outlines.append(".measure Tran Cur_IN_fs integ i(VIN_fs) from='Start_fd' to='End_fd' print=0 \n")
-#		outlines.append(".measure Power_gate_IN_rs param='abs(Cur_IN_rs*_Effect_volt)' print=0 \n")
-#		outlines.append(".measure Power_gate_IN_fs param='abs(Cur_IN_fs*_Effect_volt)' print=0 \n")
-#		outlines.append(".measure Power_gate_avg_IN_rs param='Power_gate_IN_rs/(End_rd - Start_rd)' print=1 \n")
-#		outlines.append(".measure Power_gate_avg_IN_fs param='Power_gate_IN_fs/(End_fd - Start_fd)' print=1 \n")
-#		outlines.append(".measure Energy_gate_IN_rs param='Power_gate_IN_rs/(End_rd - Start_rd)' print=0 \n")
-#		outlines.append(".measure Energy_gate_IN_fs param='Power_gate_IN_fs/(End_fd - Start_fd)' print=0 \n")
-#		outlines.append(" \n")
-#		outlines.append(" \n")
 		outlines.append("XINV VIN VOUT VHIGH VLOW VDD_DYN VSS_DYN VNW_DYN VPW_DYN DUT \n")
-		outlines.append("C0 VOUT VSS_DYN 'cap'\n")
+		outlines.append("C0 WOUT VSS_DYN 'cap'\n")
 		outlines.append(" \n")
 		outlines.append(".SUBCKT DUT IN OUT HIGH LOW VDD VSS VNW VPW \n")
 		# parse subckt definition
@@ -457,12 +489,35 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 			elif(re.match("trans_out", inline)):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_trans_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("energy_start", inline)):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_energy_start = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("energy_end", inline)):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_energy_end = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+			if(meas_energy == 0):
+				if(re.match("energy_start", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_energy_start = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("energy_end", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_energy_end = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+			if(meas_energy == 1):
+				if(re.match("q_in_dyn", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_q_in_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("q_out_dyn", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_q_out_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("q_vdd_dyn", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("q_vss_dyn", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_q_vss_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("i_vdd_leak", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_i_vdd_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("i_vss_leak", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_i_vss_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				elif(re.match("i_in_leak", inline)):
+					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+					res_i_in_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
 
 	f.close()
 	#print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end))
@@ -479,16 +534,9 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, cap_line, slew_lin
 		print("Value res_trans_out is not defined!!")
 		print("Check simulation result in work directory")
 		sys.exit()
-	try:
-		res_energy_start
-	except NameError:
-		print("Value res_energy_start is not defined!!")
-		print("Check simulation result in work directory")
-		sys.exit()
-	try:
-		res_energy_end
-	except NameError:
-		print("Value res_energy_end is not defined!!")
-		print("Check simulation result in work directory")
-		sys.exit()
-	return res_prop_in_out, res_trans_out, res_energy_start, res_energy_end
+	if(meas_energy == 0):
+		return float(res_prop_in_out), float(res_trans_out), float(res_energy_start), float(res_energy_end)
+	elif(meas_energy == 1):
+		return float(res_prop_in_out), float(res_trans_out), \
+				float(res_q_in_dyn), float(res_q_out_dyn), float(res_q_vdd_dyn), float(res_q_vss_dyn), \
+				float(res_i_in_leak), float(res_i_vdd_leak), float(res_i_vss_leak)

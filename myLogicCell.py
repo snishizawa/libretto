@@ -1,37 +1,45 @@
-import argparse, re, os, shutil, subprocess
+import argparse, re, os, shutil, subprocess, inspect
 
 from myFunc import my_exit
 
 class MyLogicCell:
 	def __init__ (self):
-		self.cell = None    # cell name
-		self.area = None     # set area 
-		self.functions = [] # cell function
-		self.inports = []   # inport pins
-		self.clock = None   # clock pin for flop
-		self.set = None     # set pin for flop
-		self.reset = None   # reset pin for flop 
-		self.outports = []  # outport pins
-		self.flops = []     # registers 
-		self.functions = [] # logic/flop functions 
-		self.slope = []     # inport slope
-		self.cslope = 0     # inport clock slope
-		self.load = []      # outport load
-		self.simulation_timestep = 0      # simulation timestep 
-		self.isexport = 0   # exported or not
-		self.isflop = 0   # DFF or not
-		# setup 
-		self.sim_setup_lowest = 0    # fastest simulation edge (pos. val.) 
-		self.sim_setup_highest = 0   # lowest simulation edge (pos. val.) 
-		self.sim_setup_timestep = 0  # timestep for setup search (pos. val.) 
-		# hold 
-		self.sim_hold_lowest = 0    # fastest simulation edge (pos. val.) 
-		self.sim_hold_highest = 0   # lowest simulation edge (pos. val.) 
-		self.sim_hold_timestep = 0  # timestep for hold search (pos. val.) 
+		self.cell = None    ## cell name
+		self.area = None    ## set area 
+		self.functions = [] ## cell function
+		self.inports = []   ## inport pins
+		self.cins = []      ## inport caps
+		self.clock = None   ## clock pin for flop
+		self.set = None     ## set pin for flop
+		self.reset = None   ## reset pin for flop 
+		self.cclk = None    ## clock pin cap. for flop
+		self.cset = None    ## set pin cap. for flop
+		self.crst = None    ## reset pin cap. for flop 
+		self.outports = []  ## outport pins
+		self.flops = []     ## registers 
+		self.functions = [] ## logic/flop functions 
+		self.slope = []     ## inport slope
+		self.cslope = 0     ## inport clock slope
+		self.load = []      ## outport load
+		self.simulation_timestep = 0      ## simulation timestep 
+		self.isexport = 0   ## exported or not
+		self.isflop = 0     ## DFF or not
+		## setup 
+		self.sim_setup_lowest = 0    ## fastest simulation edge (pos. val.) 
+		self.sim_setup_highest = 0   ## lowest simulation edge (pos. val.) 
+		self.sim_setup_timestep = 0  ## timestep for setup search (pos. val.) 
+		## hold                        
+		self.sim_hold_lowest = 0     ## fastest simulation edge (pos. val.) 
+		self.sim_hold_highest = 0    ## lowest simulation edge (pos. val.) 
+		self.sim_hold_timestep = 0   ## timestep for hold search (pos. val.) 
+		## power
+		self.pleak = []        ## cell leak power
+		self.inport_pleak = [] ## inport leak power
+		self.inport_cap = []   ## inport cap
 
-#                                                #
-#-- add functions for both comb. and seq. cell --#		
-#                                                #
+##                                                #
+##-- add functions for both comb. and seq. cell --#		
+##                                                #
 	def add_cell(self, line="tmp"):
 		tmp_array = line.split('-')
 		# expected format : add_cell -n(name) AND_X1 
@@ -177,6 +185,18 @@ class MyLogicCell:
 
 	def set_exported(self):
 		self.isexport = 1 
+
+	def set_inport_cap_pleak(self, index, harness):
+		# average leak power of all harness
+		index_num = 0
+		for target_outport in self.outports:
+			index1 = self.outports.index(target_outport) 
+			for target_inport in self.inports:
+				index2 = self.inports.index(target_inport) 
+				self.pleak += harnessList2[index1][index2].lut_pleak
+				index_num += 1
+		self.pleak = self.pleak / index_num
+
 
 #                                 #
 #-- add functions for seq. cell --#		
@@ -328,3 +348,32 @@ class MyLogicCell:
 		else:
 			self.sim_hold_timestep = float(tmp_array[1])
 
+	## calculate ave of cin for each inports
+	## cin is measured two times and stored into 
+	## neighborhood harness, so cin of (2n)th and 
+	## (2n+1)th harness are averaged out
+	def set_cin_avg(self, harnessList):
+		tmp_cin = 0;
+		tmp_index = 0;
+		for targetHarness in harnessList:
+			print("targetHarness.cin:"+str(targetHarness.cin))
+			tmp_cin += targetHarness.cin
+			## if this is (2n+1) then store averaged 
+			## cin into targetCell.cins
+			if((tmp_index % 2) == 1):
+				self.cins.append(tmp_cin / 2)
+				tmp_cin = 0
+			tmp_index += 1
+		print("stored cins:"+str(tmp_index))
+
+	## set cin of clock, reset, set of flop
+	def set_cin_flop(self, port="none", cin="0"):
+		if((port.lower() == 'clock')or(port.lower() == 'clk')):
+			self.cclk = cin
+		elif((port.lower() == 'reset')or(port.lower() == 'rst')):
+			self.crst = cin
+		elif(port.lower() == 'set'):
+			self.cset = cin
+		else:
+			print("Error. Not supported port type: "+str(port))
+			my_exit()

@@ -41,7 +41,7 @@ class MyLibrarySetting:
 			self.voltage_unit = "mV"	
 			self.voltage_mag = 1e-3	
 		else:
-			my_error("illegal unit for set_voltage_unit")
+			my_exit("illegal unit for set_voltage_unit")
 
 	def set_capacitance_unit(self, line="tmp"):
 		tmp_array = line.split()
@@ -53,7 +53,8 @@ class MyLibrarySetting:
 			self.capacitance_unit = "nF"	
 			self.capacitance_mag = 1e-12	
 		else:
-			my_error("illegal unit for set_capacitance_unit")
+			print("illegal unit for set_capacitance_unit")
+			my_exit()
 
 	def set_resistance_unit(self, line="tmp"):
 		tmp_array = line.split()
@@ -65,7 +66,8 @@ class MyLibrarySetting:
 			self.resistance_unit = "kOhm"	
 			self.resistance_mag = 1e3	
 		else:
-			my_error("illegal unit for set_resistance_unit")
+			print("illegal unit for set_resistance_unit")
+			my_exit()
 
 	def set_time_unit(self, line="tmp"):
 		tmp_array = line.split()
@@ -76,8 +78,12 @@ class MyLibrarySetting:
 		elif(tmp_array[1].upper() == 'NS'):
 			self.time_unit = "ns"	
 			self.time_mag = 1e-9	
+		elif(tmp_array[1].upper() == 'US'):
+			self.time_unit = "us"	
+			self.time_mag = 1e-6	
 		else:
-			my_error("illegal unit for set_time_unit")
+			print("illegal unit for set_time_unit")
+			my_exit()
 
 	def set_current_unit(self, line="tmp"):
 		tmp_array = line.split()
@@ -92,7 +98,8 @@ class MyLibrarySetting:
 			self.current_unit = "uA"	
 			self.current_mag = 1e-6	
 		else:
-			my_error("illegal unit for set_current_unit")
+			print("illegal unit for set_current_unit")
+			my_exit()
 
 	def set_leakage_power_unit(self, line="tmp"):
 		tmp_array = line.split()
@@ -104,7 +111,8 @@ class MyLibrarySetting:
 			self.leakage_power_unit = "nW"	
 			self.leakage_power_mag = 1e-9	
 		else:
-			my_error("illegal unit for set_leakage_power_unit")
+			print("illegal unit for set_leakage_power_unit")
+			my_exit()
 
 	def set_vdd_name(self, line="tmp"):
 		tmp_array = line.split()

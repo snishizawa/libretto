@@ -168,6 +168,10 @@ def main():
 			elif(line.startswith('add_load')):
 				targetCell.add_load(line) 
 
+			# add_area
+			elif(line.startswith('add_area')):
+				targetCell.add_area(line) 
+
 			# add_netlist
 			elif(line.startswith('add_netlist')):
 				targetCell.add_netlist(line) 
@@ -255,13 +259,13 @@ def characterizeFiles(targetLib, targetCell):
 	# Branch to each logic function
 	if(targetCell.logic == 'INV'):
 		print ("INV\n")
-		# [in0, in1, out0]
+		# [in0, out0]
 		expectationList2 = [['01','10'],['10','01']]
 		return runCombIn1Out1(targetLib, targetCell, expectationList2,"neg")
 
 	elif(targetCell.logic == 'BUF'):
-		print ("INV\n")
-		# [in0, in1, out0]
+		print ("BUF\n")
+		# [in0, out0]
 		expectationList2 = [['01','01'],['10','10']]
 		return runCombIn1Out1(targetLib, targetCell, expectationList2,"pos")
 
