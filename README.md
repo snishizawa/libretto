@@ -1,9 +1,7 @@
 # libretto
 ## Introduction
 An open cell library characterizer.
-Current version support timing characterization of combinational cells and sequential cells.
-
-Support for power characterization is TBA.
+Current version support timing characterization and power characterization of combinational cells and sequential cells.
 
 ## How to use
 Prepare .cmd file 
