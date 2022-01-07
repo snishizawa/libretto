@@ -2,18 +2,18 @@ import argparse, re, os, shutil, subprocess
 
 class MyConditionsAndResults:
 	def __init__ (self):
-		self.instance = None          # instance name
-		self.target_inport = None     # target inport name
-		self.target_outport = None    # target outport name
-		self.stable_inport = []       # stable imports
-		self.stable_inport_val = []   # stable imports val
-		self.nontarget_outport = []   # nontarget outport
-		self.target_clock     = None  # target clock name
-		self.target_clock_val = None  # target clock value
-		self.target_reset     = None  # target reset name
-		self.target_reset_val = None  # target reset val
-		self.target_set     = None    # target set name
-		self.target_set_val = None    # target set val
+		self.instance = None          ## instance name
+		self.target_inport = None     ## target inport name
+		self.target_outport = None    ## target outport name
+		self.stable_inport = []       ## stable imports
+		self.stable_inport_val = []   ## stable imports val
+		self.nontarget_outport = []   ## nontarget outport
+		self.target_clock     = None  ## target clock name
+		self.target_clock_val = None  ## target clock value
+		self.target_reset     = None  ## target reset name
+		self.target_reset_val = None  ## target reset val
+		self.target_set     = None    ## target set name
+		self.target_set_val = None    ## target set val
 	
 	def set_direction(self, outport="tmp"):
 		if(outport == '01'):
@@ -52,9 +52,9 @@ class MyConditionsAndResults:
 	def set_timing_sense_neg(self):
 		self.timing_sense = "negative_unate"
 
-	# set timing_sense and timing_type for input/output
+	## set timing_sense and timing_type for input/output
 	def set_timing_flop_inout(self, inport="tmp", outport="tmp"):
-		# inport
+		## inport
 		if((inport == 'pos')or(inport == '01')):
 			self.timing_sense_setup = "rise_constraint"
 			self.timing_sense_hold  = "rise_constraint"
@@ -67,7 +67,7 @@ class MyConditionsAndResults:
 			self.timing_type_hold  = "hold_falling"
 		else:
 			print("Illegal input: "+self.outport+", check unate")
-		# outport
+		## outport
 		if((outport == 'pos')or(outport == '01')):
 			self.timing_type_out = "rising_edge"
 		elif((outport == 'neg')or(outport == '10')):
@@ -76,7 +76,7 @@ class MyConditionsAndResults:
 			print("Illegal input: "+self.outport+", check unate")
 	
 	def set_timing_flop_clock(self, inport="0101", outport="01"):
-		# inport
+		## inport
 		if(inport == "0101"):
 			self.timing_type_edge = "riseing_edge"
 			self.timing_type_setup = "setup_riseing"
@@ -89,7 +89,7 @@ class MyConditionsAndResults:
 			self.timing_type_edge  = "NONE"
 			self.timing_type_setup = "NONE"
 			self.timing_type_hold  = "NONE"
-		# outport
+		## outport
 		if((outport == 'pos')or(outport == '01')):
 			self.direction_clock_prop = "cell_rise"
 			self.direction_clock_tran = "rise_transaction"
@@ -100,14 +100,14 @@ class MyConditionsAndResults:
 			print("Illegal input: "+self.outport+", check unate")
 
 	def set_timing_flop_set(self, inport="01", outport="01"):
-		# inport
+		## inport
 		if((inport == "01")or(inport.upper() == "RISE")):
 			self.timing_sense_set = "positive_unate"
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_set = "negative_unate"
 		else:
 			print("Warning: illigal inport type at set_timing_type_set: "+str(inport))
-		# outport
+		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_set = "preset"
 			self.direction_set_prop = "cell_rise"
@@ -120,14 +120,14 @@ class MyConditionsAndResults:
 			print("Warning: illigal outport type at set_timing_type_set: "+str(inport))
 
 	def set_timing_flop_reset(self, inport="01", outport="01"):
-		# inport
+		## inport
 		if((inport == "01")or(inport.upper() == "RISE")):
 			self.timing_sense_reset = "positive_unate"
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_reset = "negative_unate"
 		else:
 			print("Warning: illigal inport type at reset_timing_type_reset: "+str(inport))
-		# outport
+		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_reset = "preset"
 			self.direction_reset_prop = "cell_rise"
@@ -184,7 +184,7 @@ class MyConditionsAndResults:
 		#print(self.target_set_val)
 		#print(self.target_set)
 
-	# propagation delay table
+	## propagation delay table
 	def set_list2_prop(self, list2_prop=[]):
 		self.list2_prop = list2_prop 
 
@@ -198,7 +198,7 @@ class MyConditionsAndResults:
 			print(self.lut_prop[i])
 
 	def write_list2_prop(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_prop = []
 		for j in range(len(jlist)-1):
@@ -206,28 +206,28 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_prop.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_prop.append(outline)
-		# values
+		## values
 		self.lut_prop.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
 			for j in range(len(jlist)-1):
 				outline += str(self.list2_prop[i][j])+", "
-			# do not add "," for last line
+			## do not add "," for last line
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_prop[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_prop[i][len(jlist)-1])+"\", \\"
 			self.lut_prop.append(outline)
 		self.lut_prop.append(");")
 
-	# transient delay table
+	## transient delay table
 	def set_list2_tran(self, list2_tran=[]):
 		self.list2_tran = list2_tran 
 
@@ -241,7 +241,7 @@ class MyConditionsAndResults:
 			print(self.lut_tran[i])
 
 	def write_list2_tran(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_tran = []
 		for j in range(len(jlist)-1):
@@ -249,13 +249,13 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_tran.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_tran.append(outline)
-		# values
+		## values
 		self.lut_tran.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
@@ -263,13 +263,13 @@ class MyConditionsAndResults:
 				outline += str(self.list2_tran[i][j])+", "
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_tran[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_tran[i][len(jlist)-1])+"\", \\"
 			self.lut_tran.append(outline)
 		self.lut_tran.append(");")
 
-	# internal power (energy) table 
+	## internal power (energy) table 
 	def set_list2_eintl(self, list2_eintl=[]):
 		self.list2_eintl = list2_eintl 
 
@@ -283,7 +283,7 @@ class MyConditionsAndResults:
 			print(self.lut_eintl[i])
 
 	def write_list2_eintl(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_eintl = []
 		for j in range(len(jlist)-1):
@@ -291,13 +291,13 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_eintl.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_eintl.append(outline)
-		# values
+		## values
 		self.lut_eintl.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
@@ -305,7 +305,7 @@ class MyConditionsAndResults:
 				outline += str(self.list2_eintl[i][j])+", "
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_eintl[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_eintl[i][len(jlist)-1])+"\", \\"
 			self.lut_eintl.append(outline)
@@ -325,7 +325,7 @@ class MyConditionsAndResults:
 			print(self.lut_ein[i])
 
 	def write_list2_ein(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_ein = []
 		for j in range(len(jlist)-1):
@@ -333,13 +333,13 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_ein.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_ein.append(outline)
-		# values
+		## values
 		self.lut_ein.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
@@ -347,7 +347,7 @@ class MyConditionsAndResults:
 				outline += str(self.list2_ein[i][j])+", "
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_ein[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_ein[i][len(jlist)-1])+"\", \\"
 			self.lut_ein.append(outline)
@@ -367,16 +367,16 @@ class MyConditionsAndResults:
 			print(self.lut_cin[i])
 
 	def average_list2_cin(self, targetLib, ilist, jlist):
-		# output average of input capacitance
-		# (do not write table)
+		## output average of input capacitance
+		## (do not write table)
 		self.lut_cin = 0;
 		for i in range(len(ilist)):
 			for j in range(len(jlist)):
 				self.lut_cin += self.list2_cin[i][j]
-		self.cin = self.lut_cin / (len(ilist) * len(jlist)) # use average
-		print("store cin:"+str(self.cin))
+		self.cin = str(self.lut_cin / (len(ilist) * len(jlist))) ## use average
+		#print("store cin:"+str(self.cin))
 
-	# leak power
+	## leak power
 	def set_list2_pleak(self, list2_pleak=[]):
 		self.list2_pleak = list2_pleak 
 
@@ -390,14 +390,15 @@ class MyConditionsAndResults:
 			print(self.lut_pleak[i])
 
 	def write_list2_pleak(self, targetLib, ilist, jlist):
-		# output average of leak power
-		# (do not write table)
+		## output average of leak power
+		## (do not write table)
 		self.lut_pleak = 0;
 		for i in range(len(ilist)):
 			for j in range(len(jlist)):
 				self.lut_pleak += self.list2_pleak[i][j]
 		self.pleak = str(self.lut_pleak / (len(ilist) * len(jlist))) # use average
-
+	
+	## setup (for flop)
 	def set_list2_setup(self, list2_setup=[]):
 		self.list2_setup = list2_setup 
 
@@ -411,7 +412,7 @@ class MyConditionsAndResults:
 			print(self.lut_setup[i])
 
 	def write_list2_setup(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_setup = []
 		for j in range(len(jlist)-1):
@@ -419,27 +420,28 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_setup.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_setup.append(outline)
-		# values
+		## values
 		self.lut_setup.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
 			for j in range(len(jlist)-1):
 				outline += str(self.list2_setup[i][j])+", "
-			# do not add "," for last line
+			## do not add "," for last line
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_setup[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_setup[i][len(jlist)-1])+"\", \\"
 			self.lut_setup.append(outline)
 		self.lut_setup.append(");")
 
+	## hold (for flop)
 	def set_list2_hold(self, list2_hold=[]):
 		self.list2_hold = list2_hold 
 
@@ -453,7 +455,7 @@ class MyConditionsAndResults:
 			print(self.lut_hold[i])
 
 	def write_list2_hold(self, targetLib, ilist, jlist):
-		# index_1
+		## index_1
 		outline = "index_1(\""
 		self.lut_hold = []
 		for j in range(len(jlist)-1):
@@ -461,22 +463,22 @@ class MyConditionsAndResults:
 		outline += str(jlist[len(jlist)-1])+"\");" 
 		#print(outline)
 		self.lut_hold.append(outline)
-		# index_2
+		## index_2
 		outline = "index_2(\""
 		for i in range(len(ilist)-1):
 			outline += str(ilist[i])+", " 
 		outline += str(ilist[len(ilist)-1])+"\");" 
 		self.lut_hold.append(outline)
-		# values
+		## values
 		self.lut_hold.append("values ( \\")
 		for i in range(len(ilist)):
 			outline = "\""
 			for j in range(len(jlist)-1):
 				outline += str(self.list2_hold[i][j])+", "
-			# do not add "," for last line
+			## do not add "," for last line
 			if(i == (len(ilist)-1)): 
 				outline += str(self.list2_hold[i][len(jlist)-1])+"\" \\"
-			#  add "," for else 
+			##  add "," for else 
 			else:	
 				outline += str(self.list2_hold[i][len(jlist)-1])+"\", \\"
 			self.lut_hold.append(outline)

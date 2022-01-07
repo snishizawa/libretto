@@ -141,47 +141,51 @@ class MyLibrarySetting:
 
 	def set_temperature(self, line="tmp"):
 		tmp_array = line.split()
-		self.temperature = tmp_array[1] 
+		self.temperature = float(tmp_array[1]) 
 		#print(tmp_array[1])
 
 	def set_vdd_voltage(self, line="tmp"):
 		tmp_array = line.split()
-		self.vdd_voltage = tmp_array[1] 
+		self.vdd_voltage = float(tmp_array[1]) 
 		#print(self.vdd_voltage)
 
 	def set_vss_voltage(self, line="tmp"):
 		tmp_array = line.split()
-		self.vss_voltage = tmp_array[1] 
+		self.vss_voltage = float(tmp_array[1]) 
 		#print(tmp_array[1])
 
 	def set_nwell_voltage(self, line="tmp"):
 		tmp_array = line.split()
-		self.nwell_voltage = tmp_array[1] 
+		self.nwell_voltage = float(tmp_array[1]) 
 		#print(tmp_array[1])
 
 	def set_pwell_voltage(self, line="tmp"):
 		tmp_array = line.split()
-		self.pwell_voltage = tmp_array[1] 
+		self.pwell_voltage = float(tmp_array[1]) 
 		#print(tmp_array[1])
 
 	def set_logic_threshold_high(self, line="tmp"):
 		tmp_array = line.split()
-		self.logic_threshold_high = tmp_array[1] 
+		self.logic_threshold_high = float(tmp_array[1])
+		self.logic_threshold_high_voltage = float(tmp_array[1])*self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_logic_threshold_low(self, line="tmp"):
 		tmp_array = line.split()
-		self.logic_threshold_low = tmp_array[1] 
+		self.logic_threshold_low = float(tmp_array[1])
+		self.logic_threshold_low_voltage = float(tmp_array[1])*self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_logic_high_to_low_threshold(self, line="tmp"):
 		tmp_array = line.split()
-		self.logic_high_to_low_threshold = tmp_array[1] 
+		self.logic_high_to_low_threshold = float(tmp_array[1])
+		self.logic_high_to_low_threshold_voltage = float(tmp_array[1])*self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_logic_low_to_high_threshold(self, line="tmp"):
 		tmp_array = line.split()
-		self.logic_low_to_high_threshold = tmp_array[1] 
+		self.logic_low_to_high_threshold = float(tmp_array[1])
+		self.logic_low_to_high_threshold_voltage = float(tmp_array[1])*self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_work_dir(self, line="tmp"):
@@ -196,17 +200,19 @@ class MyLibrarySetting:
 
 	def set_energy_meas_low_threshold(self, line="tmp"):
 		tmp_array = line.split()
-		self.energy_meas_low_threshold = tmp_array[1] 
+		self.energy_meas_low_threshold = float(tmp_array[1]) 
+		self.energy_meas_low_threshold_voltage = float(tmp_array[1]) *self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_energy_meas_high_threshold(self, line="tmp"):
 		tmp_array = line.split()
-		self.energy_meas_high_threshold = tmp_array[1] 
+		self.energy_meas_high_threshold = float(tmp_array[1]) 
+		self.energy_meas_high_threshold_voltage = float(tmp_array[1]) *self.vdd_voltage*self.voltage_mag
 		#print(tmp_array[1])
 
 	def set_energy_meas_time_extent(self, line="tmp"):
 		tmp_array = line.split()
-		self.energy_meas_time_extent = tmp_array[1] 
+		self.energy_meas_time_extent = float(tmp_array[1])
 		#print(tmp_array[1])
 	
 	def set_operating_conditions(self, line="tmp"):
