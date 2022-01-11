@@ -35,6 +35,8 @@ def exportLib(targetLib, targetCell):
 		outlines.append("  default_max_transition : 1000;\n")
 		outlines.append("  default_input_pin_cap : 0;\n")
 		outlines.append("  default_inout_pin_cap : 0;\n")
+		outlines.append("  default_leakage_power_density : 0;\n")
+		outlines.append("  default_max_fanout : 100;\n")
 		outlines.append("  default_output_pin_cap : 0;\n")
 		outlines.append("  in_place_swap_mode : match_footprint;\n")
 		outlines.append("  input_threshold_pct_fall : "+str(targetLib.logic_high_to_low_threshold*100)+";\n")

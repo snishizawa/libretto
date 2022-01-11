@@ -19,7 +19,7 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 		tmp_Harness.set_direction(tmp_outp0_val)
 		#print ("**"+targetCell.outports[0]+" "+targetCell.functions[0]+" "+ tmp_outp0_val)
 		tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], tmp_outp0_val)
-		# case input0 is target input pin
+		## case input0 is target input pin
 		if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
 			tmp_Harness.set_target_inport (targetCell.inports[0], tmp_inp0_val)
 			tmp_Harness.set_stable_inport ("NULL", "NULL")
@@ -31,12 +31,13 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 		#tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
 		spicef = "delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
 			+str(tmp_inp0_val)+"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
-		# run spice and store result
+		## run spice and store result
 		runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 
-	targetCell.set_cin_avg(harnessList) # average cin of each harness
+	## average cin of each harness
+	targetCell.set_cin_avg(targetLib, harnessList) 
 
 	return harnessList2
 #end runCombIn1Out1
@@ -73,12 +74,15 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 
-		# calculate avd of pleak
-		if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
-			targetCell.set_inport_cap_pleak(0, tmp_Harness)
+		# calculate avg of pleak
+		#if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
+		#	targetCell.set_inport_cap_pleak(0, tmp_Harness)
 		# case input0 is target input pin
-		elif ((tmp_inp1_val == '01') or (tmp_inp1_val == '10')):
-			targetCell.set_inport_cap_pleak(1, tmp_Harness)
+		#elif ((tmp_inp1_val == '01') or (tmp_inp1_val == '10')):
+		#	targetCell.set_inport_cap_pleak(1, tmp_Harness)
+
+	## average cin of each harness
+	targetCell.set_cin_avg(targetLib, harnessList) 
 
 	return harnessList2
 #end runCombIn2Out1
@@ -194,7 +198,10 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 	list2_ein =   []
 	list2_cin =   []
 	list2_pleak =   []
+	tmp_loop = 0
 	for tmp_load in targetCell.load:
+		tmp_loop += 1
+		print("#loop = "+str(tmp_loop))
 		tmp_list_prop =   []
 		tmp_list_tran =   []
 		tmp_list_estart = []
@@ -204,8 +211,8 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 		tmp_list_cin =   []
 		tmp_list_pleak =   []
 		for tmp_slope in targetCell.slope:
-			cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-			slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
+			cap_line = ".param cap ="+str(tmp_load*targetLib.capacitance_mag)+"\n"
+			slew_line = ".param slew ="+str(tmp_slope*targetLib.time_mag)+"\n"
 			temp_line = ".temp "+str(targetLib.temperature)+"\n"
 			spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+".sp"
 
@@ -213,8 +220,8 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 			res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
 				= genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, "none", "none", spicefo)
 
-			estart_line = ".param ENERGY_START = "+str(float(res_energy_start)*targetLib.time_mag)+"\n"
-			eend_line = ".param ENERGY_END = "+str(float(res_energy_end)*targetLib.time_mag)+"\n"
+			estart_line = ".param ENERGY_START = "+str(res_energy_start)+"\n"
+			eend_line = ".param ENERGY_END = "+str(res_energy_end)+"\n"
 
 			## 2nd trial, extract energy
 			res_prop_in_out, res_trans_out, \
@@ -228,21 +235,25 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 			#tmp_list_eend.append(res_energy_end)
 
 			## intl. energy calculation
-			## larger Ql: contain short circuit Q, intl. Q, load Q 
-			## smaller Qs: short circuit Q
-			## E = (Ql - Qs)V
-			tmp_list_eintl.append((abs(abs(res_q_vdd_dyn) - abs(res_q_vss_dyn)) - abs(res_q_out_dyn))*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
-			tmp_list_ein.append(abs(res_q_in_dyn)*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
-			## C = Q / V
-			tmp_list_cin.append(abs(res_q_in_dyn)/float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))
-			print("calculated cin: "+str(abs(res_q_in_dyn)/float(targetLib.vdd_voltage)*float(targetLib.voltage_mag)))
-			print("q: "+str(abs(res_q_in_dyn)))
-			print("vdd: "+str(targetLib.vdd_voltage))
-			print("vddm: "+str(float(targetLib.voltage_mag)))
+			## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
+			## larger Ql: intl. Q, load Q 
+			## smaller Qs: intl. Q
+			## Eintl = QsV
+			if(abs(res_q_vdd_dyn) > abs(res_q_vss_dyn)):
+				tmp_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.voltage_mag))
+			else:
+				tmp_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.voltage_mag))
+
+			## input energy
+			tmp_list_ein.append(abs(res_q_in_dyn)*targetLib.vdd_voltage*targetLib.voltage_mag)
+
+			## Cin = Qin / V
+			tmp_list_cin.append(abs(res_q_in_dyn)/(targetLib.vdd_voltage*targetLib.voltage_mag))
+
 			## Pleak = average of Pleak_vdd and Pleak_vss
 			## P = I * V
-			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag)) #
-			print("calculated pleak: "+str(float(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*float(targetLib.vdd_voltage)*float(targetLib.voltage_mag))) #
+			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*targetLib.vdd_voltage*targetLib.voltage_mag) #
+			#print("calculated pleak: "+str(float(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*targetLib.vdd_voltage*targetLib.voltage_mag)) #
 		list2_prop.append(tmp_list_prop)
 		list2_tran.append(tmp_list_tran)
 		#list2_estart.append(tmp_list_estart)
@@ -292,8 +303,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 		outlines = []
 		outlines.append("*title: delay meas.\n")
 		outlines.append(".option brief nopage nomod post=1 ingold=2 autostop\n")
-		outlines.append(".inc '../"+str(targetCell.model)+"'\n")
-		outlines.append(".inc '../"+str(targetCell.netlist)+"'\n")
+		outlines.append(".inc '../"+targetCell.model+"'\n")
+		outlines.append(".inc '../"+targetCell.netlist+"'\n")
 		outlines.append(temp_line)
 		outlines.append(".param _vdd = "+str(targetLib.vdd_voltage)+"\n")
 		outlines.append(".param _vss = "+str(targetLib.vss_voltage)+"\n")
@@ -304,7 +315,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 		outlines.append(".param _tslew = slew\n")
 		outlines.append(".param _tstart = slew\n")
 		outlines.append(".param _tend = '_tstart + _tslew'\n")
-		outlines.append(".param _tsimend = '_tslew * 100000' \n")
+		outlines.append(".param _tsimend = '_tslew * 10000' \n")
 		outlines.append(".param _Energy_meas_end_extent = "+str(targetLib.energy_meas_time_extent)+"\n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
@@ -339,33 +350,33 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 		outlines.append("** Delay \n")
 		outlines.append("* Prop delay \n")
 		if(targetHarness.target_inport_val == "01"):
-			outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+			outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
 		elif(targetHarness.target_inport_val == "10"):
-			outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+			outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
 		if(targetHarness.target_outport_val == "10"):
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
 		elif(targetHarness.target_outport_val == "01"):
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
 		outlines.append("* Trans delay \n")
 
 		if(targetHarness.target_outport_val == "10"):
-			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
+			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(targetLib.logic_threshold_high_voltage)+"' fall=1\n")
+			outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_threshold_low_voltage)+"' fall=1 \n")
 		elif(targetHarness.target_outport_val == "01"):
-			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(targetLib.logic_threshold_low_voltage)+"' rise=1\n")
+			outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_threshold_high_voltage)+"' rise=1 \n")
 
 		# get ENERGY_START and ENERGY_END for energy calculation in 2nd round 
 		if(meas_energy == 0):
 			outlines.append("* For energy calculation \n")
 			if(targetHarness.target_inport_val == "01"):
-				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
+				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_low_threshold_voltage)+"' rise=1 \n")
 			elif(targetHarness.target_inport_val == "10"):
-				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
+				outlines.append(".measure Tran ENERGY_START when v(VIN)='"+str(targetLib.energy_meas_high_threshold_voltage)+"' fall=1 \n")
 			if(targetHarness.target_outport_val == "01"):
-				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold_voltage)+"' rise=1 \n")
 			elif(targetHarness.target_outport_val == "10"):
-				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold_voltage)+"' fall=1 \n")
 
 		##
 		## energy measurement 
@@ -395,10 +406,11 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 			my_error()
 
 		## for ngspice batch mode 
-		outlines.append(".control \n")
-		outlines.append("run \n")
-		outlines.append("plot V(VIN) V(VOUT) \n")
-		outlines.append(".endc \n")
+		outlines.append("*comment out .control for ngspice batch mode \n")
+		outlines.append("*.control \n")
+		outlines.append("*run \n")
+		outlines.append("*plot V(VIN) V(VOUT) \n")
+		outlines.append("*.endc \n")
 
 		outlines.append("XINV VIN VOUT VHIGH VLOW VDD_DYN VSS_DYN VNW_DYN VPW_DYN DUT \n")
 		outlines.append("C0 WOUT VSS_DYN 'cap'\n")
@@ -485,39 +497,39 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 			# search measure
 			if(re.match("prop_in_out", inline)):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_prop_in_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
 			elif(re.match("trans_out", inline)):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_trans_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				res_trans_out = "{:e}".format(float(sparray[2].strip()))
 			if(meas_energy == 0):
 				if(re.match("energy_start", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_start = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_energy_start = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("energy_end", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_end = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_energy_end = "{:e}".format(float(sparray[2].strip()))
 			if(meas_energy == 1):
 				if(re.match("q_in_dyn", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_in_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("q_out_dyn", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_out_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("q_vdd_dyn", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("q_vss_dyn", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_vss_dyn = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("i_vdd_leak", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_vdd_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("i_vss_leak", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_vss_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
 				elif(re.match("i_in_leak", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_in_leak = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+					res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 
 	f.close()
 	#print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end))

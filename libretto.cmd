@@ -38,8 +38,8 @@ initialize
 
 ## add circuit
 add_cell -n INV_1X -l INV -i A -o YB -f YB=!A 
-add_slope {0.4} 
-add_load  {0.4} 
+add_slope {0.04 0.16} 
+add_load  {0.04 0.16} 
 add_area  1
 add_netlist NETLIST/INV_1X.spi
 add_model NETLIST/model.sp
@@ -49,18 +49,18 @@ add_simulation_timestep auto
 characterize
 export
 
-#add_cell -n AND2_1X -l AND2 -i A B -o Y -f Y=A*B 
-#add_slope {0.4 1.6 6.4} 
-#add_load  {0.4 1.6 6.4} 
-#add_area  1
-#add_netlist NETLIST/AND2_1X.spi
-#add_model NETLIST/model.sp
-#add_simulation_timestep auto
-#
-## characterize
-#characterize
-#export
-#
+add_cell -n AND2_1X -l AND2 -i A B -o Y -f Y=A*B 
+add_slope {0.04 0.16} 
+add_load  {0.04 0.16} 
+add_area  1
+add_netlist NETLIST/AND2_1X.spi
+add_model NETLIST/model.sp
+add_simulation_timestep auto
+
+# characterize
+characterize
+export
+
 #add_cell -n NAND2_1X -l NAND2 -i A B -o YB -f YB=!(A*B) 
 #add_slope {0.4 1.6 6.4} 
 #add_load  {0.4 1.6 6.4} 

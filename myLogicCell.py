@@ -188,15 +188,7 @@ class MyLogicCell:
 
 	def set_inport_cap_pleak(self, index, harness):
 		## average leak power of all harness
-		index_num = 0
-		for target_outport in self.outports:
-			index1 = self.outports.index(target_outport) 
-			for target_inport in self.inports:
-				index2 = self.inports.index(target_inport) 
-				self.pleak += harnessList2[index1][index2].lut_pleak
-				index_num += 1
-		self.pleak = self.pleak / index_num
-
+		self.pleak += harness.pleak 
 
 ##                                 #
 ##-- add functions for seq. cell --#		
