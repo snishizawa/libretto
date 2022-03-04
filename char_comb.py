@@ -129,10 +129,12 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 
-	# calculate avd of pleak
+	## average cin of each harness
+	targetCell.set_cin_avg(targetLib, harnessList) 
 
 	return harnessList2
 #end runCombIn3Out1
+
 def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 	harnessList = []
 	harnessList2 = []
@@ -184,7 +186,8 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 	
-	# calculate avd of pleak
+	## average cin of each harness
+	targetCell.set_cin_avg(targetLib, harnessList) 
 
 	return harnessList2
 #end  runCombIn4Out1

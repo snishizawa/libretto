@@ -324,7 +324,10 @@ def characterizeFiles(targetLib, targetCell):
 	elif(targetCell.logic == 'NAND2'):
 		print ("NAND2\n")
 		## [in0, in1, out0]
-		expectationList2 = [['01','1','10'],['10','1','01'],['1','01','10'],['1','10','01']]
+		expectationList2 = [['01','1','10'],\
+												['10','1','01'],\
+												['1','01','10'],\
+												['1','10','01']]
 		return runCombIn2Out1(targetLib, targetCell, expectationList2,"neg")
 
 	elif(targetCell.logic == 'NAND3'):
