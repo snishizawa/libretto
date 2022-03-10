@@ -71,6 +71,10 @@ def main():
 			elif(line.startswith('set_leakage_power_unit')):
 				targetLib.set_leakage_power_unit(line) 
 
+			## set_energy_unit
+			elif(line.startswith('set_energy_unit')):
+				targetLib.set_energy_unit(line) 
+
 			## set_vdd_name
 			elif(line.startswith('set_vdd_name')):
 				targetLib.set_vdd_name(line) 

@@ -9,6 +9,7 @@ set_capacitance_unit pF
 set_resistance_unit Ohm
 set_current_unit mA
 set_leakage_power_unit pW 
+set_energy_unit fJ 
 set_time_unit ns
 set_vdd_name VDD
 set_vss_name VSS
@@ -29,25 +30,14 @@ set_work_dir work
 set_simulator /usr/local/bin/ngspice 
 set_energy_meas_low_threshold 0.01
 set_energy_meas_high_threshold 0.99
-set_energy_meas_time_extent 1
+set_energy_meas_time_extent 10
 set_operating_conditions PVT_3P5V_25C
 # initialize workspace
 initialize
-
 ## add circuit
-#	add_cell -n ROHM18INVP010 -l INV -i A -o Y -f Y=!A 
-#	add_slope {0.1 0.4 1.6 6.4} 
-#	add_load  {0.1 0.4 1.6 6.4} 
-#	add_area 1
-#	add_netlist rohmlib/ROHM18INVP010.sp
-#	add_model rohmlib/model_rohm180.sp
-#	add_simulation_timestep auto
-#	characterize
-
-## add circuit
-add_flop -n ROHM18DFP010 -l DFF_PCPU -i DATA -c CLK -o Q -f Q=IQ QN=IQN 
-add_slope {0.1 0.4 1.6 6.4} 
-add_load  {0.1 0.4 1.6 6.4} 
+add_flop -n ROHM18DFP010 -l DFF_PCPU -i DATA -c CLK -o Q -q Q QN -f Q=IQ QN=IQN 
+add_slope {0.1 0.7 4.9} 
+add_load  {0.01 0.1 1.0} 
 add_clock_slope auto 
 add_area 1
 add_netlist rohmlib/ROHM18DFP010.sp
@@ -57,3 +47,16 @@ add_simulation_setup_auto
 add_simulation_hold_auto
 characterize
 export
+
+## add circuit
+add_cell -n ROHM18INVP010 -l INV -i A -o Y -f Y=!A 
+add_slope {0.1 0.7 4.9} 
+add_load  {0.01 0.1 1.0} 
+add_area 1
+add_netlist rohmlib/ROHM18INVP010.sp
+add_model rohmlib/model_rohm180.sp
+add_simulation_timestep auto
+characterize
+export
+
+exit

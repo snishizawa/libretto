@@ -534,29 +534,31 @@ def exportVerilogFlop(targetLib, targetCell):
 					my_exit()
 
 				## reset (option)
-				if(re.search('PR', targetCell.reset)):	## posedge async. reset
-					line=line+" or posedge "+targetCell.reset
-					resetlines.append('if('+targetCell.reset+')\n')
-					resetlines.append('  '+target_outport+'<=0;\n')
-					resetlines.append('else begin\n')
-				elif(re.search('NR', targetCell.reset)):	## negedge async. reset
-					line=str(line)+" or negedge "+targetCell.reset
-					resetlines.append('if(!'+targetCell.reset+')\n')
-					resetlines.append('  '+target_outport+'<=0;\n')
-					resetlines.append('else begin\n')
+				if(targetCell.reset != None):	## reset
+					if(re.search('PR', targetCell.reset)):	## posedge async. reset
+						line=line+" or posedge "+targetCell.reset
+						resetlines.append('if('+targetCell.reset+')\n')
+						resetlines.append('  '+target_outport+'<=0;\n')
+						resetlines.append('else begin\n')
+					elif(re.search('NR', targetCell.reset)):	## negedge async. reset
+						line=str(line)+" or negedge "+targetCell.reset
+						resetlines.append('if(!'+targetCell.reset+')\n')
+						resetlines.append('  '+target_outport+'<=0;\n')
+						resetlines.append('else begin\n')
 				## set (option)
-				if(re.search('PS', targetCell.set)):	## posedge async. set 
-					line=line+" or posedge "+targetCell.set
-					setlines.append('if('+targetCell.set+')begin\n')
-					setlines.append('  '+target_outport+'<=1;\n')
-					setlines.append('end\n')
-					setlines.append('else begin\n')
-				elif(re.search('NS', targetCell.set)):	## negedge async. set 
-					line=line+" or negedge "+targetCell.set
-					setlines.append('if(!'+targetCell.set+')begin\n')
-					setlines.append('  '+target_outport+'<=1;\n')
-					setlines.append('end\n')
-					setlines.append('else begin\n')
+				if(targetCell.set != None):	## reset
+					if(re.search('PS', targetCell.set)):	## posedge async. set 
+						line=line+" or posedge "+targetCell.set
+						setlines.append('if('+targetCell.set+')begin\n')
+						setlines.append('  '+target_outport+'<=1;\n')
+						setlines.append('end\n')
+						setlines.append('else begin\n')
+					elif(re.search('NS', targetCell.set)):	## negedge async. set 
+						line=line+" or negedge "+targetCell.set
+						setlines.append('if(!'+targetCell.set+')begin\n')
+						setlines.append('  '+target_outport+'<=1;\n')
+						setlines.append('end\n')
+						setlines.append('else begin\n')
 				line=line+")begin\n"
 				outlines.append(line)
 				if targetCell.set is not None:	

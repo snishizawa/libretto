@@ -202,6 +202,9 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 	list2_cin =   []
 	list2_pleak =   []
 	tmp_loop = 0
+	## calculate whole slope length from logic threshold
+	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
+
 	for tmp_load in targetCell.load:
 		tmp_loop += 1
 		print("#loop = "+str(tmp_loop))
@@ -215,7 +218,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 		tmp_list_pleak =   []
 		for tmp_slope in targetCell.slope:
 			cap_line = ".param cap ="+str(tmp_load*targetLib.capacitance_mag)+"\n"
-			slew_line = ".param slew ="+str(tmp_slope*targetLib.time_mag)+"\n"
+			slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag*targetLib.time_mag)+"\n"
 			temp_line = ".temp "+str(targetLib.temperature)+"\n"
 			spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+".sp"
 
@@ -242,20 +245,27 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 			## larger Ql: intl. Q, load Q 
 			## smaller Qs: intl. Q
 			## Eintl = QsV
-			if(abs(res_q_vdd_dyn) > abs(res_q_vss_dyn)):
-				tmp_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.voltage_mag))
+			if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
+				tmp_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+				print(str(abs(res_q_vdd_dyn*targetLib.vdd_voltage)))
 			else:
-				tmp_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.voltage_mag))
+				tmp_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+				print(str(abs(res_q_vss_dyn*targetLib.vdd_voltage)))
+
+			## intl. energy calculation
+			## Use VDD as intl. energy
+#			tmp_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage)-abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage)))
+#			print(str(abs(res_q_vdd_dyn*targetLib.vdd_voltage)))
 
 			## input energy
-			tmp_list_ein.append(abs(res_q_in_dyn)*targetLib.vdd_voltage*targetLib.voltage_mag)
+			tmp_list_ein.append(abs(res_q_in_dyn)*targetLib.vdd_voltage)
 
 			## Cin = Qin / V
-			tmp_list_cin.append(abs(res_q_in_dyn)/(targetLib.vdd_voltage*targetLib.voltage_mag))
+			tmp_list_cin.append(abs(res_q_in_dyn)/(targetLib.vdd_voltage))
 
 			## Pleak = average of Pleak_vdd and Pleak_vss
 			## P = I * V
-			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*targetLib.vdd_voltage*targetLib.voltage_mag) #
+			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage)) #
 			#print("calculated pleak: "+str(float(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*targetLib.vdd_voltage*targetLib.voltage_mag)) #
 		list2_prop.append(tmp_list_prop)
 		list2_tran.append(tmp_list_tran)
@@ -478,8 +488,13 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 	spicelis = spicef
 	spicelis += ".lis"
 
+	if(re.search("ngspice", targetLib.simulator)):
+		cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+	elif(re.search("hspice", targetLib.simulator)):
+		cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
+	#cmd = str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+"\n"
 	# run simulation
-	cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+	#cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
 	with open('run.sh','w') as f:
 		outlines = []
 		outlines.append(cmd) 
@@ -496,41 +511,43 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 	# read results
 	with open(spicelis,'r') as f:
 		for inline in f:
+			if(re.search("hspice", targetLib.simulator)):
+				inline = re.sub('\=',' ',inline)
 			#print(inline)
 			# search measure
-			if(re.match("prop_in_out", inline)):
+			if((re.search("prop_in_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
-			elif(re.match("trans_out", inline)):
+			elif((re.search("trans_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_trans_out = "{:e}".format(float(sparray[2].strip()))
 			if(meas_energy == 0):
-				if(re.match("energy_start", inline)):
+				if((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_energy_start = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("energy_end", inline)):
+				elif((re.search("energy_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_energy_end = "{:e}".format(float(sparray[2].strip()))
 			if(meas_energy == 1):
-				if(re.match("q_in_dyn", inline)):
+				if((re.search("q_in_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("q_out_dyn", inline)):
+				elif((re.search("q_out_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("q_vdd_dyn", inline)):
+				elif((re.search("q_vdd_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("q_vss_dyn", inline)):
+				elif((re.search("q_vss_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("i_vdd_leak", inline)):
+				elif((re.search("i_vdd_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("i_vss_leak", inline)):
+				elif((re.search("i_vss_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
-				elif(re.match("i_in_leak", inline)):
+				elif((re.search("i_in_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 

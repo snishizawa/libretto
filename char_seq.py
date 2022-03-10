@@ -89,20 +89,20 @@ def runFlop(targetLib, targetCell, expectationList2):
 
 	## select cin in simulation: clock(D2Q, D2C, C2Q, C2D), reset, set
 	## normal operation (clock edge)
-	if((CLK_val == '0101') or (CLK_val == '1010')):
+	#if((CLK_val == '0101') or (CLK_val == '1010')):
 		## set cin for clock
-		taargetCell.set_cin_flop(targetLib, "clk", tmp_Harness.ccin)
+		#targetCell.set_cin_flop(targetLib, "clk", tmp_Harness.ccin)
 		## set cin for data
-		targetCell.set_cin_avg(targetLib, harnessList) 
+		#targetCell.set_cin_avg(targetLib, harnessList) 
 	## reset operation (reset edge)
-	elif(((CLK_val == '010') or (CLK_val == '101'))and((RST_val == '01') or (RST_val == '10'))):
-		taargetCell.set_cin_flop(targetLib, "rst", tmp_Harness.rcin)
+	#elif(((CLK_val == '010') or (CLK_val == '101'))and((RST_val == '01') or (RST_val == '10'))):
+		#targetCell.set_cin_flop(targetLib, "rst", tmp_Harness.rcin)
 	## set operation (set edge)
-	elif(((CLK_val == '010') or (CLK_val == '101'))and((SET_val == '01') or (SET_val == '10'))):
-		taargetCell.set_cin_flop(targetLib, "set", tmp_Harness.scin)
-	else:
-		print("any input vector is inputted! error\n")
-		my_exit()
+	#elif(((CLK_val == '010') or (CLK_val == '101'))and((SET_val == '01') or (SET_val == '10'))):
+		#targetCell.set_cin_flop(targetLib, "set", tmp_Harness.scin)
+	#else:
+		#print("any input vector is inputted! error\n")
+		#my_exit()
 
 	return harnessList2
 
@@ -122,14 +122,12 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			tmp_list_eend =   []
 			for tmp_slope in targetCell.slope:
 				tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
-				tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
-				tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
-				tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
-				tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
-				tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
 				tmp_min_setup = tmp_max_val_loop # temporal value for setup 
 				tmp_tsetup1 = tmp_max_val_loop # temporal value for setup 
 				tmp_tsetup2 = tmp_max_val_loop # temporal value for setup 
+				tmp_tsetup3 = tmp_max_val_loop # temporal value for setup 
+				tmp_thold1 = tmp_max_val_loop # temporal value for setup 
+				tmp_thold2 = tmp_max_val_loop # temporal value for setup 
 				tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
 
 				# C2Q and setup search (sparce)
@@ -138,221 +136,45 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				# 2nd stage: sim w/ 100-% output swing
 				tsimendmag = [1, 10]; # magnify parameter of _tsimend
 				tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-				print("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*10))
+				tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
+				tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+
+				tmp_tstep_mag1 = 50
+				print("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+				tmp_tsetup1 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																		targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
+																		targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, spicef)
+
+				tmp_tstep_mag2 = 10
+				print("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+				tmp_tsetup2 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																		tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																		tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																		targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, spicef)
+
+				print("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
+				tmp_tsetup3 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																		tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																		tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																		targetCell.sim_setup_timestep, tmp_min_hold, spicef)
 		
-				for tsetup in np.arange (targetCell.sim_setup_lowest, targetCell.sim_setup_highest, targetCell.sim_setup_timestep*40):
-					first_stage_fail = 0
-					for j in range(len(tranmag)):
-						if(first_stage_fail == 0):
-							print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{tmp_min_hold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
-							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
-							tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
-							thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
-							tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
-							spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
-							#print(spicefo)
-              
-							res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
-								= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-																		tsetup_line, thold_line, tsimend_line, spicefo)
-					  
-							#  check 1st and 2nd run of simulation
-							# if res_trans_out failed, it may failed in both run -> exit 
-							if(res_trans_out == "failed"):
-								first_stage_fail = 1
+				tmp_thold_mag1 = 10
+				print("First stage sparse hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
+				( tmp_thold1, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, tmp_min_energy_start, \
+					tmp_min_energy_end) = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																		targetCell.sim_hold_highest, targetCell.sim_hold_lowest, \
+																		-targetCell.sim_hold_timestep*tmp_thold_mag1, tmp_tsetup3, spicef)
 
-					tmp_tsetup1 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
+				print("Second stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep))
+				( tmp_thold2, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, tmp_min_energy_start, \
+					tmp_min_energy_end) = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																		tmp_thold1 + targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
+																		tmp_thold1 - targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
+																		-targetCell.sim_hold_timestep, tmp_tsetup3, spicef)
 
-					#  check second run of simulation
-					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
-						if(tmp_max_val_loop == tmp_min_prop_in_out):
-							print("Error: simulation failed! Check spice deck!")
-							print("spice deck: "+spicefo)
-							my_exit()
-						print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
-						tmp_tsetup1 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
-						break
-					
-					# update C2Q(res_prop_in_out) 
-					tmp_min_prop_in_out  = float(res_prop_in_out)
-					# in set/reset sim, res_prop_cin_out is not measured
-					if(res_prop_cin_out == "failed"):
-						tmp_min_prop_cin_out = float(res_prop_in_out)
-					tmp_min_trans_out    = float(res_trans_out)
-					tmp_min_energy_start = float(res_energy_start)
-					tmp_min_energy_end   = float(res_energy_end)
-					if(res_setup != "failed"):
-						tmp_min_setup = float(tmp_tsetup1)
-					#if(res_hold != "failed"):
-					#	tmp_min_hold = float(res_hold)
-
-				# C2Q and setup search 2 (middle)
-				# perform two-stage simulation
-				# 1st stage: sim w/  10-% output swing
-				# 2nd stage: sim w/ 100-% output swing
-				tsimendmag = [1, 10]; # magnify parameter of _tsimend
-				tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-		
-				print("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
-				for tsetup in np.arange (tmp_tsetup1 - targetCell.sim_setup_timestep *50 , tmp_tsetup1 + targetCell.sim_setup_timestep *50, targetCell.sim_setup_timestep*10):
-					first_stage_fail = 0
-					for j in range(len(tranmag)):
-						if(first_stage_fail == 0):
-							print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{tmp_min_hold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
-							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
-							tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
-							thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
-							tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
-							spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
-							#print(spicefo)
-              
-							res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
-								= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-																		tsetup_line, thold_line, tsimend_line, spicefo)
-					  
-							#  check 1st and 2nd run of simulation
-							# if res_trans_out failed, it may failed in both run -> exit 
-							if(res_trans_out == "failed"):
-								first_stage_fail = 1
-
-					tmp_tsetup2 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
-
-					#  check second run of simulation
-					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
-						if(tmp_max_val_loop == tmp_min_prop_in_out):
-							print("Error: simulation failed! Check spice deck!")
-							print("spice deck: "+spicefo)
-							my_exit()
-						print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
-						tmp_tsetup2 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
-						break
-					
-					# update C2Q(res_prop_in_out) 
-					tmp_min_prop_in_out  = float(res_prop_in_out)
-					# in set/reset sim, res_prop_cin_out is not measured
-					if(res_prop_cin_out == "failed"):
-						tmp_min_prop_cin_out = float(res_prop_in_out)
-					tmp_min_trans_out    = float(res_trans_out)
-					tmp_min_energy_start = float(res_energy_start)
-					tmp_min_energy_end   = float(res_energy_end)
-					if(res_setup != "failed"):
-						tmp_min_setup = float(tmp_tsetup2)
-					#if(res_hold != "failed"):
-					#	tmp_min_hold = float(res_hold)
-
-
-				# C2Q and setup search 3 (precise)
-				# perform two-stage simulation
-				# 1st stage: sim w/  10-% output swing
-				# 2nd stage: sim w/ 100-% output swing
-				tsimendmag = [1, 10]; # magnify parameter of _tsimend
-				tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-		
-				print("Therd stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
-				for tsetup in np.arange (tmp_tsetup2 - targetCell.sim_setup_timestep *11 , tmp_tsetup2 + targetCell.sim_setup_timestep *11, targetCell.sim_setup_timestep):
-					first_stage_fail = 0
-					for j in range(len(tranmag)):
-						if(first_stage_fail == 0):
-							print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{tmp_min_hold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
-							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
-							tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
-							thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
-							tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
-							spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
-							#print(spicefo)
-              
-							res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
-								= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-																		tsetup_line, thold_line, tsimend_line, spicefo)
-					  
-							#  check 1st and 2nd run of simulation
-							# if res_trans_out failed, it may failed in both run -> exit 
-							if(res_trans_out == "failed"):
-								first_stage_fail = 1
-
-					tmp_tsetup3 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
-
-					#  check second run of simulation
-					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
-						if(tmp_max_val_loop == tmp_min_prop_in_out):
-							print("Error: simulation failed! Check spice deck!")
-							print("spice deck: "+spicefo)
-							my_exit()
-						print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
-						tmp_tsetup3 = tsetup - targetCell.sim_setup_timestep # restore previous tsetup 
-						break
-					
-					# update C2Q(res_prop_in_out) 
-					tmp_min_prop_in_out  = float(res_prop_in_out)
-					# in set/reset sim, res_prop_cin_out is not measured
-					if(res_prop_cin_out == "failed"):
-						tmp_min_prop_cin_out = float(res_prop_in_out)
-					tmp_min_trans_out    = float(res_trans_out)
-					tmp_min_energy_start = float(res_energy_start)
-					tmp_min_energy_end   = float(res_energy_end)
-					if(res_setup != "failed"):
-						tmp_min_setup = float(tmp_tsetup3)
-					#if(res_hold != "failed"):
-					#	tmp_min_hold = float(res_hold)
-
-				# hold search
-				# perform two-stage simulation
-				# 1st stage: sim w/  10-% output swing
-				# 2nd stage: sim w/ 100-% output swing
-				for thold in np.arange (targetCell.sim_hold_highest, targetCell.sim_hold_lowest, -targetCell.sim_hold_timestep):
-					first_stage_fail = 0
-					for j in range(len(tranmag)):
-						if(first_stage_fail == 0):
-							print("dSetup: "+str(f'{tmp_tsetup3:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
-							cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
-							slew_line = ".param slew ="+str(tmp_slope)+str(targetLib.time_unit)+"\n"
-							cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
-							tsetup_line = ".param tsetup ="+str(tmp_tsetup3)+str(targetLib.time_unit)+"\n"
-							thold_line = ".param thold ="+str(thold)+str(targetLib.time_unit)+"\n"
-							tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
-							spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tmp_tsetup2:,.4f}')+"_hold"+str(f'{thold:,.4f}')+".sp"
-							#print(spicefo)
-              
-							res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
-								= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-																		tsetup_line, thold_line, tsimend_line, spicefo)
-					  
-							#  check 1st and 2nd run of simulation
-							# if res_trans_out failed, it may failed in both run -> exit 
-							if(res_trans_out == "failed"):
-								first_stage_fail = 1
-
-					#  check second run of simulation
-					# if (current D2Q > prev. D2Q), exceeds min D2Q
-					if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
-						if(tmp_max_val_loop == tmp_min_prop_in_out):
-							print("Error: simulation failed! Check spice deck!")
-							print("spice deck: "+spicefo)
-							my_exit()
-						print("Min. D2Q found. Break loop at dHold: "+str(f'{thold:,.4f}'))
-						break
-					
-					# update C2Q(res_prop_in_out) 
-					tmp_min_prop_in_out  = float(res_prop_in_out)
-					# in set/reset sim, res_prop_cin_out is not measured
-					if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
-						tmp_min_prop_cin_out = float(res_prop_in_out)
-					tmp_min_trans_out    = float(res_trans_out)
-					tmp_min_energy_start = float(res_energy_start)
-					tmp_min_energy_end   = float(res_energy_end)
-					if(res_setup != "failed"):
-						tmp_min_setup = float(res_setup)
-					if(res_hold != "failed"):
-						tmp_min_hold = float(res_hold)
 				# end setup/hold search
 				tmp_list_prop.append(tmp_min_prop_in_out) # store D2Q 
 				#tmp_list_prop.append(tmp_min_prop_cin_out) # store C2Q (not D2Q)
@@ -396,6 +218,131 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
 		#targetHarness.print_lut_tran()
 		
+def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, thold_lowest, thold_highest, thold_tstep, tsetup, spicef):
+	# hold search
+	# perform two-stage simulation
+	# 1st stage: sim w/  10-% output swing
+	# 2nd stage: sim w/ 100-% output swing
+	tsimendmag = [1, 10]; # magnify parameter of _tsimend
+	tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
+	tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
+	tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+	tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+	
+	## calculate whole slope length from logic threshold
+	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
+
+	for thold in np.arange (thold_lowest, thold_highest, thold_tstep):
+		first_stage_fail = 0
+		for j in range(len(tranmag)):
+			if(first_stage_fail == 0):
+				print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
+				cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
+				slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag)+str(targetLib.time_unit)+"\n"
+				cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
+				tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
+				thold_line = ".param thold ="+str(thold)+str(targetLib.time_unit)+"\n"
+				tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
+				spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{thold:,.4f}')+".sp"
+				#print(spicefo)
+        
+				res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
+															tsetup_line, thold_line, tsimend_line, spicefo)
+		  
+				#  check 1st and 2nd run of simulation
+				# if res_trans_out failed, it may failed in both run -> exit 
+				if(res_trans_out == "failed"):
+					first_stage_fail = 1
+
+		#  check second run of simulation
+		# if (current D2Q > prev. D2Q), exceeds min D2Q
+		if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
+			if(tmp_max_val_loop == tmp_min_prop_in_out):
+				print("Error: simulation failed! Check spice deck!")
+				print("spice deck: "+spicefo)
+				my_exit()
+			print("Min. D2Q found. Break loop at dHold: "+str(f'{thold:,.4f}'))
+			return ( thold, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
+							tmp_min_trans_out, tmp_min_energy_start, tmp_min_energy_end)
+			break
+		
+		# update C2Q(res_prop_in_out) 
+		tmp_min_prop_in_out  = float(res_prop_in_out)
+		# in set/reset sim, res_prop_cin_out is not measured
+		if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
+			tmp_min_prop_cin_out = float(res_prop_in_out)
+		tmp_min_trans_out    = float(res_trans_out)
+		tmp_min_energy_start = float(res_energy_start)
+		tmp_min_energy_end   = float(res_energy_end)
+		if(res_setup != "failed"):
+			tmp_min_setup = float(res_setup)
+		if(res_hold != "failed"):
+			tmp_min_hold = float(res_hold)
+
+		return ( thold, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
+						tmp_min_trans_out, tmp_min_energy_start, tmp_min_energy_end)
+
+def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, tsetup_lowest, tsetup_highest, tsetup_tstep, tmp_min_hold, spicef):
+	tsimendmag = [1, 10]; # magnify parameter of _tsimend
+	tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
+	tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
+	tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+	tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
+	tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+
+	## calculate whole slope length from logic threshold
+	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
+
+	for tsetup in np.arange (tsetup_lowest, tsetup_highest, tsetup_tstep):
+		first_stage_fail = 0
+		for j in range(len(tranmag)):
+			if(first_stage_fail == 0):
+				print("dSetup: "+str(f'{tsetup:,.4f}')+str(targetLib.time_unit)+" dHold: "+str(f'{tmp_min_hold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(j))
+				cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
+				slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag)+str(targetLib.time_unit)+"\n"
+				cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
+				tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
+				thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
+				tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
+				spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+".sp"
+				#print(spicefo)
+        
+				res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
+															tsetup_line, thold_line, tsimend_line, spicefo)
+		  
+				#  check 1st and 2nd run of simulation
+				# if res_trans_out failed, it may failed in both run -> exit 
+				if(res_trans_out == "failed"):
+					first_stage_fail = 1
+
+		tmp_tsetup = tsetup - tsetup_tstep # restore previous tsetup 
+
+		#  check second run of simulation
+		# if (current D2Q > prev. D2Q), exceeds min D2Q
+		if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
+			if(tmp_max_val_loop == tmp_min_prop_in_out):
+				print("Error: simulation failed! Check spice deck!")
+				print("spice deck: "+spicefo)
+				my_exit()
+			print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
+			# finish without premature ending
+			return float(tsetup - tsetup_tstep) 
+
+		# update C2Q(res_prop_in_out) 
+		tmp_min_prop_in_out  = float(res_prop_in_out)
+
+	# finish without premature ending
+	print("Min. D2Q found at dSetup: "+str(f'{tsetup:,.4f}'))
+	return float(tsetup - tsetup_tstep) 
 
 def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tsetup_line, thold_line, tsimend_line, spicef):
 	#print (spicef)
@@ -422,13 +369,13 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")   # | 
 		outlines.append(".param _tclk3 = '_tclk2 + _tslew '\n")    # | 
 		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")   # v 
-		outlines.append(".param _tstart1 = '_tslew * 50 + tsetup'\n")    # ^ data input start 
+		outlines.append(".param _tstart1 = '_tslew * 200 + tsetup'\n")    # ^ data input start 
 		outlines.append(".param _tstart2 = '_tstart1 + _tslew'\n")     # v varied w/ dedge
 		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
 		outlines.append(".param _tend2 = '_tend1 + _tslew'\n")    # v varied w/ dedge
-		outlines.append(".param _tclk5 = '_tslew * 50'\n")             # ^ second clock
+		outlines.append(".param _tclk5 = '_tslew * 200'\n")             # ^ second clock
 		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")    # v 
-		outlines.append(".param _tsimend = '_tslew * 1000 * tsimendmag' \n")
+		outlines.append(".param _tsimend = '_tslew * 12000 * tsimendmag' \n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
 		outlines.append("VSS_DYN VSS_DYN 0 DC '_vss' \n")
@@ -752,19 +699,23 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 				
 ## for ngspice batch mode 
 		outlines.append("*enable .control to show graph in ngspice \n")
-		outlines.append(".control \n")
-		outlines.append("run \n")
-		outlines.append("plot V("+V_in_target+") V(VOUT) V(VCIN) \n")
-		outlines.append(".endc \n")
+		outlines.append("*.control \n")
+		outlines.append("*run \n")
+		outlines.append("*plot V("+V_in_target+") V(VOUT) V(VCIN) \n")
+		outlines.append("*.endc \n")
 		outlines.append(".end \n") 
 		f.writelines(outlines)
 	f.close()
 
 	spicelis = spicef
 	spicelis += ".lis"
+#	spicelis.replace('.sp','.lis')
 
 	# run simulation
-	cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+	if(re.search("ngspice", targetLib.simulator)):
+		cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+	elif(re.search("hspice", targetLib.simulator)):
+		cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
 	#cmd = str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+"\n"
 	with open('run.sh','w') as f:
 		outlines = []
@@ -782,32 +733,35 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 	# read results
 	with open(spicelis,'r') as f:
 		for inline in f:
+			if(re.search("hspice", targetLib.simulator)):
+				inline = re.sub('\=',' ',inline)
 			#print(inline)
 			# search measure
-			if(re.match("prop_in_out", inline)):
+			#if(re.match("ngspice", targetLib.simulator)):
+			if((re.search("prop_in_out", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_prop_in_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("prop_cin_out", inline)):
+				res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("prop_cin_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_prop_cin_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("trans_out", inline)):
+				res_prop_cin_out = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("trans_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_trans_out = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("energy_start", inline)):
+				res_trans_out = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_energy_start = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("energy_end", inline)):
+				res_energy_start = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("energy_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_energy_end = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("prop_in_d2c", inline)):
+				res_energy_end = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("prop_in_d2c", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_setup = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
-			elif(re.match("prop_in_c2d", inline)):
+				res_setup = "{:e}".format(float(sparray[2].strip()))
+			elif((re.search("prop_in_c2d", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_hold = "{:e}".format(float(sparray[2].strip())/targetLib.time_mag)
+				res_hold = "{:e}".format(float(sparray[2].strip()))
 
 	f.close()
-	#print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end))
+#	print(str(res_prop_in_out)+" "+str(res_trans_out)+" "+str(res_energy_start)+" "+str(res_energy_end)+" "+str(res_setup)+" "+str(res_hold))
 	# check spice finish successfully
 	try:
 		res_prop_in_out
