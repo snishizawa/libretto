@@ -113,15 +113,15 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		list2_tran =   []
 		list2_estart = []
 		list2_eend =   []
-		for tmp_load in targetCell.load:
+		for tmp_slope in targetCell.slope:
 			tmp_list_prop =   []  # C2Q
 			tmp_list_setup =  []  # D2C(setup)
 			tmp_list_hold =   []  # C2D(hold)
 			tmp_list_tran =   []
 			tmp_list_estart = []
 			tmp_list_eend =   []
-			for tmp_slope in targetCell.slope:
-				tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
+			for tmp_load in targetCell.load:
+				tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
 				tmp_min_setup = tmp_max_val_loop # temporal value for setup 
 				tmp_tsetup1 = tmp_max_val_loop # temporal value for setup 
 				tmp_tsetup2 = tmp_max_val_loop # temporal value for setup 
@@ -142,7 +142,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				tmp_min_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
 				tmp_min_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
 
-				tmp_tstep_mag1 = 50
+				tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 				print("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
 				tmp_tsetup1 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																		targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
@@ -161,7 +161,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 																		tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																		targetCell.sim_setup_timestep, tmp_min_hold, spicef)
 		
-				tmp_thold_mag1 = 10
+				tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])*10
 				print("First stage sparse hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
 				( tmp_thold1, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, tmp_min_energy_start, \
 					tmp_min_energy_end) = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
@@ -225,7 +225,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, th
 	# 2nd stage: sim w/ 100-% output swing
 	tsimendmag = [1, 10]; # magnify parameter of _tsimend
 	tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-	tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
+	tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
 	tmp_min_setup = tmp_max_val_loop # temporal value for setup 
 	tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
 	tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
@@ -244,6 +244,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, th
 				cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 				slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag)+str(targetLib.time_unit)+"\n"
 				cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
+				tunit_line = ".param tunit ="+str(targetCell.slope[-1])+str(targetLib.time_unit)+"\n"
 				tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
 				thold_line = ".param thold ="+str(thold)+str(targetLib.time_unit)+"\n"
 				tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
@@ -252,7 +253,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, th
         
 				res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
 					= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-															tsetup_line, thold_line, tsimend_line, spicefo)
+															tunit_line, tsetup_line, thold_line, tsimend_line, spicefo)
 		  
 				#  check 1st and 2nd run of simulation
 				# if res_trans_out failed, it may failed in both run -> exit 
@@ -290,7 +291,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, th
 def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, tsetup_lowest, tsetup_highest, tsetup_tstep, tmp_min_hold, spicef):
 	tsimendmag = [1, 10]; # magnify parameter of _tsimend
 	tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-	tmp_max_val_loop = float(targetCell.slope[-1]) * 100 # use x10 of max. slope for max val.
+	tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
 	tmp_min_setup = tmp_max_val_loop # temporal value for setup 
 	tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
 	tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
@@ -309,6 +310,7 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 				cap_line = ".param cap ="+str(tmp_load)+str(targetLib.capacitance_unit)+"\n"
 				slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag)+str(targetLib.time_unit)+"\n"
 				cslew_line = ".param cslew ="+str(targetCell.cslope)+str(targetLib.time_unit)+"\n"
+				tunit_line = ".param tunit ="+str(targetCell.slope[-1])+str(targetLib.time_unit)+"\n"
 				tsetup_line = ".param tsetup ="+str(tsetup)+str(targetLib.time_unit)+"\n"
 				thold_line = ".param thold ="+str(tmp_min_hold)+str(targetLib.time_unit)+"\n"
 				tsimend_line = ".param tsimendmag ="+str(tsimendmag[j])+" tranmag ="+str(tranmag[j])+"\n"
@@ -317,7 +319,7 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
         
 				res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, res_setup, res_hold,\
 					= genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line,\
-															tsetup_line, thold_line, tsimend_line, spicefo)
+															tunit_line, tsetup_line, thold_line, tsimend_line, spicefo)
 		  
 				#  check 1st and 2nd run of simulation
 				# if res_trans_out failed, it may failed in both run -> exit 
@@ -344,7 +346,7 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 	print("Min. D2Q found at dSetup: "+str(f'{tsetup:,.4f}'))
 	return float(tsetup - tsetup_tstep) 
 
-def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tsetup_line, thold_line, tsimend_line, spicef):
+def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line, cslew_line, tunit_line, tsetup_line, thold_line, tsimend_line, spicef):
 	#print (spicef)
 	#print ("generate AND2\n")
 	#print(dir(targetLib))
@@ -361,21 +363,22 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(".param cap = 10f \n")
 		outlines.append(".param slew = 100p \n")
 		outlines.append(".param cslew = 100p \n")
+		outlines.append(".param tunit = 100p \n")
 		outlines.append(".param tsetup = 100p \n")
 		outlines.append(".param thold = 100p \n")
 		outlines.append(".param tsimendmag = 100 tranmag = 1\n")
 		outlines.append(".param _tslew = slew \n")
 		outlines.append(".param _tclk1 = slew \n")                # ^ first clock
-		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")   # | 
-		outlines.append(".param _tclk3 = '_tclk2 + _tslew '\n")    # | 
-		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")   # v 
-		outlines.append(".param _tstart1 = '_tslew * 200 + tsetup'\n")    # ^ data input start 
-		outlines.append(".param _tstart2 = '_tstart1 + _tslew'\n")     # v varied w/ dedge
+		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")    # | 
+		outlines.append(".param _tclk3 = '_tclk2 + tunit '\n")   # | 
+		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # v 
+		outlines.append(".param _tstart1 = 'tunit * 20 + tsetup'\n")    # ^ data input start 
+		outlines.append(".param _tstart2 = '_tstart1 + tunit'\n")        # v varied w/ dedge
 		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
-		outlines.append(".param _tend2 = '_tend1 + _tslew'\n")    # v varied w/ dedge
-		outlines.append(".param _tclk5 = '_tslew * 200'\n")             # ^ second clock
+		outlines.append(".param _tend2 = '_tend1 + tunit'\n")    # v varied w/ dedge
+		outlines.append(".param _tclk5 = 'tunit * 20'\n")       # ^ second clock
 		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")    # v 
-		outlines.append(".param _tsimend = '_tslew * 12000 * tsimendmag' \n")
+		outlines.append(".param _tsimend = '_tend2 + tunit * 40 * tsimendmag' \n")
 		outlines.append(" \n")
 		outlines.append("VDD_DYN VDD_DYN 0 DC '_vdd' \n")
 		outlines.append("VSS_DYN VSS_DYN 0 DC '_vss' \n")
@@ -693,6 +696,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 		outlines.append(cap_line)
 		outlines.append(slew_line)
 		outlines.append(cslew_line)
+		outlines.append(tunit_line)
 		outlines.append(tsetup_line)
 		outlines.append(thold_line)
 		outlines.append(tsimend_line)

@@ -285,9 +285,9 @@ class MyLogicCell:
 	## this defines lowest limit of setup edge
 	def add_simulation_setup_lowest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 1x of max slope 
-		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_setup_lowest = float(self.slope[0]) * -50 
+		## if auto, amd slope is defined, use 10x of max slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+			self.sim_setup_lowest = float(self.slope[-1]) * -10 
 			print ("auto set setup simulation time lowest limit")
 		else:
 			self.sim_setup_lowest = float(tmp_array[1]) 
@@ -295,18 +295,18 @@ class MyLogicCell:
 	## this defines highest limit of setup edge
 	def add_simulation_setup_highest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 1x of max slope 
-		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_setup_highest = float(self.slope[0]) * 30 
+		## if auto, amd slope is defined, use 10x of max slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+			self.sim_setup_highest = float(self.slope[-1]) * 10 
 			print ("auto set setup simulation time highest limit")
 		else:
 			self.sim_setup_highest = float(tmp_array[1])
 			
 	def add_simulation_setup_timestep(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 1/10 of min slope
+		## if auto, amd slope is defined, use min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_setup_timestep = float(self.slope[0]) /10
+			self.sim_setup_timestep = float(self.slope[0])
 			print ("auto set setup simulation timestep")
 		else:
 			self.sim_setup_timestep = float(tmp_array[1])
@@ -314,9 +314,9 @@ class MyLogicCell:
 	## this defines lowest limit of hold edge
 	def add_simulation_hold_lowest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 10x of min slope 
-		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_hold_lowest = float(self.slope[0]) * -10 
+		## if auto, amd slope is defined, use 10x of max slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+			self.sim_hold_lowest = float(self.slope[-1]) * -10 
 			print ("auto set hold simulation time lowest limit")
 		else:
 			self.sim_hold_lowest = float(tmp_array[1])
@@ -324,18 +324,18 @@ class MyLogicCell:
 	## this defines highest limit of hold edge
 	def add_simulation_hold_highest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 20x of min slope 
-		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_hold_highest = float(self.slope[0]) * 10 
+		## if auto, amd slope is defined, use 10x of max slope 
+		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+			self.sim_hold_highest = float(self.slope[-1]) * 30 
 			print ("auto set hold simulation time highest limit")
 		else:
 			self.sim_hold_highest = float(tmp_array[1])
 			
 	def add_simulation_hold_timestep(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 1/10 of min slope
+		## if auto, amd slope is defined, use min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_hold_timestep = float(self.slope[0])/10 
+			self.sim_hold_timestep = float(self.slope[0]) 
 			print ("auto set hold simulation timestep")
 		else:
 			self.sim_hold_timestep = float(tmp_array[1])

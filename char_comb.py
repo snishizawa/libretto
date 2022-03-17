@@ -205,7 +205,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 	## calculate whole slope length from logic threshold
 	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
 
-	for tmp_load in targetCell.load:
+	for tmp_slope in targetCell.slope:
 		tmp_loop += 1
 		print("#loop = "+str(tmp_loop))
 		tmp_list_prop =   []
@@ -216,7 +216,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 		tmp_list_ein =   []
 		tmp_list_cin =   []
 		tmp_list_pleak =   []
-		for tmp_slope in targetCell.slope:
+		for tmp_load in targetCell.load:
 			cap_line = ".param cap ="+str(tmp_load*targetLib.capacitance_mag)+"\n"
 			slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag*targetLib.time_mag)+"\n"
 			temp_line = ".temp "+str(targetLib.temperature)+"\n"
