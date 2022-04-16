@@ -36,7 +36,7 @@ Define common settings for target library.
 | set_vss_name | VSS | vss name, used to detect vss |
 | set_pwell_name | VPW | pwell name, used to detect pwell (option)|
 | set_nwell_name | VNW | nwell name, used to detect nwell (option)|
-
+| set_run_sim | true | true: clean working directory and run simulation (default), false: reuse previous simulation result for .lib creation|
 
 ### common characterization conditions
 Define common settings for logic cells.
