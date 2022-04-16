@@ -66,14 +66,14 @@ class MyConditionsAndResults:
 			self.timing_type_setup = "setup_falling"
 			self.timing_type_hold  = "hold_falling"
 		else:
-			print("Illegal input: "+self.outport+", check unate")
+			print("Illegal input: "+inport+", check unate")
 		## outport
 		if((outport == 'pos')or(outport == '01')):
 			self.timing_type_out = "rising_edge"
 		elif((outport == 'neg')or(outport == '10')):
 			self.timing_type_out = "falling_edge"
 		else:
-			print("Illegal input: "+self.outport+", check unate")
+			print("Illegal input: "+outport+", check unate")
 	
 	def set_timing_flop_clock(self, inport="0101", outport="01"):
 		## inport

@@ -5,6 +5,7 @@ class MyLibrarySetting:
 	def __init__ (self):
 		self.isexport = 0
 		self.delay_model = "table_lookup"
+		self.runsim = "true"
 
 	def set_lib_name(self, line="tmp"):
 		tmp_array = line.split()
@@ -240,3 +241,8 @@ class MyLibrarySetting:
 	
 	def set_exported(self):
 		self.isexport = 1 
+
+	def set_runsim_option(self, line="true"):
+		tmp_array = line.split()
+		self.runsim = tmp_array[1] 
+		print(tmp_array[1])

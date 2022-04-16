@@ -93,6 +93,10 @@ def main():
 			elif(line.startswith('set_nwell_name')):
 				targetLib.set_nwell_name(line) 
 
+			## set_runsim_option
+			elif(line.startswith('set_runsim_option')):
+				targetLib.set_runsim_option(line) 
+
 ##-- set function : characterization settings--#
 			## set_process
 			elif(line.startswith('set_process')):
@@ -258,9 +262,16 @@ def main():
 
 def initializeFiles(targetLib, targetCell):
 	## initialize working directory
-	if os.path.exists(targetLib.work_dir):
-		shutil.rmtree(targetLib.work_dir)
-	os.mkdir(targetLib.work_dir)
+	if (targetLib.runsim.lower() == "true"):
+		if os.path.exists(targetLib.work_dir):
+			shutil.rmtree(targetLib.work_dir)
+		os.mkdir(targetLib.work_dir)
+	elif (targetLib.runsim.lower() == "false"):
+		print("save past working directory and files\n")
+	else:
+		print ("illigal setting for set_runsim option: "+targetLib.runsim+"\n")
+		my_exit()
+	
 
 def characterizeFiles(targetLib, targetCell):
 	print ("characterize\n")
@@ -451,7 +462,7 @@ def characterizeFiles(targetLib, targetCell):
 		## 									 [D,   C,    R,    Q]
 		expectationList2 = [['01','0101', '1', '01'], \
 										  	['10','0101', '1', '10'], \
-										  	[ '1', '010','10', '10']]
+										  	[ '1', '0101','10', '10']]
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 
@@ -464,8 +475,8 @@ def characterizeFiles(targetLib, targetCell):
 		## 									 [D,   C,  S,   R,    Q]
 		expectationList2 = [['01','0101','1', '1', '01'], \
 										  	['10','0101','1', '1', '10'], \
-										  	['0','010','10', '1', '01'], \
-										  	['1','010', '1','10', '10']]
+										  	['0','0101','10', '1', '01'], \
+										  	['1','0101', '1','10', '10']]
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 

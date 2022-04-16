@@ -286,6 +286,7 @@ class MyLogicCell:
 	def add_simulation_setup_lowest(self, line="tmp"):
 		tmp_array = line.split()
 		## if auto, amd slope is defined, use 10x of max slope 
+		## "10" should be the same value of tstart1 and tclk5 in spice 
 		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
 			self.sim_setup_lowest = float(self.slope[-1]) * -10 
 			print ("auto set setup simulation time lowest limit")
@@ -314,9 +315,12 @@ class MyLogicCell:
 	## this defines lowest limit of hold edge
 	def add_simulation_hold_lowest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 10x of max slope 
+		## if auto, amd slope is defined, use very small val. 
+		#remove# if hold is less than zero, pwl time point does not be incremental
+		#remove# and simulation failed
 		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-			self.sim_hold_lowest = float(self.slope[-1]) * -10 
+			self.sim_hold_lowest = float(self.slope[-1]) * -5 
+			#self.sim_hold_lowest = float(self.slope[-1]) * 0.001 
 			print ("auto set hold simulation time lowest limit")
 		else:
 			self.sim_hold_lowest = float(tmp_array[1])
@@ -324,9 +328,10 @@ class MyLogicCell:
 	## this defines highest limit of hold edge
 	def add_simulation_hold_highest(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use 10x of max slope 
+		## if auto, amd slope is defined, use 5x of max slope 
+		## value should be smaller than "tmp_max_val_loop" in holdSearchFlop
 		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-			self.sim_hold_highest = float(self.slope[-1]) * 30 
+			self.sim_hold_highest = float(self.slope[-1]) * 5 
 			print ("auto set hold simulation time highest limit")
 		else:
 			self.sim_hold_highest = float(tmp_array[1])

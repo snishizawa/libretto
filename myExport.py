@@ -232,7 +232,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("    clear_preset_var2 : L ;\n") 
 		outlines.append("    }\n") 
 		##
-		## add setup/hold for input pins 
+		## prop/tran/setup/hold for input pins 
 		##
 		for target_inport in targetCell.inports:
 			## select inport with setup/hold informatioin
@@ -304,8 +304,10 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			#outlines.append("      capacitance : \""+targetCell.cins[index1]+"\";\n")
 			outlines.append("    }\n") ## set pin end
+		## clock, reset, set end
+
 		##
-		## clock, reset, set  
+		## outport 
 		##
 		for target_outport in targetCell.outports:
 			index1 = targetCell.outports.index(target_outport) 
@@ -373,6 +375,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				index2_offset = 0
 				index2_offset_max = 10
 				while(index2_offset < index2_offset_max):
+					print(harnessList2[index1][index2*2+index2_offset])
 					if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
 						break
 					index2_offset += 1

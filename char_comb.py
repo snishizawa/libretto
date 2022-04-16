@@ -247,10 +247,10 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 			## Eintl = QsV
 			if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
 				tmp_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
-				print(str(abs(res_q_vdd_dyn*targetLib.vdd_voltage)))
+				#print(str(abs(res_q_vdd_dyn*targetLib.vdd_voltage)))
 			else:
 				tmp_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
-				print(str(abs(res_q_vss_dyn*targetLib.vdd_voltage)))
+				#print(str(abs(res_q_vss_dyn*targetLib.vdd_voltage)))
 
 			## intl. energy calculation
 			## Use VDD as intl. energy
@@ -503,10 +503,11 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
 
 	cmd = ['sh', 'run.sh']
 			
-	try:
-		res = subprocess.check_call(cmd)
-	except:
-		print ("Failed to lunch spice")
+	if(targetLib.runsim == "true"):
+		try:
+			res = subprocess.check_call(cmd)
+		except:
+			print ("Failed to lunch spice")
 
 	# read results
 	with open(spicelis,'r') as f:
