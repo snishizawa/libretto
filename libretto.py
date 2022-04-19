@@ -94,8 +94,8 @@ def main():
 				targetLib.set_nwell_name(line) 
 
 			## set_runsim_option
-			elif(line.startswith('set_runsim_option')):
-				targetLib.set_runsim_option(line) 
+			elif(line.startswith('set_run_sim')):
+				targetLib.set_run_sim(line) 
 
 ##-- set function : characterization settings--#
 			## set_process

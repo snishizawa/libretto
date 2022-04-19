@@ -38,19 +38,23 @@ def runFlop(targetLib, targetCell, expectationList2):
 
 		# select simulation type: clock(D2Q, D2C, C2Q, C2D), reset, set
 		# normal operation (clock edge)
-		if((CLK_val == '0101') or (CLK_val == '1010')):
+		if(((CLK_val == '0101') or (CLK_val == '1010'))and((D_val == '01') or (D_val == '10'))):
 			tmp_Harness.set_timing_flop_inout(D_val, Q_val)
 			print("D2Q simualtion mode!\n")
 		# reset operation (reset edge)
-		elif(((CLK_val == '010') or (CLK_val == '101'))and((RST_val == '01') or (RST_val == '10'))):
+		elif(((CLK_val == '0101') or (CLK_val == '1010'))and((RST_val == '01') or (RST_val == '10'))):
 			tmp_Harness.set_timing_flop_reset(RST_val, Q_val)
 			print("R2Q simualtion mode!\n")
 		# set operation (set edge)
-		elif(((CLK_val == '010') or (CLK_val == '101'))and((SET_val == '01') or (SET_val == '10'))):
+		elif(((CLK_val == '0101') or (CLK_val == '1010'))and((SET_val == '01') or (SET_val == '10'))):
 			tmp_Harness.set_timing_flop_set(SET_val, Q_val)
 			print("S2Q simualtion mode!\n")
 		else:
-			print("any input vector is inputted! error\n")
+			print("no suported input vector is inputted! error\n")
+			print("CLK: "+CLK_val+"\n")
+			print("D: "+D_val+"\n")
+			print("SET: "+SET_val+"\n")
+			print("RST: "+RST_val+"\n")
 			my_exit()
 
 		# activate RST and SET if defined
@@ -208,13 +212,13 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				tmp_list_estart.append(tmp_min_energy_start)
 				tmp_list_eend.append(tmp_min_energy_end)
 
-				print("tmp_min_prop_in_out : "+str(tmp_min_prop_in_out))  
+				#print("tmp_min_prop_in_out : "+str(tmp_min_prop_in_out))  
 				#print("tmp_min_prop_cin_out: "+str(tmp_min_prop_cin_out))  
-				print("tmp_min_setup       : "+str(tmp_min_setup))
-				print("tmp_min_hold        : "+str(tmp_min_hold))
-				print("tmp_min_trans_out   : "+str(tmp_min_trans_out))
-				print("tmp_min_energy_start: "+str(tmp_min_energy_start))
-				print("tmp_min_energy_end  : "+str(tmp_min_energy_end))
+				#print("tmp_min_setup       : "+str(tmp_min_setup))
+				#print("tmp_min_hold        : "+str(tmp_min_hold))
+				#print("tmp_min_trans_out   : "+str(tmp_min_trans_out))
+				#print("tmp_min_energy_start: "+str(tmp_min_energy_start))
+				#print("tmp_min_energy_end  : "+str(tmp_min_energy_end))
 
 			list2_prop.append(tmp_list_prop)
 			list2_setup.append(tmp_list_setup)
@@ -311,8 +315,8 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, th
 			tmp_min_setup = float(res_setup)
 		if(res_hold != "failed"):
 			tmp_min_hold = float(res_hold)
-			print("tmp_min_hold: "+str(tmp_min_hold)+"\n")
-		print("spicef: "+str(spicef)+"\n")
+			#print("tmp_min_hold: "+str(tmp_min_hold)+"\n")
+		#print("spicef: "+str(spicef)+"\n")
 
 	# finish without premature ending
 	print("Error! End of dhold search!!: "+str(f'{thold:,.4f}'))

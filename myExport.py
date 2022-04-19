@@ -238,7 +238,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			## select inport with setup/hold informatioin
 			index2 = targetCell.inports.index(target_inport) 
 			index1 = targetCell.outports.index(target_outport) 
-			print(harnessList2[index1][index2*2].timing_type_setup)
+			#print(harnessList2[index1][index2*2].timing_type_setup)
 			if((harnessList2[index1][index2*2].timing_type_setup == "setup_rising") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
 				outlines.append("    pin ("+target_inport+"){\n") #### inport pin start 
 				outlines.append("      direction : input;\n")
@@ -276,7 +276,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") 
-		outlines.append("    }::\n") ## inport pin end
+		outlines.append("    }\n") ## inport pin end
 		##
 		## clock, reset, set  
 		##
@@ -375,7 +375,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				index2_offset = 0
 				index2_offset_max = 10
 				while(index2_offset < index2_offset_max):
-					print(harnessList2[index1][index2*2+index2_offset])
+					#print(harnessList2[index1][index2*2+index2_offset])
 					if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
 						break
 					index2_offset += 1
@@ -526,7 +526,7 @@ def exportVerilogFlop(targetLib, targetCell):
 				line = 'always@('
 				resetlines = []
 				setlines = []
-				print(str(targetCell.logic))
+				#print(str(targetCell.logic))
 				## clock
 				if(re.search('PC', targetCell.logic)):	## posedge clock
 					line=line+"posedge "+targetCell.clock

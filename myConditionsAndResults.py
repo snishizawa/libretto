@@ -106,7 +106,7 @@ class MyConditionsAndResults:
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_set = "negative_unate"
 		else:
-			print("Warning: illigal inport type at set_timing_type_set: "+str(inport))
+			print("Warning: illigal inport type at set_timing_flop_set: "+str(inport))
 		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_set = "preset"
@@ -117,7 +117,7 @@ class MyConditionsAndResults:
 			self.direction_set_prop = "cell_rise"
 			self.direction_set_tran = "rise_transaction"
 		else:
-			print("Warning: illigal outport type at set_timing_type_set: "+str(inport))
+			print("Warning: illigal outport type at set_timing_flop_set: "+str(inport))
 
 	def set_timing_flop_reset(self, inport="01", outport="01"):
 		## inport
@@ -126,7 +126,7 @@ class MyConditionsAndResults:
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_reset = "negative_unate"
 		else:
-			print("Warning: illigal inport type at reset_timing_type_reset: "+str(inport))
+			print("Warning: illigal inport type at set_timing_flop_reset: "+str(inport))
 		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_reset = "preset"
@@ -137,7 +137,7 @@ class MyConditionsAndResults:
 			self.direction_reset_prop = "cell_rise"
 			self.direction_reset_tran = "rise_transaction"
 		else:
-			print("Warning: illigal outport type at set_timing_type_reset: "+str(inport))
+			print("Warning: illigal outport type at set_timing_flop_reset: "+str(inport))
 
 	def set_function(self, function="tmp"):
 		self.function = function 

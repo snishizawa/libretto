@@ -12,6 +12,7 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 	harnessList2 = []  # list of harnessList
 
 	for trial in range(len(expectationList2)):
+		print("#trial: "+str(trial)+" ",end="")
 		tmp_Harness = mcar.MyConditionsAndResults()
 		tmp_Harness.set_timing_type_comb()
 		tmp_Harness.set_timing_sense(unate)
@@ -36,6 +37,8 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
 		harnessList.append(tmp_Harness)
 		harnessList2.append(harnessList)
 
+		print("\n")
+
 	## average cin of each harness
 	targetCell.set_cin_avg(targetLib, harnessList) 
 
@@ -46,6 +49,7 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
 	harnessList2 = []
 
 	for trial in range(len(expectationList2)):
+		print("#trial: "+str(trial)+" ",end="")
 		tmp_Harness = mcar.MyConditionsAndResults()
 		tmp_Harness.set_timing_type_comb()
 		tmp_Harness.set_timing_sense(unate)
@@ -92,6 +96,7 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
 	harnessList2 = []
 
 	for trial in range(len(expectationList2)):
+		print("#trial: "+str(trial)+" ",end="")
 		tmp_Harness = mcar.MyConditionsAndResults()
 		tmp_Harness.set_timing_type_comb()
 		tmp_Harness.set_timing_sense(unate)
@@ -140,6 +145,7 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 	harnessList2 = []
 
 	for trial in range(len(expectationList2)):
+		print("#trial: "+str(trial)+" ",end="")
 		tmp_Harness = mcar.MyConditionsAndResults()
 		tmp_Harness.set_timing_type_comb()
 		tmp_Harness.set_timing_sense(unate)
@@ -205,9 +211,8 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 	## calculate whole slope length from logic threshold
 	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
 
+	print("#index: ",end="")
 	for tmp_slope in targetCell.slope:
-		tmp_loop += 1
-		print("#loop = "+str(tmp_loop))
 		tmp_list_prop =   []
 		tmp_list_tran =   []
 		tmp_list_estart = []
@@ -217,6 +222,8 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 		tmp_list_cin =   []
 		tmp_list_pleak =   []
 		for tmp_load in targetCell.load:
+			tmp_loop += 1
+			print(str(tmp_loop),end="")
 			cap_line = ".param cap ="+str(tmp_load*targetLib.capacitance_mag)+"\n"
 			slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag*targetLib.time_mag)+"\n"
 			temp_line = ".temp "+str(targetLib.temperature)+"\n"
