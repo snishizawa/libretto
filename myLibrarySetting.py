@@ -245,4 +245,9 @@ class MyLibrarySetting:
 	def set_run_sim(self, line="true"):
 		tmp_array = line.split()
 		self.runsim = tmp_array[1] 
-		#print(tmp_array[1])
+		print(tmp_array[1])
+
+	def set_mt_sim(self, line="true"):
+		tmp_array = line.split()
+		self.mtsim = tmp_array[1] 
+		print(tmp_array[1])

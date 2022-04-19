@@ -148,7 +148,7 @@ class MyLogicCell:
 			#print("line.lower:"+str(line.lower()))
 			if((self.cell.lower() in line.lower()) and (".subckt" in line.lower())):
 				print("Cell definition found!")
-				print(line)
+				#print(line)
 				self.definition = line
 				## generate circuit call
 				line = re.sub('\$.*$','',line)

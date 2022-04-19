@@ -2,8 +2,8 @@
 
 def main_350():
 	cmd_file = 'libretto.cmd'
-	gen_lib_common("ROHM180", cmd_file)
-	gen_char_cond("1.8", cmd_file)
+	gen_lib_common("OSD350", cmd_file)
+	gen_char_cond("3.3", cmd_file)
 	gen_comb("OSU350", cmd_file, "INV_1X",   "INV",   ['A'],             ['YB'], ['YB=!A'],         '1', 'NETLIST/INV_1X.spi')
 	gen_comb("OSU350", cmd_file, "NAND2_1X", "NAND2", ['A','B'],         ['YB'], ['YB=!(A&B)'],     '1', 'NETLIST/NAND2_1X.spi')
 	gen_comb("OSU350", cmd_file, "NAND3_1X", "NAND3", ['A','B','C'],     ['YB'], ['YB=!(A&B&C)'],   '1', 'NETLIST/NAND3_1X.spi')
@@ -93,7 +93,6 @@ def gen_lib_common(name, cmd_file):
 		outlines.append("set_vss_name VSS\n")
 		outlines.append("set_pwell_name VPW\n")
 		outlines.append("set_nwell_name VNW\n")
-		outlines.append("set_run_sim true\n")
 		#outlines.append("set_run_sim false\n")
 		f.writelines(outlines)
 	f.close()
@@ -115,6 +114,8 @@ def gen_char_cond(vdd, cmd_file):
 		outlines.append("set_work_dir work\n")
 		outlines.append("set_simulator /usr/local/bin/ngspice \n")
 #		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice \n")
+		outlines.append("set_run_sim true\n")
+		outlines.append("set_mt_sim true\n")
 		outlines.append("set_energy_meas_low_threshold 0.01\n")
 		outlines.append("set_energy_meas_high_threshold 0.99\n")
 		outlines.append("set_energy_meas_time_extent 10\n")

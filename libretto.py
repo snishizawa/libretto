@@ -93,10 +93,6 @@ def main():
 			elif(line.startswith('set_nwell_name')):
 				targetLib.set_nwell_name(line) 
 
-			## set_runsim_option
-			elif(line.startswith('set_run_sim')):
-				targetLib.set_run_sim(line) 
-
 ##-- set function : characterization settings--#
 			## set_process
 			elif(line.startswith('set_process')):
@@ -145,6 +141,14 @@ def main():
 			## set_simulator
 			elif(line.startswith('set_simulator')):
 				targetLib.set_simulator(line) 
+
+			## set_runsim_option
+			elif(line.startswith('set_run_sim')):
+				targetLib.set_run_sim(line) 
+
+			## set_multithread_option
+			elif(line.startswith('set_mt_sim')):
+				targetLib.set_mt_sim(line) 
 
 			## set_energy_meas_low_threshold
 			elif(line.startswith('set_energy_meas_low_threshold')):
@@ -334,7 +338,7 @@ def characterizeFiles(targetLib, targetCell):
 												['0','01','0','0','01'],['0','10','0','0','10'],\
 												['0','0','01','0','01'],['0','0','10','0','10'],\
 												['0','0','0','01','01'],['0','0','0','10','10']]
-		return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
 
 	elif(targetCell.logic == 'NAND2'):
 		print ("NAND2\n")

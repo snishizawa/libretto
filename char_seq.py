@@ -745,6 +745,8 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 
 	spicelis = spicef
 	spicelis += ".lis"
+	spicerun = spicef
+	spicerun += ".run"
 #	spicelis.replace('.sp','.lis')
 
 	# run simulation
@@ -753,13 +755,13 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, cap_line, slew_line
 	elif(re.search("hspice", targetLib.simulator)):
 		cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
 	#cmd = str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+"\n"
-	with open('run.sh','w') as f:
+	with open(spicerun,'w') as f:
 		outlines = []
 		outlines.append(cmd) 
 		f.writelines(outlines)
 	f.close()
 
-	cmd = ['sh', 'run.sh']
+	cmd = ['sh', spicerun]
 			
 	if(targetLib.runsim == "true"):
 		try:
