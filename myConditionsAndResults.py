@@ -378,8 +378,8 @@ class MyConditionsAndResults:
 		self.lut_ein.append(");")
 
 	## input capacitance 
-	def set_list2_cin(self, list2_ein=[]):
-		self.list2_cin = list2_ein 
+	def set_list2_cin(self, list2_cin=[]):
+		self.list2_cin = list2_cin 
 
 	def print_list2_cin(self, ilist, jlist):
 		for i in range(len(ilist)):
@@ -400,6 +400,78 @@ class MyConditionsAndResults:
 		#self.cin = str(self.lut_cin / (len(ilist) * len(jlist))/targetLib.capacitance_mag) ## use average
 		self.cin = str(self.lut_cin / (len(ilist) * len(jlist))) ## use average
 		#print("store cin:"+str(self.cin))
+
+	## clock input energy 
+	def set_list2_eclk(self, list2_eclk=[]):
+		self.list2_eclk = list2_eclk 
+
+	def print_list2_eclk(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_eclk[i][j])
+	
+	def print_lut_eclk(self):
+		for i in range(len(self.lut_eclk)):
+			print(self.lut_eclk[i])
+
+	def write_list2_eclk(self, targetLib, ilist, jlist):
+		## index_1
+		outline = "index_1(\""
+		self.lut_eclk = []
+		for j in range(len(jlist)-1):
+			outline += str(jlist[j])+", " 
+		outline += str(jlist[len(jlist)-1])+"\");" 
+		#print(outline)
+		self.lut_eclk.append(outline)
+		## index_2
+		outline = "index_2(\""
+		for i in range(len(ilist)-1):
+			outline += str(ilist[i])+", " 
+		outline += str(ilist[len(ilist)-1])+"\");" 
+		self.lut_eclk.append(outline)
+		## values
+		self.lut_eclk.append("values ( \\")
+		for i in range(len(ilist)):
+			outline = "\""
+			for j in range(len(jlist)-1):
+				#outline += str(self.list2_eclk[i][j])+", "
+				tmp_line = str("{:5f}".format(self.list2_eclk[i][j]/targetLib.voltage_mag/targetLib.energy_mag))
+				outline += tmp_line+", "
+			if(i == (len(ilist)-1)): 
+				#outline += str(self.list2_eclk[i][len(jlist)-1])+"\" \\"
+				tmp_line = str("{:5f}".format(self.list2_eclk[i][len(jlist)-1]/targetLib.voltage_mag/targetLib.energy_mag))
+				outline += tmp_line+"\" \\"
+			##  add "," for else 
+			else:	
+				#outline += str(self.list2_eclk[i][len(jlist)-1])+"\", \\"
+				tmp_line = str("{:5f}".format(self.list2_eclk[i][len(jlist)-1]/targetLib.voltage_mag/targetLib.energy_mag))
+				outline += tmp_line+"\", \\"
+			self.lut_eclk.append(outline)
+		self.lut_eclk.append(");")
+
+	## clock input capacitance 
+	def set_list2_cclk(self, list2_cclk=[]):
+		self.list2_cclk = list2_cclk 
+
+	def print_list2_cclk(self, ilist, jlist):
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				print(self.list2_cclk[i][j])
+	
+	def print_lut_cclk(self):
+		for i in range(len(self.lut_cclk)):
+			print(self.lut_cclk[i])
+
+	def average_list2_cclk(self, targetLib, ilist, jlist):
+		## output average of input capacitance
+		## (do not write table)
+		self.lut_cclk = 0;
+		for i in range(len(ilist)):
+			for j in range(len(jlist)):
+				self.lut_cclk += self.list2_cclk[i][j]
+		#self.cclk = str(self.lut_cclk / (len(ilist) * len(jlist))/targetLib.capacitance_mag) ## use average
+		self.cclk = str(self.lut_cclk / (len(ilist) * len(jlist))) ## use average
+		#print("store cclk:"+str(self.cclk))
 
 	## leak power
 	def set_list2_pleak(self, list2_pleak=[]):
@@ -457,6 +529,9 @@ class MyConditionsAndResults:
 			outline = "\""
 			for j in range(len(jlist)-1):
 				#outline += str(self.list2_setup[i][j])+", "
+				print(str(i)+" "+str(j))
+				print(self.list2_setup)
+				print(str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag)))
 				tmp_line = str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag))
 				outline += tmp_line+", "
 			## do not add "," for last line

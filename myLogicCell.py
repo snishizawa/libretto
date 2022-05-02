@@ -12,9 +12,9 @@ class MyLogicCell:
 		self.clock = None   ## clock pin for flop
 		self.set = None     ## set pin for flop
 		self.reset = None   ## reset pin for flop 
-		self.cclk = None    ## clock pin cap. for flop
-		self.cset = None    ## set pin cap. for flop
-		self.crst = None    ## reset pin cap. for flop 
+		self.cclks = []    ## clock pin cap. for flop
+		self.csets = []    ## set pin cap. for flop
+		self.crsts = []    ## reset pin cap. for flop 
 		self.outports = []  ## outport pins
 		self.flops = []     ## registers 
 		self.functions = [] ## logic/flop functions 
@@ -349,27 +349,41 @@ class MyLogicCell:
 	## cin is measured two times and stored into 
 	## neighborhood harness, so cin of (2n)th and 
 	## (2n+1)th harness are averaged out
-	def set_cin_avg(self, targetLib, harnessList):
+	def set_cin_avg(self, targetLib, harnessList, port="data"):
 		tmp_cin = 0;
 		tmp_index = 0;
 		for targetHarness in harnessList:
-			tmp_cin += float(targetHarness.cin)
-			## if this is (2n+1) then store averaged 
-			## cin into targetCell.cins
-			if((tmp_index % 2) == 1):
-				self.cins.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
-				tmp_cin = 0
-			tmp_index += 1
-		#print("stored cins:"+str(tmp_index))
+			if((port.lower() == 'clock')or(port.lower() == 'clk')):
+				tmp_cin += float(targetHarness.cclk)
+				## if this is (2n+1) then store averaged 
+				## cin into targetCell.cins
+				if((tmp_index % 2) == 1):
+					self.cclks.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
+					tmp_cin = 0
+				tmp_index += 1
+			elif((port.lower() == 'reset')or(port.lower() == 'rst')):
+				tmp_cin += float(targetHarness.crst)
+				## if this is (2n+1) then store averaged 
+				## cin into targetCell.cins
+				if((tmp_index % 2) == 1):
+					self.crsts.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
+					tmp_cin = 0
+				tmp_index += 1
+			elif(port.lower() == 'set'):
+				tmp_cin += float(targetHarness.cset)
+				## if this is (2n+1) then store averaged 
+				## cin into targetCell.cins
+				if((tmp_index % 2) == 1):
+					self.csets.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
+					tmp_cin = 0
+				tmp_index += 1
+			else:	
+				tmp_cin += float(targetHarness.cin)
+				## if this is (2n+1) then store averaged 
+				## cin into targetCell.cins
+				if((tmp_index % 2) == 1):
+					self.cins.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
+					tmp_cin = 0
+				tmp_index += 1
+			#print("stored cins:"+str(tmp_index))
 
-	## set cin of clock, reset, set of flop
-	def set_cin_flop(self, targetLib,  port="none", cin="0"):
-		if((port.lower() == 'clock')or(port.lower() == 'clk')):
-			self.cclk = str(cin/targetLib.capacitance_mag)
-		elif((port.lower() == 'reset')or(port.lower() == 'rst')):
-			self.crst = str(cin/targetLib.capacitance_mag)
-		elif(port.lower() == 'set'):
-			self.cset = str(cin/targetLib.capacitance_mag)
-		else:
-			print("Error. Not supported port type: "+str(port))
-			my_exit()

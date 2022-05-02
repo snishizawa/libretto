@@ -302,7 +302,7 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'AND3'):
 		print ("AND3\n")
-		## [in0, in1, in2, out0]
+		## [in0, in1, in2, in3, out0]
 		expectationList2 = [['01','1','1','01'],['10','1','1','10'],\
 												['1','01','1','01'],['1','10','1','10'],\
 												['1','1','01','01'],['1','1','10','10']]
@@ -310,7 +310,7 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'AND4'):
 		print ("AND4\n")
-		## [in0, in1, in2, out0]
+		## [in0, in1, in2, in3,  out0]
 		expectationList2 = [['01','1','1','1','01'],['10','1','1','1','10'],\
 												['1','01','1','1','01'],['1','10','1','1','10'],\
 												['1','1','01','1','01'],['1','1','10','1','10'],\
@@ -325,7 +325,7 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'OR3'):
 		print ("OR3\n")
-		## [in0, in1, out0]
+		## [in0, in1, in2, out0]
 		expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
 												['0','01','0','01'],['0','10','0','10'],\
 												['0','0','01','01'],['0','0','10','10']]
@@ -333,7 +333,7 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'OR4'):
 		print ("OR4\n")
-		## [in0, in1, out0]
+		## [in0, in1, in2, in3, out0]
 		expectationList2 = [['01','0','0','0','01'],['10','0','0','0','10'],\
 												['0','01','0','0','01'],['0','10','0','0','10'],\
 												['0','0','01','0','01'],['0','0','10','0','10'],\
@@ -374,7 +374,7 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'NOR3'):
 		print ("NOR3\n")
-		## [in0, in1, out0]
+		## [in0, in1, in2, out0]
 		expectationList2 = [['01','0','0','10'],['10','0','0','01'],\
 												['0','01','0','10'],['0','10','0','01'],\
 												['0','0','01','10'],['0','0','10','01']]
@@ -382,11 +382,79 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'NOR4'):
 		print ("NOR4\n")
-		## [in0, in1, out0]
+		## [in0, in1, in2, in3, out0]
 		expectationList2 = [['01','0','0','0','10'],['10','0','0','0','01'],\
 												['0','01','0','0','10'],['0','10','0','0','01'],\
 												['0','0','01','0','10'],['0','0','10','0','01'],\
 												['0','0','0','01','10'],['0','0','0','10','01']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
+
+	elif(targetCell.logic == 'AO21'):
+		print ("AO21\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','10'],['01','1','0','01'],\
+												['1','10','0','10'],['1','01','0','01'],\
+												['0','0','10','10'],['0','0','01','01']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'AO22'):
+		print ("AO22\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','0','10'],['01','1','0','0','01'],\
+												['1','10','0','0','10'],['1','01','0','0','01'],\
+												['0','0','10','1','10'],['0','0','01','1','01'],\
+												['0','0','1','10','10'],['0','0','1','01','01']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'OA21'):
+		print ("OA21\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','0','1','10'],['01','0','1','01'],\
+												['0','10','1','10'],['0','01','1','01'],\
+												['0','1','10','10'],['0','1','01','01']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'OA22'):
+		print ("OA22\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','1','10'],['01','1','0','1','01'],\
+												['0','10','0','1','10'],['0','01','0','1','01'],\
+												['0','1','10','0','10'],['0','1','01','0','01'],\
+												['0','1','0','10','10'],['0','1','0','10','01']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'AOI21'):
+		print ("AOI21\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','01'],['01','1','0','10'],\
+												['1','10','0','01'],['1','01','0','10'],\
+												['0','0','10','01'],['0','0','01','10']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
+
+	elif(targetCell.logic == 'AOI22'):
+		print ("AOI22\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','0','01'],['01','1','0','0','10'],\
+												['1','10','0','0','01'],['1','01','0','0','10'],\
+												['0','0','10','1','01'],['0','0','01','1','10'],\
+												['0','0','1','10','01'],['0','0','1','01','10']]
+		return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
+
+	elif(targetCell.logic == 'OAI21'):
+		print ("OAI21\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','0','1','01'],['01','0','1','10'],\
+												['0','10','1','01'],['0','01','1','10'],\
+												['0','1','10','01'],['0','1','01','10']]
+		return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
+
+	elif(targetCell.logic == 'OAI22'):
+		print ("OAI22\n")
+		## [in0, in1, out0]
+		expectationList2 = [['10','1','0','1','01'],['01','1','0','1','10'],\
+												['0','10','0','1','01'],['0','01','0','1','10'],\
+												['0','1','10','0','01'],['0','1','01','0','10'],\
+												['0','1','0','10','01'],['0','1','0','10','10']]
 		return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
 	elif(targetCell.logic == 'XOR2'):
@@ -477,10 +545,10 @@ def characterizeFiles(targetLib, targetCell):
 		## R01      -> Q10 QN01
 		## S01      -> Q01 QN10
 		## 									 [D,   C,  S,   R,    Q]
-		expectationList2 = [['01','0101','1', '1', '01'], \
-										  	['10','0101','1', '1', '10'], \
-										  	['0','0101','10', '1', '01'], \
-										  	['1','0101', '1','10', '10']]
+		#expectationList2 = [['01','0101','1', '1', '01'], \
+		#								  	['10','0101','1', '1', '10'], \
+		expectationList2 = [['0','0101','01', '0', '01'], \
+										  	['1','0101', '0','10', '10']]
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 

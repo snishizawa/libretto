@@ -441,6 +441,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
 			## P = I * V
 			tmp_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage)) #
 			#print("calculated pleak: "+str(float(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*targetLib.vdd_voltage*targetLib.voltage_mag)) #
+
 		list2_prop.append(tmp_list_prop)
 		list2_tran.append(tmp_list_tran)
 		#list2_estart.append(tmp_list_estart)
