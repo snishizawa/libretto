@@ -545,10 +545,13 @@ def characterizeFiles(targetLib, targetCell):
 		## R01      -> Q10 QN01
 		## S01      -> Q01 QN10
 		## 									 [D,   C,  S,   R,    Q]
-		#expectationList2 = [['01','0101','1', '1', '01'], \
-		#								  	['10','0101','1', '1', '10'], \
-		expectationList2 = [['0','0101','01', '0', '01'], \
-										  	['1','0101', '0','10', '10']]
+#		expectationList2 = [['01','0101','1', '1', '01'], \
+#										  	['10','0101','1', '1', '10'], \
+#												['0','0101','01', '1', '01'], \
+#										  	['1','0101', '1','01', '10']]
+		expectationList2 = [['0','0101','01', '1', '01'], \
+										  	['1','0101', '1','01', '10']]
+
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 

@@ -72,19 +72,19 @@ def runFlop(targetLib, targetCell, expectationList2):
 
 		# select simulation type: clock(D2Q, D2C, C2Q, C2D), reset, set
 		# normal operation (clock edge)
-		if(((CLK_val == '0101') or (CLK_val == '1010'))and((D_val == '01') or (D_val == '10'))):
+		if((D_val == '01') or (D_val == '10')):
 			tmp_Harness.set_timing_flop_inout(D_val, Q_val)
 			print("D2Q simualtion mode!\n")
 			# run spice and store result
 			runSpiceFlopDelay(targetLib, targetCell, tmp_Harness, spicef)
 		# reset operation (reset edge)
-		elif(((CLK_val == '0101') or (CLK_val == '1010'))and((RST_val == '01') or (RST_val == '10'))):
+		elif((RST_val == '01') or (RST_val == '10')):
 			tmp_Harness.set_timing_flop_reset(RST_val, Q_val)
 			print("R2Q simualtion mode!\n")
 			# run spice and store result
 			runSpiceFlopRecoveryRemoval(targetLib, targetCell, tmp_Harness, spicef)
 		# set operation (set edge)
-		elif(((CLK_val == '0101') or (CLK_val == '1010'))and((SET_val == '01') or (SET_val == '10'))):
+		elif((SET_val == '01') or (SET_val == '10')):
 			tmp_Harness.set_timing_flop_set(SET_val, Q_val)
 			print("S2Q simualtion mode!\n")
 			# run spice and store result
@@ -169,21 +169,45 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
 			tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
 
+#			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+#			print("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+#			tmp_tsetup1 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+#																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
+#																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+#
+#			tmp_tstep_mag2 = 10
+#			print("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+#			tmp_tsetup2 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+#																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+#																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+#																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+#
+#			print("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
+#			tmp_tsetup3 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+#																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+#																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+#																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			print("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-			tmp_tsetup1 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
 																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
 
 			tmp_tstep_mag2 = 10
 			print("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-			tmp_tsetup2 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
 																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
 																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
 
 			print("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
-			tmp_tsetup3 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+			( tmp_tsetup3, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
@@ -214,7 +238,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 
 			print("Therd stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep))
 			( res_thold3, res_min_prop_in_out, res_min_setup, res_min_hold, res_min_trans_out, \
-				res_min_energy_start, res_min_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+				res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
 				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
 			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
@@ -238,11 +262,11 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			## Eintl = QsV
 			if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
 				res_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
-					abs((res_min_energy_end - res_min_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
+					abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
 					(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
 			else:
 				res_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
-					abs((res_min_energy_end - res_min_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
+					abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
 					(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
 
 			## input energy
@@ -314,6 +338,199 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 	#targetHarness.print_lut_pleak()
 		
 
+def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
+	list2_prop =   []
+	list2_setup =   []
+	list2_hold =   []
+	list2_tran =   []
+	list2_estart = []
+	list2_eend =   []
+	list2_eintl =   []
+	list2_ein =   []
+	list2_cin =   []
+	list2_eclk =   []
+	list2_cclk =   []
+	list2_pleak =   []
+	for tmp_slope in targetCell.slope:
+		res_list_prop =   []  # C2Q
+		res_list_setup =  []  # D2C(setup)
+		res_list_hold =   []  # C2D(hold)
+		res_list_tran =   []
+		res_list_estart = []
+		res_list_eend =   []
+		res_list_eintl =   []
+		res_list_ein =   []
+		res_list_cin =   []
+		res_list_eclk =   []
+		res_list_cclk =   []
+		res_list_pleak =   []
+
+		for tmp_load in targetCell.load:
+			tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
+			tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+			tmp_tsetup1 = tmp_max_val_loop   # temporal value for setup 
+			tmp_tsetup2 = tmp_max_val_loop   # temporal value for setup 
+			tmp_tsetup3 = tmp_max_val_loop   # temporal value for setup 
+			tmp_thold1 = tmp_max_val_loop    # temporal value for setup 
+			tmp_thold2 = tmp_max_val_loop    # temporal value for setup 
+			tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
+
+			# C2Q and recovery search (sparce)
+			# perform two-stage simulation
+			# 1st stage: sim w/  10-% output swing
+			# 2nd stage: sim w/ 100-% output swing
+			tsimendmag = [1, 10]; # magnify parameter of _tsimend
+			tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
+			tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+			tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+			tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+			tmp_energy_start  = tmp_max_val_loop     # temporal value for D2Qmin search
+			tmp_energy_end    = tmp_max_val_loop     # temporal value for D2Qmin search
+			tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
+			tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
+
+			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+			print("First stage sparse recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
+																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+
+			tmp_tstep_mag2 = 10
+			print("Second stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+
+			print("Third stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep))
+			( tmp_tsetup3, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+	
+			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+			print("First stage sparse removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	targetCell.sim_setup_highest, targetCell.sim_setup_lowest, \
+																	-targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+
+			tmp_tstep_mag2 = 10
+			print("Second stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
+																	-targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+
+			print("Third stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep))
+			( res_tsetup3, res_min_prop_in_out, res_min_setup, res_min_hold, res_min_trans_out, \
+				res_energy_start, res_energy_end, res_energy_clk_start, res_energy_clk_end, \
+				res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
+				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
+			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
+																	-targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+	
+
+			# end setup/hold search
+			res_list_prop.append(res_min_prop_in_out) # store D2Q 
+			#res_list_prop.append(res_min_prop_cin_out) # store C2Q (not D2Q)
+			res_list_tran.append(res_min_trans_out)
+			res_list_setup.append(res_min_setup)
+			res_list_hold.append(res_min_hold)
+
+			## intl. energy calculation
+			## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
+			## larger Ql: intl. Q, load Q 
+			## smaller Qs: intl. Q
+			## Eintl = QsV
+			if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
+				res_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
+					abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
+					(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+			else:
+				res_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
+					abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
+					(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+
+			## input energy
+			res_list_ein.append(abs(res_q_in_dyn)*targetLib.vdd_voltage)
+			res_list_eclk.append(abs(res_q_clk_dyn)*targetLib.vdd_voltage)
+
+			## Cin = Qin / V
+			res_list_cin.append(abs(res_q_in_dyn)/(targetLib.vdd_voltage))
+			res_list_cclk.append(abs(res_q_clk_dyn)/(targetLib.vdd_voltage))
+
+			## Pleak = average of Pleak_vdd and Pleak_vss
+			## P = I * V
+			res_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage)) #
+
+		list2_prop.append(res_list_prop)
+		list2_tran.append(res_list_tran)
+		list2_setup.append(res_list_setup)
+		list2_hold.append(res_list_hold)
+		#list2_estart.append(res_list_estart)
+		#list2_eend.append(res_list_eend)
+		list2_eintl.append(res_list_eintl)
+		list2_ein.append(res_list_ein)
+		list2_cin.append(res_list_cin)
+		list2_eclk.append(res_list_eclk)
+		list2_cclk.append(res_list_cclk)
+		list2_pleak.append(res_list_pleak)
+
+	#print(list2_prop)
+
+	targetHarness.set_list2_prop(list2_prop)
+	#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_prop()
+	targetHarness.set_list2_tran(list2_tran)
+	#targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_tran()
+	targetHarness.set_list2_setup(list2_setup)
+	#targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_setup()
+	targetHarness.set_list2_hold(list2_hold)
+	#targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_hold()
+	targetHarness.set_list2_eintl(list2_eintl)
+	#targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_eintl()
+	targetHarness.set_list2_ein(list2_ein)
+	#targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_ein()
+	targetHarness.set_list2_cin(list2_cin)
+	#targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
+	targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_cin()
+	targetHarness.set_list2_eclk(list2_eclk)
+	#targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_eclk()
+	targetHarness.set_list2_cclk(list2_cclk)
+	#targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
+	targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_cclk()
+	targetHarness.set_list2_pleak(list2_pleak)
+	#targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
+	targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
+	#targetHarness.print_lut_pleak()
+
 def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 			thold_lowest, thold_highest, thold_tstep, tsetup, timestep_mag, spicef):
 	# hold search
@@ -353,7 +570,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 				# Delay simulation
 				(res_prop_in_out, res_prop_cin_out, res_trans_out,res_energy_start, \
 				res_energy_end, res_energy_clk_start, res_energy_clk_end, res_setup, res_hold)\
-					= genFileFlop_trial1(targetLib, targetCell, targetHarness, 0, \
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, "delay", \
 						cap_line, slew_line, cslew_line, tunit_line, tsetup_line, \
 						thold_line, tsimend_line, tran_line, "none", "none", "none", "none", spicefo)
 		  
@@ -362,10 +579,11 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 				eend_line = ".param ENERGY_END = "+str(res_energy_end)+"\n"
 				eclkstart_line = ".param ENERGY_CLK_START = "+str(res_energy_clk_start)+"\n"
 				eclkend_line = ".param ENERGY_CLK_END = "+str(res_energy_clk_end)+"\n"
+				spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{thold:,.4f}')+"_2.sp"
 				(res_prop_in_out, res_prop_cin_out, res_trans_out, res_setup, res_hold,\
 							q_in_dyn, q_out_dyn, q_clk_dyn, q_vdd_dyn, q_vss_dyn, i_in_leak, \
 							i_vdd_leak, i_vss_leak) \
-					= genFileFlop_trial1(targetLib, targetCell, targetHarness, 1, cap_line, slew_line, cslew_line,\
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, "energy", cap_line, slew_line, cslew_line,\
 																tunit_line, tsetup_line, thold_line, tsimend_line, tran_line, \
 																estart_line, eend_line, eclkstart_line, eclkend_line,  spicefo)
 				#  check 1st and 2nd run of simulation
@@ -400,7 +618,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 			tmp_energy_start = float(res_energy_start)
 		if(res_energy_end != "failed"):
 			tmp_energy_end   = float(res_energy_end)
-		print("res_energy_clk_start;"+res_energy_clk_start)
+		#print("res_energy_clk_start;"+res_energy_clk_start)
 		if(res_energy_clk_start != "failed"):
 			tmp_energy_clk_start = float(res_energy_clk_start)
 		if(res_energy_clk_end != "failed"):
@@ -426,14 +644,14 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 		if(res_hold != "failed"):
 			tmp_min_hold = float(res_hold)
 			#print("tmp_min_hold: "+str(tmp_min_hold)+"\n")
-		print("spicef: "+str(spicef)+"\n")
+		#print("spicef: "+str(spicef)+"\n")
 
 	# finish without premature ending
 	print("Error! End of dhold search!!: "+str(f'{thold:,.4f}'))
 	print("spice deck: "+spicefo)
 	my_exit()
 
-def setupSearchFlop(targetLib, targetCell, targetHarness,  tmp_load, tmp_slope, tsetup_lowest, tsetup_highest, tsetup_tstep, tmp_min_hold, timestep_mag, spicef):
+def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, tsetup_lowest, tsetup_highest, tsetup_tstep, tmp_min_hold, timestep_mag, spicef):
 	tsimendmag = [1, 10]; # magnify parameter of _tsimend
 	tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
 	tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
@@ -463,13 +681,25 @@ def setupSearchFlop(targetLib, targetCell, targetHarness,  tmp_load, tmp_slope, 
 				tran_line =".tran "+str(targetCell.simulation_timestep*timestep_mag)+str(targetLib.time_unit)+" '_tsimend'\n"
 				#print(spicefo)
         
-				## 1st trial, extract energy_start and energy_end
-				(res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, res_energy_end, \
-				 res_energy_clk_start, res_energy_clk_end, res_setup, res_hold)\
-					= genFileFlop_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, \
-						cslew_line,	tunit_line, tsetup_line, thold_line, tsimend_line, tran_line, \
-						"none", "none", "none", "none", spicefo)
+				# Delay simulation
+				(res_prop_in_out, res_prop_cin_out, res_trans_out, res_energy_start, \
+				res_energy_end, res_energy_clk_start, res_energy_clk_end, res_setup, res_hold)\
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, "delay", 
+						cap_line, slew_line, cslew_line,	tunit_line, tsetup_line, \
+						thold_line, tsimend_line, tran_line, "none", "none", "none", "none", spicefo)
 		  
+				# Energy simulation
+				estart_line = ".param ENERGY_START = "+str(res_energy_start)+"\n"
+				eend_line = ".param ENERGY_END = "+str(res_energy_end)+"\n"
+				eclkstart_line = ".param ENERGY_CLK_START = "+str(res_energy_clk_start)+"\n"
+				eclkend_line = ".param ENERGY_CLK_END = "+str(res_energy_clk_end)+"\n"
+				spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+"_setup"+str(f'{tsetup:,.4f}')+"_hold"+str(f'{tmp_min_hold:,.4f}')+"_2.sp"
+				(res_prop_in_out, res_prop_cin_out, res_trans_out, res_setup, res_hold,\
+							q_in_dyn, q_out_dyn, q_clk_dyn, q_vdd_dyn, q_vss_dyn, i_in_leak, \
+							i_vdd_leak, i_vss_leak) \
+					= genFileFlop_trial1(targetLib, targetCell, targetHarness, "energy", cap_line, slew_line, cslew_line,\
+																tunit_line, tsetup_line, thold_line, tsimend_line, tran_line, \
+																estart_line, eend_line, eclkstart_line, eclkend_line,  spicefo)
 				#  check 1st and 2nd run of simulation
 				# if res_trans_out failed, it may failed in both run -> exit 
 				if(res_trans_out == "failed"):
@@ -479,24 +709,70 @@ def setupSearchFlop(targetLib, targetCell, targetHarness,  tmp_load, tmp_slope, 
 
 		#  check second run of simulation
 		# if (current D2Q > prev. D2Q), exceeds min D2Q
-		if((res_prop_in_out == "failed")or(float(res_prop_in_out) > \
-			tmp_min_prop_in_out)or(first_stage_fail == 1)):
+		if((res_prop_in_out == "failed") \
+			or(float(res_prop_in_out) > tmp_min_prop_in_out) \
+			or(first_stage_fail == 1)):
 			if(tmp_max_val_loop == tmp_min_prop_in_out):
 				print("Error: simulation failed! Check spice deck!")
 				print("spice deck: "+spicefo)
 				my_exit()
 			print("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
 			# finish without premature ending
-			return float(tsetup - tsetup_tstep) 
+			#return float(tsetup - tsetup_tstep) 
+			return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
+							tmp_min_trans_out, \
+							tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+							tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+							tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
 
 		# update C2Q(res_prop_in_out) 
+		# tmp_min_prop_in_out  = float(res_prop_in_out)
+		#update C2Q(res_prop_in_out) 
 		tmp_min_prop_in_out  = float(res_prop_in_out)
+		# in set/reset sim, res_prop_cin_out is not measured
+		if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
+			tmp_min_prop_cin_out = float(res_prop_in_out)
+		tmp_min_trans_out    = float(res_trans_out)
+		if(res_energy_start != "failed"):
+			tmp_energy_start = float(res_energy_start)
+		if(res_energy_end != "failed"):
+			tmp_energy_end   = float(res_energy_end)
+		#print("res_energy_clk_start;"+res_energy_clk_start)
+		if(res_energy_clk_start != "failed"):
+			tmp_energy_clk_start = float(res_energy_clk_start)
+		if(res_energy_clk_end != "failed"):
+			tmp_energy_clk_end   = float(res_energy_clk_end)
+		if(q_in_dyn != "failed"):
+			tmp_q_in_dyn   = float(q_in_dyn)
+		if(q_out_dyn != "failed"):
+			tmp_q_out_dyn  = float(q_out_dyn)
+		if(q_clk_dyn != "failed"):
+			tmp_q_clk_dyn  = float(q_clk_dyn)
+		if(q_vdd_dyn != "failed"):
+			tmp_q_vdd_dyn  = float(q_vdd_dyn)
+		if(q_vss_dyn != "failed"):
+			tmp_q_vss_dyn  = float(q_vss_dyn)
+		if(q_in_dyn != "failed"):
+			tmp_i_in_leak  = float(i_in_leak)
+		if(q_vdd_dyn != "failed"):
+			tmp_i_vdd_leak = float(i_vdd_leak)
+		if(q_vss_dyn != "failed"):
+			tmp_i_vss_leak = float(i_vss_leak)
+		if(res_setup != "failed"):
+			tmp_min_setup = float(res_setup)
+#		if(res_hold != "failed"):         ## In the setup search  
+#			tmp_min_hold = float(res_hold)  ## hold should be ideal
 
 	# finish without premature ending
 	print("Min. D2Q found at dSetup: "+str(f'{tsetup:,.4f}'))
-	return float(tsetup - tsetup_tstep) 
+	#return float(tsetup - tsetup_tstep) 
+	return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
+					tmp_min_trans_out, \
+					tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+					tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+					tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
 
-def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_line, \
+def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line, \
 		slew_line, cslew_line, tunit_line, tsetup_line, thold_line, tsimend_line, \
 		tran_line, estart_line, eend_line, eclkstart_line, eclkend_line, spicef):
 	#print (spicef)
@@ -523,13 +799,15 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 		outlines.append(".param _tclk1 = slew \n")                # ^ first clock
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")    # | 
 		outlines.append(".param _tclk3 = '_tclk2 + tunit '\n")    # | 
-		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # v 
+		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # |
+		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # v ^ Recovery 
+		outlines.append(".param _tclk5 = '_tclk4 + tunit '\n")    #   V Removal    
 		outlines.append(".param _tstart1 = '_tclk4 + tunit * 10 + tsetup'\n")    # ^ data input start 
 		outlines.append(".param _tstart2 = '_tstart1 + slew'\n")                 # v varied w/ dedge
 		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
 		outlines.append(".param _tend2 = '_tend1 + slew'\n")      # v varied w/ dedge
-		outlines.append(".param _tclk5 = '_tclk4 + tunit * 10'\n")       # ^ second clock
-		outlines.append(".param _tclk6 = '_tclk5 + cslew '\n")           # v 
+		outlines.append(".param _tclk6 = '_tclk4 + tunit * 10'\n")       # ^ second clock
+		outlines.append(".param _tclk7 = '_tclk6 + cslew '\n")           # v 
 		outlines.append(".param _tsimend = '_tend2 + tunit * 20 * tsimendmag' \n")
 		outlines.append(".param _Energy_meas_end_extent = "+str(targetLib.energy_meas_time_extent)+"\n")
 		outlines.append(" \n")
@@ -560,9 +838,11 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 			outlines.append("VIN VIN 0 PWL(0 '_vdd' '_tstart1' '_vdd' '_tstart2' '_vss' '_tend1' '_vss' '_tend2' '_vdd' '_tsimend' '_vdd') \n")
 			V_in_target = 'VIN'
 		elif((targetHarness.target_inport_val == "1") or (targetHarness.target_inport_val == "11")):
-			outlines.append("VIN VIN 0 DC '_vdd' \n")
+			#outlines.append("VIN VIN 0 DC '_vdd' \n")
+			outlines.append("VIN VIN 0 PWL(0 '_vss' '_tclk4' '_vss' '_tclk5' '_vdd') \n")
 		elif((targetHarness.target_inport_val == "0") or (targetHarness.target_inport_val == "00")):
-			outlines.append("VIN VIN 0 DC '_vss' \n")
+			#outlines.append("VIN VIN 0 DC '_vss' \n")
+			outlines.append("VIN VIN 0 PWL(0 '_vdd' '_tclk4' '_vdd' '_tclk5' '_vss') \n")
 		else:
 			print("Error: no VIN difinition!")
 			my_exit()
@@ -572,10 +852,10 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 		## CLOCK
 		## two clock pulses are used (one for set init., another for C2Q)
 		if(targetHarness.target_clock_val == "0101"):
-			outlines.append("VCIN VCIN 0 PWL(0 '_vss' '_tclk1' '_vss' '_tclk2' '_vdd' '_tclk3' '_vdd' '_tclk4' '_vss' '_tclk5' '_vss' '_tclk6' '_vdd' '_tsimend' '_vdd') \n")
+			outlines.append("VCIN VCIN 0 PWL(0 '_vss' '_tclk1' '_vss' '_tclk2' '_vdd' '_tclk3' '_vdd' '_tclk4' '_vss' '_tclk6' '_vss' '_tclk7' '_vdd' '_tsimend' '_vdd') \n")
 			## V_in_target = 'VCIN'
 		elif(targetHarness.target_clock_val == "1010"):
-			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tclk5' '_vdd' '_tclk6' '_vss' '_tsimend' '_vss') \n")
+			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tclk6' '_vdd' '_tclk7' '_vss' '_tsimend' '_vss') \n")
 			## V_in_target = 'VCIN'
 		## one clock pulse is used (for set init.)
 		elif(targetHarness.target_clock_val == "010"):
@@ -634,24 +914,24 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
-			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
 		## case, input 10 -> output 01
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
-			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
 		## case, input 10 -> output 10
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
-			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
 		else:
 			print ("Target input of DFF is not registered for characterization!, die!")
 			print ("inport_val:"+str(targetHarness.target_inport_val))
@@ -722,11 +1002,11 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 			#print ("Skip C2D(hold) simulation")
 
 		# get ENERGY_START and ENERGY_END for energy calculation in 2nd round 
-		if(meas_energy == 0):
+		if(sim_mode == "delay"):
 			outlines.append("* For energy calculation \n")
 			if((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01")):
 				outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold_voltage)+"' rise=1 \n")
-			elif((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01")):
+			elif((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10")):
 				outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold_voltage)+"' fall=1 \n")
 			if(targetHarness.target_outport_val == "01"):
 				outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold_voltage)+"' rise=1 \n")
@@ -741,7 +1021,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 
 		##
 		## energy measurement 
-		elif(meas_energy == 1):
+		elif(sim_mode == "energy"):
 			outlines.append(estart_line)
 			outlines.append(eend_line)
 			outlines.append(eclkstart_line)
@@ -766,7 +1046,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 			outlines.append("* Gate leak current \n")
 			outlines.append(".measure Tran I_IN_LEAK avg i(VIN) from='_tstart1*0.1' to='_tstart1'  \n")
 		else:
-			print("Error, meas_energy should 0 (disable) or 1 (enable)")
+			print("Error, sim_mode should delay/energy/recovery/removal")
 			my_error()
 
 #		outlines.append(" \n")
@@ -906,7 +1186,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 			elif((re.search("prop_in_c2d", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 				res_hold = "{:e}".format(float(sparray[2].strip()))
-			if(meas_energy == 0):
+			if(sim_mode == "delay"):
 				if((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_energy_start = "{:e}".format(float(sparray[2].strip()))
@@ -919,7 +1199,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 				elif((re.search("energy_clk_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_energy_clk_end = "{:e}".format(float(sparray[2].strip()))
-			if(meas_energy == 1):
+			if(sim_mode == "energy"):
 				if((re.search("q_in_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
 					res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
@@ -1051,12 +1331,12 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_li
 		#print("Value res_i_vss_leak is not defined!!")
 		#print("DFF simulation failed!!")
 		res_i_vss_leak = "failed"	
-	if(meas_energy == 0):
+	if(sim_mode == "delay"):
 		return res_prop_in_out, res_prop_cin_out, res_trans_out, \
 						res_energy_start, res_energy_end, res_energy_clk_start, res_energy_clk_end, \
 						res_setup, res_hold
 						
-	if(meas_energy == 1):
+	if(sim_mode == "energy"):
 		return res_prop_in_out, res_prop_cin_out, res_trans_out, \
 						res_setup, res_hold, \
 						res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \

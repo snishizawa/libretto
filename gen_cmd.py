@@ -28,8 +28,8 @@ def main_350():
 #	gen_comb("OSU350", cmd_file, "XOR2_1X",  "XOR2",  ['A','B'],               ['Y'],  ['Y=((A&!B)&(!A&B))'],    '1', 'NETLIST/XOR2_1X.spi')
 #	gen_comb("OSU350", cmd_file, "XNOR2_1X", "XNOR2", ['A','B'],               ['Y'],  ['Y=((!A&!B)&(A&B))'],    '1', 'NETLIST/XNOR2_1X.spi')
 #	gen_comb("OSU350", cmd_file, "SEL2_1X",  "SEL2",  ['IN1','IN2','SEL'],     ['Y'],  ['Y=((A&!B)&(!A&B))'],    '1', 'NETLIST/XOR2_1X.spi')
-	gen_seq ("OSU350", cmd_file, "DFF_1X", "DFF_PCPU", ['DATA','CLK'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_1X.spi')
-#	gen_seq ("OSU350", cmd_file, "DFF_ARAS_1X", "DFF_PCPU_NRNS", ['DATA','CLK','NSET','NRST'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_ARAS_1X.spi')
+#	gen_seq ("OSU350", cmd_file, "DFF_1X", "DFF_PCPU", ['DATA','CLK'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_1X.spi')
+	gen_seq ("OSU350", cmd_file, "DFF_ARAS_1X", "DFF_PCPU_NRNS", ['DATA','CLK','NSET','NRST'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_ARAS_1X.spi')
 	exit_libretto(cmd_file)
 
 def main_180():
