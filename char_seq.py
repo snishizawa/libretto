@@ -187,7 +187,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 #																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			targetLib.print_msg_sim("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
@@ -195,7 +195,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
@@ -203,7 +203,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
 
 			targetLib.print_msg_sim("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
-			( tmp_tsetup3, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup3, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
@@ -214,7 +214,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			#if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
 			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			targetLib.print_msg_sim("First stage sparse hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
-			( tmp_thold1, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+			( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 				tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
@@ -225,7 +225,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 
 			tmp_thold_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
-			( tmp_thold2, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+			( tmp_thold2, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 				tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
@@ -235,7 +235,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 																	targetCell.sim_hold_timestep * tmp_thold_mag2, tmp_tsetup3, 2, spicef)
 
 			targetLib.print_msg_sim("Therd stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep))
-			( res_thold3, res_min_prop_in_out, res_min_setup, res_min_hold, res_min_trans_out, \
+			( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
 				res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
 				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
@@ -247,8 +247,8 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			## this is because removal simulation sometimes very small 
 
 			# end setup/hold search
-			res_list_prop.append(res_min_prop_in_out) # store D2Q 
-			#res_list_prop.append(res_min_prop_cin_out) # store C2Q (not D2Q)
+			#res_list_prop.append(res_min_prop_in_out) # store D2Q 
+			res_list_prop.append(res_min_prop_cin_out) # store C2Q (not D2Q)
 			res_list_tran.append(res_min_trans_out)
 			res_list_setup.append(res_min_setup)
 			res_list_hold.append(res_min_hold)
@@ -394,7 +394,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			targetLib.print_msg_sim("First stage sparse recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
@@ -402,7 +402,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
@@ -410,16 +410,21 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
 
 			targetLib.print_msg_sim("Third stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep))
-			( tmp_tsetup3, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( res_tsetup3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
 	
+			## Note! min_setup (min R2C) is recovery.
+			## It is stored into setup object, and 
+			## stored into recovery LUT 
+			res_list_setup.append(res_min_setup) # recovery
+
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			targetLib.print_msg_sim("First stage sparse removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-			( tmp_tsetup1, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_highest, targetCell.sim_setup_lowest, \
@@ -427,7 +432,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-			( tmp_tsetup2, tmp_min_prop_in_out, _, _, tmp_min_trans_out, \
+			( tmp_tsetup2, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
@@ -435,7 +440,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 																	-targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
 
 			targetLib.print_msg_sim("Third stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep))
-			( res_tsetup3, res_min_prop_in_out, res_min_setup, res_min_hold, res_min_trans_out, \
+			( res_tsetup3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
 				res_energy_start, res_energy_end, res_energy_clk_start, res_energy_clk_end, \
 				res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
 				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
@@ -449,8 +454,10 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			#res_list_prop.append(res_min_prop_in_out) # store D2Q 
 			res_list_prop.append(res_min_prop_cin_out) # store C2Q (cause Q is activated by set/reset)
 			res_list_tran.append(res_min_trans_out)
-			res_list_setup.append(res_min_setup) # recovery
-			res_list_hold.append(res_min_hold)   # removal
+			## Note! min_backside_setup = hold (min minus R2Q) is removal.
+			## It is stored into hold object, and 
+			## stored into removal LUT 
+			res_list_hold.append(-res_min_setup)   # removal
 
 			## intl. energy calculation
 			## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
@@ -599,13 +606,13 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 		#if((res_prop_in_out == "failed")or(float(res_prop_in_out) > tmp_min_prop_in_out)or(first_stage_fail == 1)):
 		if((res_prop_in_out == "failed")or(first_stage_fail == 1)):
 			if(tmp_max_val_loop == tmp_min_prop_in_out):
-				targetLib.print_msg("Error: simulation failed! Check spice deck!")
-				targetLib.print_msg("spice deck: "+spicefo)
+				print("Error: simulation failed! Check spice deck!")
+				print("spice deck: "+spicefo)
 				my_exit()
 
 			targetLib.print_msg_sim("Min. D2Q found. Break loop at dHold: "+str(f'{thold:,.4f}'))
 
-			return ( thold, tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+			return ( thold, tmp_min_prop_in_out, tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 							tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 							tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 							tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
@@ -616,6 +623,8 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 		# in set/reset sim, res_prop_cin_out is not measured
 		if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
 			tmp_min_prop_cin_out = float(res_prop_in_out)
+		else:
+			tmp_min_prop_cin_out  = float(res_prop_cin_out)
 		tmp_min_trans_out    = float(res_trans_out)
 		if(res_energy_start != "failed"):
 			tmp_energy_start = float(res_energy_start)
@@ -647,11 +656,11 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 		if(res_hold != "failed"):
 			tmp_min_hold = float(res_hold)
 			targetLib.print_msg("tmp_min_hold: "+str(tmp_min_hold)+"\n")
-		targetLib.print_msg("spicef: "+str(spicef)+"\n")
+		#targetLib.print_msg("spicef: "+str(spicef)+"\n")
 
 	# finish without premature ending
-	targetLib.print_msg("Error! End of dhold search!!: "+str(f'{thold:,.4f}'))
-	targetLib.print_msg("spice deck: "+spicefo)
+	print("Error! End of dhold search!!: "+str(f'{thold:,.4f}'))
+	print("spice deck: "+spicefo)
 	my_exit()
 
 def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, tsetup_lowest, tsetup_highest, tsetup_tstep, tmp_min_hold, timestep_mag, spicef):
@@ -722,8 +731,8 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 			targetLib.print_msg_sim("Min. D2Q found. Break loop at dSetup: "+str(f'{tsetup:,.4f}'))
 			# finish without premature ending
 			#return float(tsetup - tsetup_tstep) 
-			return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
-							tmp_min_trans_out, \
+			return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_prop_cin_out,\
+							tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 							tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 							tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 							tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
@@ -735,6 +744,8 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 		# in set/reset sim, res_prop_cin_out is not measured
 		if((res_prop_cin_out == "failed") or (res_prop_cin_out == tmp_max_val_loop)):
 			tmp_min_prop_cin_out = float(res_prop_in_out)
+		else:
+			tmp_min_prop_cin_out  = float(res_prop_cin_out)
 		tmp_min_trans_out    = float(res_trans_out)
 		if(res_energy_start != "failed"):
 			tmp_energy_start = float(res_energy_start)
@@ -769,8 +780,8 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 	# finish without premature ending
 	targetLib.print_msg_sim("Min. D2Q found at dSetup: "+str(f'{tsetup:,.4f}'))
 	#return float(tsetup - tsetup_tstep) 
-	return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_setup, tmp_min_hold, \
-					tmp_min_trans_out, \
+	return ( float(tsetup - tsetup_tstep), tmp_min_prop_in_out, tmp_min_prop_cin_out, \
+					tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 					tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 					tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 					tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
