@@ -191,7 +191,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
@@ -208,7 +208,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
 	
 			## if target is D2Q, do standard setup/hold search
 			#if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
@@ -221,7 +221,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_hold_lowest, targetCell.sim_hold_highest, \
 																	targetCell.sim_hold_timestep*tmp_thold_mag1, tmp_tsetup3, \
-																	3, spicef)
+																	2, spicef)
 
 			tmp_thold_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
@@ -242,7 +242,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_thold2 - targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
 																	tmp_thold2 + targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
-																	targetCell.sim_hold_timestep, tmp_tsetup3, 2, spicef)
+																	targetCell.sim_hold_timestep, tmp_tsetup3, 1, spicef)
 			## if target is not D2Q (= set or reset), clip lowest hold time to almost zero
 			## this is because removal simulation sometimes very small 
 
@@ -337,6 +337,11 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		
 
 def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
+	## Note! In recovery/removal simulation, recovaly is treated as setup,
+	## and removal is treated as hold. Set/reset to Q delay is treated 
+	## as D2Q delay.
+	## VIN in spice is connected to set/reset, and fixed wave is applied
+	## into d-input of Flip-Flop
 	list2_prop =   []
 	list2_setup =   []
 	list2_hold =   []
@@ -393,7 +398,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
@@ -410,7 +415,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
 	
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
 			targetLib.print_msg_sim("First stage sparse removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
@@ -418,7 +423,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_highest, targetCell.sim_setup_lowest, \
-																	-targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+																	-targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
@@ -437,12 +442,12 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	-targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+																	-targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
 	
 
-			# end setup/hold search
-			res_list_prop.append(res_min_prop_in_out) # store D2Q 
-			#res_list_prop.append(res_min_prop_cin_out) # store C2Q (not D2Q)
+			# end recov/remov search
+			#res_list_prop.append(res_min_prop_in_out) # store D2Q 
+			res_list_prop.append(res_min_prop_cin_out) # store C2Q (cause Q is activated by set/reset)
 			res_list_tran.append(res_min_trans_out)
 			res_list_setup.append(res_min_setup) # recovery
 			res_list_hold.append(res_min_hold)   # removal
