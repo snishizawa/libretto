@@ -2,7 +2,7 @@
 
 def main_350():
 	cmd_file = 'libretto.cmd'
-	gen_lib_common("OSD350", cmd_file)
+	gen_lib_common("OSU350", cmd_file)
 	gen_char_cond("3.3", cmd_file)
 #	gen_comb("OSU350", cmd_file, "INV_1X",   "INV",   ['A'],             ['YB'], ['YB=!A'],         '1', 'NETLIST/INV_1X.spi')
 #	gen_comb("OSU350", cmd_file, "NAND2_1X", "NAND2", ['A','B'],         ['YB'], ['YB=!(A&B)'],     '1', 'NETLIST/NAND2_1X.spi')
@@ -29,7 +29,7 @@ def main_350():
 #	gen_comb("OSU350", cmd_file, "XNOR2_1X", "XNOR2", ['A','B'],               ['Y'],  ['Y=((!A&!B)&(A&B))'],    '1', 'NETLIST/XNOR2_1X.spi')
 #	gen_comb("OSU350", cmd_file, "SEL2_1X",  "SEL2",  ['IN1','IN2','SEL'],     ['Y'],  ['Y=((A&!B)&(!A&B))'],    '1', 'NETLIST/XOR2_1X.spi')
 #	gen_seq ("OSU350", cmd_file, "DFF_1X", "DFF_PCPU", ['DATA','CLK'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_1X.spi')
-	gen_seq ("OSU350", cmd_file, "DFF_ARAS_1X", "DFF_PCPU_NRNS", ['DATA','CLK','NSET','NRST'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_ARAS_1X.spi')
+	gen_seq ("OSU350", cmd_file, "DFF_ARAS_1X", "DFF_PCPU_NRNS", ['DATA','CLK','NSET','NRST'], ['Q'], ['IQ','IQN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_ARAS_1X.spi')
 	exit_libretto(cmd_file)
 
 def main_180():
@@ -114,8 +114,11 @@ def gen_char_cond(vdd, cmd_file):
 		outlines.append("set_work_dir work\n")
 		outlines.append("set_simulator /usr/local/bin/ngspice \n")
 #		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice \n")
-#		outlines.append("set_run_sim false\n")
+		outlines.append("set_run_sim false\n")
 		outlines.append("set_mt_sim true\n")
+		outlines.append("set_supress_message false\n")
+		outlines.append("set_supress_sim_message false\n")
+		outlines.append("set_supress_debug_message false\n")
 		outlines.append("set_energy_meas_low_threshold 0.01\n")
 		outlines.append("set_energy_meas_high_threshold 0.99\n")
 		outlines.append("set_energy_meas_time_extent 10\n")

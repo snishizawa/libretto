@@ -6,6 +6,9 @@ class MyLibrarySetting:
 		self.isexport = 0
 		self.delay_model = "table_lookup"
 		self.runsim = "true"
+		self.supress_msg = "false"
+		self.supress_sim_msg = "false"
+		self.supress_debug_msg = "false"
 
 	def set_lib_name(self, line="tmp"):
 		tmp_array = line.split()
@@ -250,4 +253,35 @@ class MyLibrarySetting:
 	def set_mt_sim(self, line="true"):
 		tmp_array = line.split()
 		self.mtsim = tmp_array[1] 
-		print(tmp_array[1])
+		print(line)
+
+	def set_supress_message(self, line="false"):
+		tmp_array = line.split()
+		self.supress_msg = tmp_array[1] 
+		print(line)
+
+	def set_supress_sim_message(self, line="false"):
+		tmp_array = line.split()
+		self.supress_sim_msg = tmp_array[1] 
+		print(line)
+
+	def set_supress_debug_message(self, line="false"):
+		tmp_array = line.split()
+		self.supress_debug_msg = tmp_array[1] 
+		print(line)
+
+	def print_error(self, message=""):
+		print(message)
+		my_exit()
+
+	def print_msg(self, message=""):
+		if((self.supress_msg.lower() == "false")or(self.supress_msg.lower() == "f")):
+			print(message)
+	
+	def print_msg_sim(self, message=""):
+		if((self.supress_sim_msg.lower() == "false")or(self.supress_sim_msg.lower() == "f")):
+			print(message)
+	
+	def print_msg_dbg(self,  message=""):
+		if((self.supress_debug_msg.lower() == "false")or(self.supress_debug_msglower() == "f")):
+			print(message)

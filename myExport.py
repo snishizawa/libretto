@@ -1,5 +1,5 @@
 
-import argparse, re, os, shutil, subprocess, sys 
+import argparse, re, os, shutil, subprocess, sys, inspect 
 from myFunc import my_exit
 
 def exportFiles(targetLib, targetCell, harnessList2):
@@ -69,6 +69,18 @@ def exportLib(targetLib, targetCell):
 		outlines.append("    variable_2 : total_output_net_capacitance;\n")
 		outlines.append("    index_1 "+targetCell.return_slope()+"\n")
 		outlines.append("    index_2 "+targetCell.return_load()+"\n")
+		outlines.append("  }\n")
+		outlines.append("  lu_table_template (recovery_template) {\n")
+		outlines.append("    variable_1 : related_pin_transition;    \n")
+		outlines.append("    variable_2 : constrained_pin_transition;\n")
+		outlines.append("    index_1 "+targetCell.return_slope()+"\n")
+		outlines.append("    index_2 "+targetCell.return_slope()+"\n")
+		outlines.append("  }\n")
+		outlines.append("  lu_table_template (removal_template) {\n")
+		outlines.append("    variable_1 : related_pin_transition;    \n")
+		outlines.append("    variable_2 : constrained_pin_transition;\n")
+		outlines.append("    index_1 "+targetCell.return_slope()+"\n")
+		outlines.append("    index_2 "+targetCell.return_slope()+"\n")
 		outlines.append("  }\n")
 		outlines.append("  lu_table_template (mpw_constraint_template) {\n")
 		outlines.append("    variable_1 : constrained_pin_transition;\n")
@@ -219,8 +231,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 		## define flop
 		outlines.append("    ff ("+str(targetCell.flops[0])+","+str(targetCell.flops[1])+"){\n") 
 		outlines.append("    clocked_on : \""+targetCell.clock+"\";\n") 
-		for target_outport in targetCell.outports:
-			outlines.append("    next_state : \""+target_outport+"\";\n") 
+		for target_inport in targetCell.inports:
+			outlines.append("    next_state : \""+target_inport+"\";\n") 
 		if targetCell.reset is not None:
 			outlines.append("    clear : \""+targetCell.reset+"\";\n") 
 		if targetCell.set is not None:
@@ -243,7 +255,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			outlines.append("      capacitance : \""+str(targetCell.cins[index1])+"\";\n")
+			print(targetCell.cclks)
+			outlines.append("      capacitance : \""+str(targetCell.cclks[index1])+"\";\n")
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
 			outlines.append("      clock : true;\n") 
 	#   internal_power() {
@@ -266,49 +279,51 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 		## (2) prop/tran/setup/hold for input pins 
 		##
 		for target_inport in targetCell.inports:
-			## select inport with setup/hold informatioin
-			index2 = targetCell.inports.index(target_inport) 
-			index1 = targetCell.outports.index(target_outport) 
-			#print(harnessList2[index1][index2*2].timing_type_setup)
-			if((harnessList2[index1][index2*2].timing_type_setup == "setup_rising") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
-				outlines.append("    pin ("+target_inport+"){\n") #### inport pin start 
-				outlines.append("      direction : input;\n")
-				outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
-				outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
-				outlines.append("      max_capacitance : \""+str(targetCell.load[-1])+"\";\n") ## use max val. of load table
-				outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-				outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
-				## (2-1) setup
-				outlines.append("      timing () {\n")
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_setup+"\";\n")
-				## setup rise
-				outlines.append("        "+harnessList2[index1][index2*2].timing_sense_setup+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2].lut_setup:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				## setup fall
-				outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_setup+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+1].lut_setup:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				outlines.append("      }\n") 
-				## (2-2) hold
-				outlines.append("      timing () {\n")
+			for target_outport in targetCell.outports:
+				## select inport with setup/hold informatioin
+				index2 = targetCell.inports.index(target_inport) 
 				index1 = targetCell.outports.index(target_outport) 
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_hold+"\";\n")
-				## hold rise
-				outlines.append("        "+harnessList2[index1][index2*2].timing_sense_hold+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2].lut_hold:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				## hold fall
-				outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_hold+" (constraint_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+1].lut_hold:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				outlines.append("      }\n") 
+				#print(harnessList2[index1][index2*2].timing_type_setup)
+				if((harnessList2[index1][index2*2].timing_type_setup == "setup_rising") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
+					outlines.append("    pin ("+target_inport+"){\n") #### inport pin start 
+					outlines.append("      direction : input;\n")
+					outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
+					outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
+					outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
+					print(targetCell.cins)
+					outlines.append("      capacitance : \""+str(targetCell.cins[index1])+"\";\n")
+					outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
+					## (2-1) setup
+					outlines.append("      timing () {\n")
+					outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
+					outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_setup+"\";\n")
+					## setup rise
+					outlines.append("        "+harnessList2[index1][index2*2].timing_sense_setup+" (constraint_template) {\n")
+					for lut_line in harnessList2[index1][index2*2].lut_setup:
+						outlines.append("          "+lut_line+"\n")
+					outlines.append("        }\n") 
+					## setup fall
+					outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_setup+" (constraint_template) {\n")
+					for lut_line in harnessList2[index1][index2*2+1].lut_setup:
+						outlines.append("          "+lut_line+"\n")
+					outlines.append("        }\n") 
+					outlines.append("      }\n") 
+					## (2-2) hold
+					outlines.append("      timing () {\n")
+					index1 = targetCell.outports.index(target_outport) 
+					outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
+					outlines.append("        timing_type : \""+harnessList2[index1][index2*2].timing_type_hold+"\";\n")
+					## hold rise
+					outlines.append("        "+harnessList2[index1][index2*2].timing_sense_hold+" (constraint_template) {\n")
+					for lut_line in harnessList2[index1][index2*2].lut_hold:
+						outlines.append("          "+lut_line+"\n")
+					outlines.append("        }\n") 
+					## hold fall
+					outlines.append("        "+harnessList2[index1][index2*2+1].timing_sense_hold+" (constraint_template) {\n")
+					for lut_line in harnessList2[index1][index2*2+1].lut_hold:
+						outlines.append("          "+lut_line+"\n")
+					outlines.append("        }\n") 
+					outlines.append("      }\n") 
 		outlines.append("    }\n") ## inport pin end
 
 		##
@@ -342,26 +357,27 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				##target_inport = targetCell.clock
 				outlines.append("      timing () {\n")
 				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_setup+"\";\n")
+				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_clock+"\";\n")
+				outlines.append("        timing_sense : \""+harnessList2[index1][index2*2+index2_offset].timing_sense_clock+"\";\n")
 				#### (3-1-1) rise
 				## propagation delay
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_clock_prop+" (delay_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_prop+" (delay_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_prop:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				## transition delay
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_clock_tran+" (delay_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_tran+" (delay_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_tran:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				#### (3-1-2) fall
 				## propagation delay
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset+1].direction_clock_prop+" (delay_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+index2_offset+1].direction_prop+" (delay_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+index2_offset+1].lut_prop:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				## transition delay
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset+1].direction_clock_tran+" (delay_template) {\n")
+				outlines.append("        "+harnessList2[index1][index2*2+index2_offset+1].direction_tran+" (delay_template) {\n")
 				for lut_line in harnessList2[index1][index2*2+index2_offset+1].lut_tran:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
@@ -390,6 +406,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					my_exit()
 
 				outlines.append("        related_pin : \""+targetCell.reset+"\";\n")
+				outlines.append("        timing_sense : \""+harnessList2[index1][index2*2+index2_offset].timing_sense_reset+"\";\n")
 				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
 				## (3-2-1) propagation delay
 				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_reset_prop+" (delay_template) {\n")
@@ -424,6 +441,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					my_exit()
 
 				outlines.append("        related_pin : \""+targetCell.set+"\";\n")
+				outlines.append("        timing_sense : \""+harnessList2[index1][index2*2+index2_offset].timing_sense_set+"\";\n")
 				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
 				## (3-3-1) propagation delay
 				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_set_prop+" (delay_template) {\n")
@@ -438,7 +456,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				outlines.append("      }\n") 
 			##outlines.append("    }\n") #### out pin end
 			
-			## (3-4) power
+			## (3-4) clock power
 			if targetCell.clock is not None:
 				## index2 is a base pointer for harness search
 				## index2_offset and index2_offset_max are used to 
@@ -468,21 +486,10 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
 				outlines.append("      }\n") ## power end 
-		outlines.append("    }\n") ## out pin end
 
-		## (4) Reset
-		if targetCell.reset is not None:
-			for target_reset in targetCell.reset:
-				index1 = targetCell.reset.index(target_reset) 
-				outlines.append("    pin ("+target_reset+"){\n") #### out pin start
-				outlines.append("      direction : input;\n")
-				outlines.append("      function : \"("+targetCell.functions[index1]+")\"\n")
-				outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
-				outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
-				outlines.append("      max_capacitance : \""+str(targetCell.load[-1])+"\";\n") ## use max val. of load table
-				outlines.append("      output_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_output;\n")
-				##target_inport = targetCell.reset
-  
+			## (3-5) reset power 
+			if targetCell.reset is not None:
+
 				## Harness search for reset
 				## index2 is an base pointer for harness search
 				## index2_offset and index2_offset_max are used to 
@@ -498,50 +505,25 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				if(index2_offset == 10):
 					print("Error: index2_offset exceed max. search number\n")
 					my_exit()
-  
-				## (4-1) recovery
-				outlines.append("      timing () {\n")
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
-				if (1 != len(targetCell.inports)):
-					print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-					my_exit()
-				for target_inport in targetCell.inports: ## only one target_inport should be available
-					outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_reset_prop+" (delay_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_recov:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				outlines.append("      }\n") 
-				## (4-2)removal 
-				outlines.append("      timing () {\n")
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
-				if (1 != len(targetCell.inports)):
-					print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-					my_exit()
-				for target_inport in targetCell.inports: ## only one target_inport should be available
-					outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_reset_tran+" (delay_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_remov:
-					outlines.append("          "+lut_line+"\n")
-				outlines.append("        }\n") 
-				outlines.append("      }\n") 
-			outlines.append("    }\n") #### out pin end -> continue for set
 
-		## (5) set
-		if targetCell.set is not None:
-			for target_set in targetCell.set:
-				index1 = targetCell.set.index(target_set) 
-				outlines.append("    pin ("+target_set+"){\n") #### out pin start
-				outlines.append("      direction : input;\n")
-				outlines.append("      function : \"("+targetCell.functions[index1]+")\"\n")
-				outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
-				outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
-				outlines.append("      max_capacitance : \""+str(targetCell.load[-1])+"\";\n") ## use max val. of load table
-				outlines.append("      output_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_output;\n")
-				##target_inport = targetCell.set
-  
+				outlines.append("      internal_power () {\n")
+				index2 = targetCell.inports.index(target_inport) 
+				outlines.append("        related_pin : \""+targetCell.reset+"\";\n")
+				## rise(fall)
+				outlines.append("        "+harnessList2[index1][index2*2].direction_power+" (power_template) {\n")
+				for lut_line in harnessList2[index1][index2*2].lut_eintl:
+					outlines.append("          "+lut_line+"\n")
+				outlines.append("        }\n") 
+				## fall(rise)
+				outlines.append("        "+harnessList2[index1][index2*2+1].direction_power+" (power_template) {\n")
+				for lut_line in harnessList2[index1][index2*2+1].lut_eintl:
+					outlines.append("          "+lut_line+"\n")
+				outlines.append("        }\n") 
+				outlines.append("      }\n") ## power end 
+
+			## (3-6) set power 
+			if targetCell.set is not None:
+
 				## Harness search for set
 				## index2 is an base pointer for harness search
 				## index2_offset and index2_offset_max are used to 
@@ -557,37 +539,151 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 				if(index2_offset == 10):
 					print("Error: index2_offset exceed max. search number\n")
 					my_exit()
-  
-				## (5-1) recovery
-				outlines.append("      timing () {\n")
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
-				if (1 != len(targetCell.inports)):
-					print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-					my_exit()
-				for target_inport in targetCell.inports: ## only one target_inport should be available
-					outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_set_prop+" (delay_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_recov:
+
+				outlines.append("      internal_power () {\n")
+				index2 = targetCell.inports.index(target_inport) 
+				outlines.append("        related_pin : \""+targetCell.set+"\";\n")
+				## rise(fall)
+				outlines.append("        "+harnessList2[index1][index2*2].direction_power+" (power_template) {\n")
+				for lut_line in harnessList2[index1][index2*2].lut_eintl:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
-				outlines.append("      }\n") 
-  
-				## (5-2)removal 
-				outlines.append("      timing () {\n")
-				outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
-				outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
-				if (1 != len(targetCell.inports)):
-					print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-					my_exit()
-				for target_inport in targetCell.inports: ## only one target_inport should be available
-					outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
-				outlines.append("        "+harnessList2[index1][index2*2+index2_offset].direction_set_tran+" (delay_template) {\n")
-				for lut_line in harnessList2[index1][index2*2+index2_offset].lut_remov:
+				## fall(rise)
+				outlines.append("        "+harnessList2[index1][index2*2+1].direction_power+" (power_template) {\n")
+				for lut_line in harnessList2[index1][index2*2+1].lut_eintl:
 					outlines.append("          "+lut_line+"\n")
 				outlines.append("        }\n") 
-				outlines.append("      }\n") 
-			outlines.append("    }\n") #### out pin end -> continue for set
+				outlines.append("      }\n") ## power end 
+			##outlines.append("    }\n") #### out pin end
+		outlines.append("    }\n") ## out pin end
+
+		## (4) Reset
+		if targetCell.reset is not None:
+			# for target_reset in targetCell.reset:
+			target_reset = targetCell.reset
+			index1 = targetCell.reset.index(target_reset) 
+			outlines.append("    pin ("+target_reset+"){\n") #### out pin start
+			outlines.append("      direction : input;\n")
+			#outlines.append("      function : \"("+targetCell.functions[index1]+")\"\n")
+			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
+			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
+			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
+			print(targetCell.crsts)
+			##outlines.append("      capacitance : \""+str(targetCell.crsts[index1])+"\";\n")
+			outlines.append("      capacitance : \""+str(targetCell.crsts[0])+"\";\n") # use 0 as representative
+			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
+			##target_inport = targetCell.reset
+  
+			## Harness search for reset
+			## index2 is an base pointer for harness search
+			## index2_offset and index2_offset_max are used to 
+			## search harness from harnessList2 which contain "timing_type_set"
+			index2 = targetCell.outports.index(target_outport) 
+			index2_offset = 0
+			index2_offset_max = 10
+			while(index2_offset < index2_offset_max):
+				#print(harnessList2[index1][index2*2+index2_offset])
+				if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
+					break
+				index2_offset += 1
+			if(index2_offset == 10):
+				print("Error: index2_offset exceed max. search number\n")
+				my_exit()
+			#for a in inspect.getmembers(harnessList2[index1][index2*2+index2_offset]):
+			#	print (a) 
+			## (4-1) recovery
+			outlines.append("      timing () {\n")
+			outlines.append("        related_pin : \""+targetCell.reset+"\";\n")
+			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset_recov+"\";\n")
+			if (1 != len(targetCell.inports)):
+				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+				my_exit()
+			#for target_inport in targetCell.inports: ## only one target_inport should be available
+			#	outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
+			outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_reset_recov+" (recovery_template) {\n")
+			for lut_line in harnessList2[index1][index2*2+index2_offset].lut_setup:
+				outlines.append("          "+lut_line+"\n")
+			outlines.append("        }\n") 
+			outlines.append("      }\n") 
+			## (4-2)removal 
+			outlines.append("      timing () {\n")
+			outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
+			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset_remov+"\";\n")
+			if (1 != len(targetCell.inports)):
+				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+				my_exit()
+			#for target_inport in targetCell.inports: ## only one target_inport should be available
+			#	outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
+			outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_reset_remov+" (removal_template) {\n")
+			for lut_line in harnessList2[index1][index2*2+index2_offset].lut_hold:
+				outlines.append("          "+lut_line+"\n")
+			outlines.append("        }\n") 
+			outlines.append("      }\n") 
+		outlines.append("    }\n") #### out pin end -> continue for set
+
+		## (5) set
+		if targetCell.set is not None:
+			#for target_set in targetCell.set:
+			target_set = targetCell.set
+			index1 = targetCell.set.index(target_set) 
+			outlines.append("    pin ("+target_set+"){\n") #### out pin start
+			outlines.append("      direction : input;\n")
+			#outlines.append("      function : \"("+targetCell.functions[index1]+")\"\n")
+			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
+			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
+			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
+			print(targetCell.csets)
+			#outlines.append("      capacitance : \""+str(targetCell.csets[index1])+"\";\n")
+			outlines.append("      capacitance : \""+str(targetCell.csets[0])+"\";\n") # use 0 as representative val
+			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
+			##target_inport = targetCell.set
+  
+			## Harness search for set
+			## index2 is an base pointer for harness search
+			## index2_offset and index2_offset_max are used to 
+			## search harness from harnessList2 which contain "timing_type_set"
+			index2 = targetCell.outports.index(target_outport) 
+			index2_offset = 0
+			index2_offset_max = 10
+			while(index2_offset < index2_offset_max):
+				#print(harnessList2[index1][index2*2+index2_offset])
+				if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_set"):
+					break
+				index2_offset += 1
+			if(index2_offset == 10):
+				print("Error: index2_offset exceed max. search number\n")
+				my_exit()
+  
+			## (5-1) recovery
+			outlines.append("      timing () {\n")
+			outlines.append("        related_pin : \""+targetCell.set+"\";\n")
+			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set_recov+"\";\n")
+			if (1 != len(targetCell.inports)):
+				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+				my_exit()
+			#for target_inport in targetCell.inports: ## only one target_inport should be available
+			#	outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
+			outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_set_recov+" (recovery_template) {\n")
+			for lut_line in harnessList2[index1][index2*2+index2_offset].lut_setup:
+				outlines.append("          "+lut_line+"\n")
+			outlines.append("        }\n") 
+			outlines.append("      }\n") 
+  
+			## (5-2)removal 
+			outlines.append("      timing () {\n")
+			outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
+			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set_remov+"\";\n")
+			if (1 != len(targetCell.inports)):
+				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+				my_exit()
+			#for target_inport in targetCell.inports: ## only one target_inport should be available
+			#	outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
+			outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_set_remov+" (removal_template) {\n")
+			for lut_line in harnessList2[index1][index2*2+index2_offset].lut_hold:
+				outlines.append("          "+lut_line+"\n")
+			outlines.append("        }\n") 
+			outlines.append("      }\n") 
+		outlines.append("    }\n") #### out pin end -> continue for set
 
 		outlines.append("  }\n") #### cell end
 		f.writelines(outlines)

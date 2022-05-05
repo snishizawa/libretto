@@ -53,7 +53,7 @@ class MyConditionsAndResults:
 		self.timing_sense = "negative_unate"
 
 	## set timing_sense and timing_type for input/output
-	def set_timing_flop_inout(self, inport="tmp", outport="tmp"):
+	def set_timing_flop_inout(self, inport="tmp", clkport="tmp",outport="tmp"):
 		## inport
 		if((inport == 'pos')or(inport == '01')):
 			self.timing_sense_setup = "rise_constraint"
@@ -74,76 +74,92 @@ class MyConditionsAndResults:
 			self.timing_type_out = "falling_edge"
 		else:
 			print("Illegal input: "+outport+", check unate")
+		## clkport
+		self.timing_sense_clock = "non_unate"
+		if(clkport == '0101'):
+			#self.timing_type_clock = "setup_rising"
+			self.timing_type_clock = "rising_edge"
+		elif(clkport == '1010'):
+			#self.timing_type_clock = "setup_falling"
+			self.timing_type_clock = "falling_edge"
+		else:
+			print("Illegal clkput: "+clkport+", check unate")
 	
-	def set_timing_flop_clock(self, inport="0101", outport="01"):
-		## inport
-		if(inport == "0101"):
-			self.timing_type_edge = "riseing_edge"
-			self.timing_type_setup = "setup_riseing"
-			self.timing_type_hold = "hold_riseing"
-		elif(inport == "1010"):
-			self.timing_type_edge = "falling_edge"
-			self.timing_type_setup = "setup_falling"
-			self.timing_type_hold = "hold_falling"
-		else:
-			self.timing_type_edge  = "NONE"
-			self.timing_type_setup = "NONE"
-			self.timing_type_hold  = "NONE"
-		## outport
-		if((outport == 'pos')or(outport == '01')):
-			self.direction_clock_prop = "cell_rise"
-			self.direction_clock_tran = "rise_transaction"
-		elif((outport == 'neg')or(outport == '10')):
-			self.direction_clock_prop = "cell_fall"
-			self.direction_clock_tran = "fall_transaction"
-		else:
-			print("Illegal input: "+self.outport+", check unate")
+#	def set_timing_flop_clock(self, inport="0101", outport="01"):
+#		## inport
+#		self.timing_sense_clock  = "non_unate"
+#		if(inport == "0101"):
+#			self.timing_type_clock = "rising_edge"
+#		elif(inport == "1010"):
+#			self.timing_type_clock = "falling_edge"
+#		else:
+#			self.timing_type_clock  = "NONE"
+#		if((outport == "01")or(outport.upper() == "RISE")):
+#			self.direction_clock_prop = "cell_rise"
+#			self.direction_clock_tran = "rise_transition"
+#		elif((outport == "10")or(outport.upper() == "FALL")):
+#			self.direction_clock_prop = "cell_fall"
+#			self.direction_clock_tran = "fall_transition"
+#		else:
+#			print("Warning: illigal outport type at set_timing_flop_set: "+str(inport))
 
-	def set_timing_flop_set(self, inport="01", outport="01"):
+	def set_timing_flop_set(self, targetCell, inport="01", outport="01"):
 		## inport
 		if((inport == "01")or(inport.upper() == "RISE")):
 			self.timing_sense_set = "positive_unate"
+			self.timing_when = targetCell.set 
+			self.timing_sense_set_recov = "rise_constraint"
+			self.timing_sense_set_remov = "rise_constraint"
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_set = "negative_unate"
+			self.timing_when = "!"+targetCell.set 
+			self.timing_sense_set_recov = "fall_constraint"
+			self.timing_sense_set_remov = "fall_constraint"
 		else:
 			print("Warning: illigal inport type at set_timing_flop_set: "+str(inport))
 		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_set = "preset"
 			self.direction_set_prop = "cell_rise"
-			self.direction_set_tran = "rise_transaction"
+			self.direction_set_tran = "rise_transition"
 			self.timing_type_set_recov = "recovery_rising"
-			self.timing_type_set_remov = "removal_rising"
+			self.timing_type_set_remov = "removal_falling"
 		elif((outport == "10")or(outport.upper() == "FALL")):
 			self.timing_type_set = "clear"
-			self.direction_set_prop = "cell_rise"
-			self.direction_set_tran = "rise_transaction"
+			self.direction_set_prop = "cell_fall"
+			self.direction_set_tran = "fall_transition"
 			self.timing_type_set_recov = "recovery_falling"
-			self.timing_type_set_remov = "removal_falling"
+			self.timing_type_set_remov = "removal_rising"
 		else:
 			print("Warning: illigal outport type at set_timing_flop_set: "+str(inport))
 
-	def set_timing_flop_reset(self, inport="01", outport="01"):
+	def set_timing_flop_reset(self, targetCell, inport="01", outport="01"):
 		## inport
 		if((inport == "01")or(inport.upper() == "RISE")):
 			self.timing_sense_reset = "positive_unate"
+			self.timing_when = targetCell.reset 
+			self.timing_sense_reset_recov = "rise_constraint"
+			self.timing_sense_reset_remov = "rise_constraint"
 		elif((inport == "10")or(inport.upper() == "FALL")):
 			self.timing_sense_reset = "negative_unate"
+			self.timing_when = "!"+targetCell.reset 
+			self.timing_sense_reset_recov = "fall_constraint"
+			self.timing_sense_reset_remov = "fall_constraint"
 		else:
 			print("Warning: illigal inport type at set_timing_flop_reset: "+str(inport))
 		## outport
 		if((outport == "01")or(outport.upper() == "RISE")):
 			self.timing_type_reset = "preset"
 			self.direction_reset_prop = "cell_rise"
-			self.direction_reset_tran = "rise_transaction"
+			self.direction_reset_tran = "rise_transition"
 			self.timing_type_set_recov = "recovery_rising"
-			self.timing_type_set_remov = "removal_rising"
+			self.timing_type_set_remov = "removal_falling"
 		elif((outport == "10")or(outport.upper() == "FALL")):
 			self.timing_type_reset = "clear"
-			self.direction_reset_prop = "cell_rise"
-			self.direction_reset_tran = "rise_transaction"
+			self.direction_reset_prop = "cell_fall"
+			self.direction_reset_tran = "fall_transition"
 			self.timing_type_reset_recov = "recovery_falling"
-			self.timing_type_reset_remov = "removal_falling"
+			self.timing_type_reset_remov = "removal_rising"
 		else:
 			print("Warning: illigal outport type at set_timing_flop_reset: "+str(inport))
 
