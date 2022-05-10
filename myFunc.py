@@ -7,3 +7,4 @@ def my_exit():
 	print("file:"+path[-1] +" in:"+frame.f_code.co_name+", line:"+str(frame.f_lineno))
 	sys.exit()
 
+

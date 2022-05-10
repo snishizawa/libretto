@@ -208,6 +208,16 @@ class MyConditionsAndResults:
 		#print(self.target_set_val)
 		#print(self.target_set)
 
+	def invert_set_reset_val(self):
+		if(self.target_reset_val == '01'):
+			self.target_reset_val = '10'
+		elif(self.target_reset_val == '10'):
+			self.target_reset_val = '01'
+		if(self.target_set_val == '01'):
+			self.target_set_val = '10'
+		elif(self.target_set_val == '10'):
+			self.target_set_val = '01'
+
 	## propagation delay table
 	def set_list2_prop(self, list2_prop=[]):
 		self.list2_prop = list2_prop 

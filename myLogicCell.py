@@ -241,7 +241,7 @@ class MyLogicCell:
 			elif(re.match("^r ", options)):
 				tmp_array2 = options.split() 
 				self.reset = tmp_array2[1] 
-				#print (self.reset)
+				print (self.reset)
 			## -o option (output name)
 			elif(re.match("^o ", options)):
 				tmp_array2 = options.split() 
@@ -305,9 +305,9 @@ class MyLogicCell:
 			
 	def add_simulation_setup_timestep(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use min slope
+		## if auto, amd slope is defined, use 1/10x min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_setup_timestep = float(self.slope[0])
+			self.sim_setup_timestep = float(self.slope[0])/10
 			print ("auto set setup simulation timestep")
 		else:
 			self.sim_setup_timestep = float(tmp_array[1])
@@ -338,9 +338,9 @@ class MyLogicCell:
 			
 	def add_simulation_hold_timestep(self, line="tmp"):
 		tmp_array = line.split()
-		## if auto, amd slope is defined, use min slope
+		## if auto, amd slope is defined, use 1/10x min slope
 		if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-			self.sim_hold_timestep = float(self.slope[0]) 
+			self.sim_hold_timestep = float(self.slope[0])/10 
 			print ("auto set hold simulation timestep")
 		else:
 			self.sim_hold_timestep = float(tmp_array[1])
@@ -361,29 +361,33 @@ class MyLogicCell:
 					self.cclks.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
+				print("stored cins:"+str(tmp_index)+" for clk")
 			elif((port.lower() == 'reset')or(port.lower() == 'rst')):
-				tmp_cin += float(targetHarness.crst)
+				tmp_cin += float(targetHarness.cin) # .cin stores rst cap. 
 				## if this is (2n+1) then store averaged 
 				## cin into targetCell.cins
 				if((tmp_index % 2) == 1):
 					self.crsts.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
+				print("stored cins:"+str(tmp_index)+" for rst")
 			elif(port.lower() == 'set'):
-				tmp_cin += float(targetHarness.cset)
+				tmp_cin += float(targetHarness.cin) # .cin stores set cap.
 				## if this is (2n+1) then store averaged 
 				## cin into targetCell.cins
 				if((tmp_index % 2) == 1):
 					self.csets.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
+				print("stored cins:"+str(tmp_index)+" for set")
 			else:	
-				tmp_cin += float(targetHarness.cin)
+				tmp_cin += float(targetHarness.cin) # else, .cin stores inport cap.
 				## if this is (2n+1) then store averaged 
 				## cin into targetCell.cins
 				if((tmp_index % 2) == 1):
 					self.cins.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
-			#print("stored cins:"+str(tmp_index))
+				print("stored cins:"+str(tmp_index)+" for data")
+			print("stored cins:"+str(tmp_index))
 

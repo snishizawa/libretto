@@ -593,7 +593,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			#	print (a) 
 			## (4-1) recovery
 			outlines.append("      timing () {\n")
-			outlines.append("        related_pin : \""+targetCell.reset+"\";\n")
+			outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
 			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset_recov+"\";\n")
 			if (1 != len(targetCell.inports)):
 				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
@@ -656,7 +656,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
   
 			## (5-1) recovery
 			outlines.append("      timing () {\n")
-			outlines.append("        related_pin : \""+targetCell.set+"\";\n")
+			outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
 			outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set_recov+"\";\n")
 			if (1 != len(targetCell.inports)):
 				print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )

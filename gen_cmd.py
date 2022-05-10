@@ -114,7 +114,7 @@ def gen_char_cond(vdd, cmd_file):
 		outlines.append("set_work_dir work\n")
 		outlines.append("set_simulator /usr/local/bin/ngspice \n")
 #		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice \n")
-		outlines.append("set_run_sim false\n")
+#		outlines.append("set_run_sim false\n")
 		outlines.append("set_mt_sim true\n")
 		outlines.append("set_supress_message false\n")
 		outlines.append("set_supress_sim_message false\n")

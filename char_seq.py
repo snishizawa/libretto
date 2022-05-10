@@ -28,6 +28,15 @@ def runFlop(targetLib, targetCell, expectationList2):
 		else:
 			targetLib.print_error("Error! target cell "+str(targetCell.logic)+" is not defined!")
 
+		## 
+		## replace Q_val for recovery/removal
+		##
+		if((SET_val == '01') or (SET_val == '10') or (RST_val == '01') or (RST_val == '10')):
+			if(Q_val == '01'):
+				Q_val = '10'
+			elif(Q_val == '10'):
+				Q_val = '01'
+			
 
 		tmp_Harness.set_target_inport (targetCell.inports[0], D_val)
 		tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], Q_val)
@@ -185,13 +194,14 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 #																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 #																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 #																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
-			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+			tmp_tstep_mag2 = 10
+			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 			targetLib.print_msg_sim("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
 			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
@@ -200,7 +210,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
 																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 3, spicef)
 
 			targetLib.print_msg_sim("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
 			( tmp_tsetup3, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
@@ -208,11 +218,11 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
+																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
 	
 			## if target is D2Q, do standard setup/hold search
 			#if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
-			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 			targetLib.print_msg_sim("First stage sparse hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
 			( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
@@ -221,7 +231,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_hold_lowest, targetCell.sim_hold_highest, \
 																	targetCell.sim_hold_timestep*tmp_thold_mag1, tmp_tsetup3, \
-																	2, spicef)
+																	3, spicef)
 
 			tmp_thold_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
@@ -232,7 +242,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_thold1 - targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
 																	tmp_thold1 + targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
-																	targetCell.sim_hold_timestep * tmp_thold_mag2, tmp_tsetup3, 2, spicef)
+																	targetCell.sim_hold_timestep * tmp_thold_mag2, tmp_tsetup3, 3, spicef)
 
 			targetLib.print_msg_sim("Therd stage precise hold search, timestep: "+str(targetCell.sim_hold_timestep))
 			( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
@@ -242,7 +252,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_thold2 - targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
 																	tmp_thold2 + targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
-																	targetCell.sim_hold_timestep, tmp_tsetup3, 1, spicef)
+																	targetCell.sim_hold_timestep, tmp_tsetup3, 2, spicef)
 			## if target is not D2Q (= set or reset), clip lowest hold time to almost zero
 			## this is because removal simulation sometimes very small 
 
@@ -392,13 +402,17 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
 			tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
 
-			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
+			## for recovery search, invert reset/set signal 
+			targetHarness.invert_set_reset_val()
+
+			tmp_tstep_mag2 = 10
+			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 			targetLib.print_msg_sim("First stage sparse recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
 			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
 
 			tmp_tstep_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
@@ -407,7 +421,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
 																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 3, spicef)
 
 			targetLib.print_msg_sim("Third stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep))
 			( res_tsetup3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
@@ -415,39 +429,51 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
 																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
+																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
 	
 			## Note! min_setup (min R2C) is recovery.
 			## It is stored into setup object, and 
 			## stored into recovery LUT 
 			res_list_setup.append(res_min_setup) # recovery
 
-			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
-			targetLib.print_msg_sim("First stage sparse removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-			( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-																	targetCell.sim_setup_highest, targetCell.sim_setup_lowest, \
-																	-targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 2, spicef)
+			## for removal search, restore reset/set signal 
+			targetHarness.invert_set_reset_val()
+			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 
-			tmp_tstep_mag2 = 10
-			targetLib.print_msg_sim("Second stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-			( tmp_tsetup2, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-				tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-																	-targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
+			targetLib.print_msg_sim("First stage sparse removal search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
+			( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+				tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+				tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	targetCell.sim_hold_highest * 2, 0 , \
+																	-targetCell.sim_hold_timestep*tmp_thold_mag1, -tmp_tsetup3, \
+																	3, spicef)
+#			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+#																	targetCell.sim_hold_highest, targetCell.sim_hold_lowest , \
+#																	-targetCell.sim_hold_timestep*tmp_thold_mag1, -tmp_tsetup3, \
+#																	3, spicef)
 
-			targetLib.print_msg_sim("Third stage precise removal search, timestep: "+str(targetCell.sim_setup_timestep))
-			( res_tsetup3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
-				res_energy_start, res_energy_end, res_energy_clk_start, res_energy_clk_end, \
+			tmp_thold_mag2 = 10
+			targetLib.print_msg_sim("Second stage precise removal search, timestep: "+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
+			( tmp_thold2, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+				tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+				tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_thold1 + targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
+																	tmp_thold1 - targetCell.sim_hold_timestep * tmp_thold_mag1 ,\
+																	-targetCell.sim_hold_timestep * tmp_thold_mag2, -tmp_tsetup3, 3, spicef)
+
+			targetLib.print_msg_sim("Therd stage precise removal search, timestep: "+str(targetCell.sim_hold_timestep))
+			( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
+				res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
 				res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
-			 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-																	-targetCell.sim_setup_timestep, tmp_min_hold, 1, spicef)
+			 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+																	tmp_thold2 + targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
+																	tmp_thold2 - targetCell.sim_hold_timestep * tmp_thold_mag2 ,\
+																	-targetCell.sim_hold_timestep, -tmp_tsetup3, 2, spicef)
 	
 
 			# end recov/remov search
@@ -655,7 +681,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 			tmp_min_setup = float(res_setup)
 		if(res_hold != "failed"):
 			tmp_min_hold = float(res_hold)
-			targetLib.print_msg("tmp_min_hold: "+str(tmp_min_hold)+"\n")
+			#targetLib.print_msg("tmp_min_hold: "+str(tmp_min_hold)+"\n")
 		#targetLib.print_msg("spicef: "+str(spicef)+"\n")
 
 	# finish without premature ending
@@ -813,12 +839,11 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		outlines.append(".param _tclk1 = slew \n")                # ^ first clock
 		outlines.append(".param _tclk2 = '_tclk1 + cslew '\n")    # | 
 		outlines.append(".param _tclk3 = '_tclk2 + tunit '\n")    # | 
-		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # |
 		outlines.append(".param _tclk4 = '_tclk3 + cslew '\n")    # v ^ Recovery 
 		outlines.append(".param _tclk5 = '_tclk4 + tunit '\n")    #   V Removal    
-		outlines.append(".param _tstart1 = '_tclk4 + tunit * 10 + tsetup'\n")    # ^ data input start 
+		outlines.append(".param _tstart1 = '_tclk5 + tunit * 10 + tsetup'\n")    # ^ data input start 
 		outlines.append(".param _tstart2 = '_tstart1 + slew'\n")                 # v varied w/ dedge
-		outlines.append(".param _tend1 = '_tstart2 + thold'\n")   # ^ data input end
+		outlines.append(".param _tend1 = '_tstart2 + tunit + thold'\n")   # ^ data input end
 		outlines.append(".param _tend2 = '_tend1 + slew'\n")      # v varied w/ dedge
 		outlines.append(".param _tclk6 = '_tclk4 + tunit * 10'\n")       # ^ second clock
 		outlines.append(".param _tclk7 = '_tclk6 + cslew '\n")           # v 
@@ -852,11 +877,11 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 			outlines.append("VIN VIN 0 PWL(0 '_vdd' '_tstart1' '_vdd' '_tstart2' '_vss' '_tend1' '_vss' '_tend2' '_vdd' '_tsimend' '_vdd') \n")
 			V_in_target = 'VIN'
 		elif((targetHarness.target_inport_val == "1") or (targetHarness.target_inport_val == "11")):
-			#outlines.append("VIN VIN 0 DC '_vdd' \n")
-			outlines.append("VIN VIN 0 PWL(0 '_vss' '_tclk4' '_vss' '_tclk5' '_vdd') \n")
+			outlines.append("VIN VIN 0 DC '_vdd' \n")
+			#outlines.append("VIN VIN 0 PWL(0 '_vss' '_tclk4' '_vss' '_tclk5' '_vdd') \n")
 		elif((targetHarness.target_inport_val == "0") or (targetHarness.target_inport_val == "00")):
-			#outlines.append("VIN VIN 0 DC '_vss' \n")
-			outlines.append("VIN VIN 0 PWL(0 '_vdd' '_tclk4' '_vdd' '_tclk5' '_vss') \n")
+			outlines.append("VIN VIN 0 DC '_vss' \n")
+			#outlines.append("VIN VIN 0 PWL(0 '_vdd' '_tclk4' '_vdd' '_tclk5' '_vss') \n")
 		else:
 			targetLib.print_msg("Error: no VIN difinition!")
 			my_exit()
@@ -917,35 +942,35 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		## case, input 01 -> output 10
 		if(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5' \n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk5' \n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 td='_tclk5' \n")
 		## case, input 01 -> output 01
 		elif(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 \n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
 		## case, input 10 -> output 01
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1 \n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
 		## case, input 10 -> output 10
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1 \n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 \n")
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
+			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1  td='_tclk5'\n")
 		else:
 			print ("Target input of DFF is not registered for characterization!, die!")
 			print ("inport_val:"+str(targetHarness.target_inport_val))
@@ -957,39 +982,39 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		outlines.append("* Prop delay (C2Q)\n")
 		## case, clock 01 -> output 10
 		if((targetHarness.target_clock_val == "0101")and((targetHarness.target_outport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))):
-			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
+			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
 		## case, clock 01 -> output 01
 		elif((targetHarness.target_clock_val == "0101")and((targetHarness.target_outport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))):
-			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
+			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 		## case, clock 10 -> output 10
 		elif((targetHarness.target_clock_val == "1010")and((targetHarness.target_outport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))):
-			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
+			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
 		## case, clock 10 -> output 01
 		elif((targetHarness.target_clock_val == "1010")and((targetHarness.target_outport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))):
-			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
+			outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 
 		# measure D2C(setup)
 		outlines.append("* Prop delay (D2C,setup)\n")
 		# case, D 01 -> CLK 01
 		if(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock  
+			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
 		# case, D 10 -> CLK 01
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "0101")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock  
+			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
 		# case, D 01 -> CLK 10
 		elif(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
-			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
+			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
 		# case, D 10 -> CLK 10
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "1010")):
 			outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock  
+			outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
 		#else:
 			#print ("Skip D2C(setup) simulation")
 
@@ -998,20 +1023,20 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		
 		# case, CLK 01 -> D (01->)10 
 		if(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "0101")):
-			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
+			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
 		# case, CLK 01 -> D (10->)01 
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "0101")):
-			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
+			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 		# case, CLK 10 -> D (01->)10 
 		elif(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "1010")):
-			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") 
+			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
 		# case, CLK 10 -> D (10->)01 
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "1010")):
-			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=2 \n") # meas. 2nd clock
-			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n") 
+			outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n") # meas. 2nd clock
+			outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 		#else:
 			#print ("Skip C2D(hold) simulation")
 

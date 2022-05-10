@@ -150,6 +150,18 @@ def main():
 			elif(line.startswith('set_mt_sim')):
 				targetLib.set_mt_sim(line) 
 
+			## set_supress_message
+			elif(line.startswith('set_supress_message')):
+				targetLib.set_supress_message(line) 
+
+			## set_supress_sim_message
+			elif(line.startswith('set_supress_sim_message')):
+				targetLib.set_supress_sim_message(line) 
+
+			## set_supress_debug_message
+			elif(line.startswith('set_supress_debug_message')):
+				targetLib.set_supress_debug_message(line) 
+
 			## set_energy_meas_low_threshold
 			elif(line.startswith('set_energy_meas_low_threshold')):
 				targetLib.set_energy_meas_low_threshold(line) 
@@ -547,10 +559,10 @@ def characterizeFiles(targetLib, targetCell):
 		## 									 [D,   C,  S,   R,    Q]
 #		expectationList2 = [['01','0101','1', '1', '01'], \
 #										  	['10','0101','1', '1', '10'], \
-#												['0','0101','01', '1', '01'], \
-#										  	['1','0101', '1','01', '10']]
-		expectationList2 = [['0','0101','01', '1', '01'], \
-										  	['1','0101', '1','01', '10']]
+#												['1','0101','01', '1', '01'], \
+#										  	['0','0101', '1','01', '10']]
+		expectationList2 = [['0','0101','01', '1', '01']]
+#										  	['0','0101', '1','01', '10']]
 
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
