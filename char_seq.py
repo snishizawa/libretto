@@ -176,24 +176,6 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 			tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
 			tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
 
-#			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])
-#			targetLib.print_msg_sim("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#			tmp_tsetup1 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#																	targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-#																	targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicef)
-#
-#			tmp_tstep_mag2 = 10
-#			targetLib.print_msg_sim("Second stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
-#			tmp_tsetup2 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-#																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag1 ,\
-#																	targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 2, spicef)
-#
-#			targetLib.print_msg_sim("Third stage precise setup search, timestep: "+str(targetCell.sim_setup_timestep))
-#			tmp_tsetup3 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#																	tmp_tsetup2 - targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-#																	tmp_tsetup2 + targetCell.sim_setup_timestep * tmp_tstep_mag2 ,\
-#																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
 			tmp_tstep_mag2 = 10
 			tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 			targetLib.print_msg_sim("First stage sparse setup search, timestep: "+str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
@@ -301,8 +283,6 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 		list2_eclk.append(res_list_eclk)
 		list2_cclk.append(res_list_cclk)
 		list2_pleak.append(res_list_pleak)
-
-	#targetLib.print_msg_sim(list2_prop)
 
 	targetHarness.set_list2_prop(list2_prop)
 	#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
@@ -438,21 +418,17 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 
 			## for removal search, restore reset/set signal 
 			targetHarness.invert_set_reset_val()
-			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 
+			tmp_thold_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag2
 			targetLib.print_msg_sim("First stage sparse removal search, timestep: "+str(targetCell.sim_hold_timestep*tmp_thold_mag1))
 			( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 				tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 				tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 				tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
 			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-																	targetCell.sim_hold_highest * 2, 0 , \
+																	targetCell.sim_hold_highest * 3, 0 , \
 																	-targetCell.sim_hold_timestep*tmp_thold_mag1, -tmp_tsetup3, \
 																	3, spicef)
-#			= holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#																	targetCell.sim_hold_highest, targetCell.sim_hold_lowest , \
-#																	-targetCell.sim_hold_timestep*tmp_thold_mag1, -tmp_tsetup3, \
-#																	3, spicef)
 
 			tmp_thold_mag2 = 10
 			targetLib.print_msg_sim("Second stage precise removal search, timestep: "+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
@@ -523,8 +499,6 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 		list2_eclk.append(res_list_eclk)
 		list2_cclk.append(res_list_cclk)
 		list2_pleak.append(res_list_pleak)
-
-	#targetLib.print_msg_sim(list2_prop)
 
 	targetHarness.set_list2_prop(list2_prop)
 	#targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
@@ -902,8 +876,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		elif(targetHarness.target_clock_val == "101"):
 			outlines.append("VCIN VCIN 0 PWL(0 '_vdd' '_tclk1' '_vdd' '_tclk2' '_vss' '_tclk3' '_vss' '_tclk4' '_vdd' '_tsimend' '_vdd') \n")
 		else:
-			targetLib.print_msg("Error: no VCIN difinition!")
-			my_exit()
+			targetLib.print_error("Error: no VCIN difinition!")
 		
 		## RST
 		if(targetHarness.target_reset_val == "01"):
@@ -917,8 +890,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		elif((targetHarness.target_reset_val == "00")or(targetHarness.target_reset_val == "0")):
 			outlines.append("VRIN VRIN 0 DC '_vss' \n")
 		elif(targetHarness.target_reset != None):
-			targetLib.print_msg("Error: Reset is difined as "+str(targetHarness.target_reset)+" but not VRIN is not defined!")
-			my_exit()
+			targetLib.print_error("Error: Reset is difined as "+str(targetHarness.target_reset)+" but not VRIN is not defined!")
 
 		## SET
 		if(targetHarness.target_set_val == "01"):
@@ -932,8 +904,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		elif((targetHarness.target_set_val == "00")or(targetHarness.target_set_val == "0")):
 			outlines.append("VSIN VSIN 0 DC '_vss' \n")
 		elif(targetHarness.target_set != None):
-			targetLib.print_msg("Error: Set is difined as "+str(targetHarness.target_set)+" but not VSIN is not defined!")
-			my_exit()
+			targetLib.print_error("Error: Set is difined as "+str(targetHarness.target_set)+" but not VSIN is not defined!")
 
 		# candidate of input: D, RST, SET
 		# measure D2Q
@@ -945,32 +916,32 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5' \n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk5' \n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 td='_tclk5' \n")
+			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1 td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1 td='_tclk5' \n")
 		## case, input 01 -> output 01
 		elif(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_low_threshold)+"' rise=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
 		## case, input 10 -> output 01
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "01")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
 		## case, input 10 -> output 10
 		elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "10")):
 			outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n")
 			outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
 			outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
-			outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
+			#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1  td='_tclk5'\n")
 		else:
 			print ("Target input of DFF is not registered for characterization!, die!")
 			print ("inport_val:"+str(targetHarness.target_inport_val))
@@ -1085,8 +1056,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 			outlines.append("* Gate leak current \n")
 			outlines.append(".measure Tran I_IN_LEAK avg i(VIN) from='_tstart1*0.1' to='_tstart1'  \n")
 		else:
-			targetLib.print_msg("Error, sim_mode should delay/energy/recovery/removal")
-			my_error()
+			targetLib.print_error("Error, sim_mode should delay/energy/recovery/removal")
 
 #		outlines.append(" \n")
 #		outlines.append(" \n")
@@ -1101,9 +1071,11 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		for w1 in tmp_array:
 			# match tmp_array and harness 
 			# search target inport
+			is_matched = 0
 			w2 = targetHarness.target_inport
 			if(w1 == w2):
 				tmp_line += ' IN'
+				is_matched += 1
 			# search stable inport
 			for w2 in targetHarness.stable_inport:
 				if(w1 == w2):
@@ -1112,29 +1084,32 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 					index_val = targetHarness.stable_inport_val[targetHarness.stable_inport.index(w2)]
 					if(index_val == '1'):
 						tmp_line += ' HIGH'
+						is_matched += 1
 					elif(index_val == '0'):
 						tmp_line += ' LOW'
+						is_matched += 1
 					else:
 						targetLib.print_msg('Illigal input value for stable input')
 			# search target clock
 			w2 = targetHarness.target_clock
 			if(w1 == w2):
 				tmp_line += ' CIN'
+				is_matched += 1
 			# search target reset
 			w2 = targetHarness.target_reset
 			if(w1 == w2):
 				tmp_line += ' RIN'
+				is_matched += 1
 			# search target set
 			w2 = targetHarness.target_set
 			if(w1 == w2):
 				tmp_line += ' SIN'
+				is_matched += 1
 			# search target outport
-			#targetLib.print_msg("**"+targetHarness.target_outport[0])
-			#targetLib.print_msg("**"+targetHarness.target_outport[1])
 			for w2 in targetHarness.target_outport:
-				#targetLib.print_msg(w1+" "+w2+"\n")
 				if(w1 == w2):
 					tmp_line += ' OUT'
+					is_matched += 1
 			# search non-terget outport
 			for w2 in targetHarness.nontarget_outport:
 				if(w1 == w2):
@@ -1142,19 +1117,29 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 					# search outdex for this port
 					index_val = targetHarness.nontarget_outport_val[targetHarness.nontarget_outport.index(w2)]
 					tmp_line += ' WFLOAT'+str(index_val)
+					is_matched += 1
 			# search VDD/VSS/VNW/VPW
 			if(w1.upper() == targetLib.vdd_name.upper()):
 					tmp_line += ' '+w1.upper() 
+					is_matched += 1
 			if(w1.upper() == targetLib.vss_name.upper()):
 					tmp_line += ' '+w1.upper() 
+					is_matched += 1
 			if(w1.upper() == targetLib.pwell_name.upper()):
 					tmp_line += ' '+w1.upper() 
+					is_matched += 1
 			if(w1.upper() == targetLib.nwell_name.upper()):
 					tmp_line += ' '+w1.upper() 
+					is_matched += 1
+			## show error if this port has not matched
+			if(is_matched == 0):
+				## if w1 is wire name, abort
+				## check this is instance tmp_array[0] or circuit name tmp_array[-1]
+				if((w1 != tmp_array[0]) and (w1 != tmp_array[-1])): 
+					targetLib.print_error("port: "+str(w1)+" has not matched in netlist parse!!")
 					
 		tmp_line += " "+str(tmp_array[len(tmp_array)-1])+"\n" # CIRCUIT NAME
 		outlines.append(tmp_line)
-		#targetLib.print_msg(tmp_line)
 
 		outlines.append(".ends \n")
 		outlines.append(" \n")
@@ -1271,104 +1256,70 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 	try:
 		res_prop_in_out
 	except NameError:
-		#targetLib.print_msg("Value res_prop_in_out is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_prop_in_out = "failed"	
 	try:
 		res_prop_cin_out
 	except NameError:
-		#targetLib.print_msg("Value res_cprop_in_out is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_prop_cin_out = "failed"	
 	try:
 		res_trans_out
 	except NameError:
-		#targetLib.print_msg("Value res_trans_out is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_trans_out = "failed"	
 	try:
 		res_energy_start
 	except NameError:
-		#targetLib.print_msg("Value res_energy_start is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_energy_start = "failed"	
 	try:
 		res_energy_end
 	except NameError:
-		#targetLib.print_msg("Value res_energy_end is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_energy_end = "failed"	
 	try:
 		res_energy_clk_start
 	except NameError:
-		#targetLib.print_msg("Value res_energy_clk_start is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_energy_clk_start = "failed"	
 	try:
 		res_energy_clk_end
 	except NameError:
-		#targetLib.print_msg("Value res_energy_clk_end is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_energy_clk_end = "failed"	
 	try:
 		res_setup
 	except NameError:
-		#targetLib.print_msg("Value res_setup is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_setup = "failed"	
 	try:
 		res_hold
 	except NameError:
-		#targetLib.print_msg("Value res_hold is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_hold = "failed"	
 	try:
 		res_q_in_dyn
 	except NameError:
-		#targetLib.print_msg("Value res_q_in_dyn is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_q_in_dyn = "failed"	
 	try:
 		res_q_out_dyn
 	except NameError:
-		#targetLib.print_msg("Value res_q_out_dyn is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_q_out_dyn = "failed"	
 	try:
 		res_q_clk_dyn
 	except NameError:
-		#targetLib.print_msg("Value res_q_clk_dyn is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_q_clk_dyn = "failed"	
 	try:
 		res_q_vdd_dyn
 	except NameError:
-		#targetLib.print_msg("Value res_q_vdd_dyn is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_q_vdd_dyn = "failed"	
 	try:
 		res_q_vss_dyn
 	except NameError:
-		#targetLib.print_msg("Value res_q_vss_dyn is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_q_vss_dyn = "failed"	
 	try:
 		res_i_in_leak
 	except NameError:
-		#targetLib.print_msg("Value res_i_in_leak is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_i_in_leak = "failed"	
 	try:
 		res_i_vdd_leak
 	except NameError:
-		#targetLib.print_msg("Value res_i_vdd_leak is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_i_vdd_leak = "failed"	
 	try:
 		res_i_vss_leak
 	except NameError:
-		#targetLib.print_msg("Value res_i_vss_leak is not defined!!")
-		#targetLib.print_msg("DFF simulation failed!!")
 		res_i_vss_leak = "failed"	
 	if(sim_mode == "delay"):
 		return res_prop_in_out, res_prop_cin_out, res_trans_out, \

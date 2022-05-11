@@ -546,7 +546,7 @@ def characterizeFiles(targetLib, targetCell):
 		## 									 [D,   C,    R,    Q]
 		expectationList2 = [['01','0101', '1', '01'], \
 										  	['10','0101', '1', '10'], \
-										  	[ '1', '0101','10', '10']]
+										  	[ '1', '0101','01', '10']]
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
 
@@ -554,15 +554,15 @@ def characterizeFiles(targetLib, targetCell):
 		print ("DFF, positive clock, positive unate, async neg-reset, async neg-set\n")
 		## D1 & C01 -> Q01 QN10
 		## D0 & C01 -> Q10 QN01
-		## R01      -> Q10 QN01
 		## S01      -> Q01 QN10
+		## R01      -> Q10 QN01
 		## 									 [D,   C,  S,   R,    Q]
-#		expectationList2 = [['01','0101','1', '1', '01'], \
-#										  	['10','0101','1', '1', '10'], \
-#												['1','0101','01', '1', '01'], \
-#										  	['0','0101', '1','01', '10']]
-		expectationList2 = [['0','0101','01', '1', '01']]
-#										  	['0','0101', '1','01', '10']]
+		expectationList2 = [['01','0101','1', '1', '01'], \
+										  	['10','0101','1', '1', '10'], \
+												['0','0101','01', '1', '01'], \
+										  	['1','0101', '1','01', '10']]
+#		expectationList2 = [['0','0101','01', '1', '01']]
+#		expectationList2 = [['1','0101','1', '01', '10']]
 
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
