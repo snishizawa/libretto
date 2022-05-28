@@ -151,8 +151,10 @@ def gen_comb(target, cmd_file, cell_name, logic, inports, outports, funcs, area,
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
 		elif(target == "OSU350"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.07 0.49} \n")
+			outlines.append("add_slope {0.1 4.9} \n")
+			outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		line_add_area = 'add_area '+str(area)+'\n'
@@ -202,8 +204,10 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
 		elif(target == "OSU350"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.07 0.49} \n")
+			outlines.append("add_slope {0.1 4.9} \n")
+			outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		outlines.append("add_clock_slope auto \n")

@@ -152,8 +152,8 @@ class MyConditionsAndResults:
 			self.timing_type_reset = "preset"
 			self.direction_reset_prop = "cell_rise"
 			self.direction_reset_tran = "rise_transition"
-			self.timing_type_set_recov = "recovery_rising"
-			self.timing_type_set_remov = "removal_falling"
+			self.timing_type_reset_recov = "recovery_rising"
+			self.timing_type_reset_remov = "removal_falling"
 		elif((outport == "10")or(outport.upper() == "FALL")):
 			self.timing_type_reset = "clear"
 			self.direction_reset_prop = "cell_fall"
