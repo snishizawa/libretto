@@ -826,7 +826,7 @@ def exportVerilogFlop(targetLib, targetCell):
 					outlines.append(resetlines[1])
 					outlines.append(resetlines[2])
 				outlines.append(target_outport+'<='+target_inport)
-				outlines.append('end\n')
+				outlines.append('\nend\n')
 				outlines.append('end\n')
 			## for target_inport
 		## for target_outport

@@ -319,7 +319,8 @@ class MyLogicCell:
 		#remove# if hold is less than zero, pwl time point does not be incremental
 		#remove# and simulation failed
 		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-			self.sim_hold_lowest = float(self.slope[-1]) * -5 
+			#self.sim_hold_lowest = float(self.slope[-1]) * -5 
+			self.sim_hold_lowest = float(self.slope[-1]) * -10 
 			#self.sim_hold_lowest = float(self.slope[-1]) * 0.001 
 			print ("auto set hold simulation time lowest limit")
 		else:
@@ -331,7 +332,8 @@ class MyLogicCell:
 		## if auto, amd slope is defined, use 5x of max slope 
 		## value should be smaller than "tmp_max_val_loop" in holdSearchFlop
 		if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-			self.sim_hold_highest = float(self.slope[-1]) * 5 
+			#self.sim_hold_highest = float(self.slope[-1]) * 5 
+			self.sim_hold_highest = float(self.slope[-1]) * 10 
 			print ("auto set hold simulation time highest limit")
 		else:
 			self.sim_hold_highest = float(tmp_array[1])

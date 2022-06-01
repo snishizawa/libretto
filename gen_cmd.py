@@ -4,6 +4,7 @@ def main_350():
 	cmd_file = 'libretto.cmd'
 	gen_lib_common("OSU350", cmd_file)
 	gen_char_cond("3.3", cmd_file)
+	gen_comb("OSU350", cmd_file, "SEL2_1X",  "SEL2",  ['IN0','IN1','SEL'],     ['Y'],  ['Y=((IN0&!SEL)&(IN1&SEL))'],    '1', 'NETLIST/SEL2_1X.spi')
 	gen_seq ("OSU350", cmd_file, "DFFAR_1X", "DFF_PCPU_NR", ['DATA','CLK','NRST'], ['Q'], ['IQ','IQN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFFAR_1X.spi')
 	gen_comb("OSU350", cmd_file, "INV_1X",   "INV",   ['A'],             ['YB'], ['YB=!A'],         '1', 'NETLIST/INV_1X.spi')
 	gen_comb("OSU350", cmd_file, "NAND2_1X", "NAND2", ['A','B'],         ['YB'], ['YB=!(A&B)'],     '1', 'NETLIST/NAND2_1X.spi')
@@ -28,7 +29,6 @@ def main_350():
 #	gen_comb("OSU350", cmd_file, "OA22_1X",  "OA22",  ['A1','A2','B1','B2'],   ['Y'],  ['Y=((B1|B2)&(A1|A2))'],  '1', 'NETLIST/OA22_1X.spi')
 	gen_comb("OSU350", cmd_file, "XOR2_1X",  "XOR2",  ['A','B'],               ['Y'],  ['Y=((A&!B)&(!A&B))'],    '1', 'NETLIST/XOR2_1X.spi')
 	gen_comb("OSU350", cmd_file, "XNOR2_1X", "XNOR2", ['A','B'],               ['Y'],  ['Y=((!A&!B)&(A&B))'],    '1', 'NETLIST/XNOR2_1X.spi')
-	gen_comb("OSU350", cmd_file, "SEL2_1X",  "SEL2",  ['IN1','IN2','SEL'],     ['Y'],  ['Y=((A&!B)&(!A&B))'],    '1', 'NETLIST/XOR2_1X.spi')
 #	gen_seq ("OSU350", cmd_file, "DFF_1X", "DFF_PCPU", ['DATA','CLK'], ['Q'], ['Q','QN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFF_1X.spi')
 #	gen_seq ("OSU350", cmd_file, "DFFARAS_1X", "DFF_PCPU_NRNS", ['DATA','CLK','NSET','NRST'], ['Q'], ['IQ','IQN'], ['Q=IQ','QN=IQN'], '1', 'NETLIST/DFFARAS_1X.spi')
 	exit_libretto(cmd_file)
@@ -151,10 +151,10 @@ def gen_comb(target, cmd_file, cell_name, logic, inports, outports, funcs, area,
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
 		elif(target == "OSU350"):
-			#outlines.append("add_slope {0.1 0.7 4.9} \n")
-			#outlines.append("add_load  {0.01 0.07 0.49} \n")
-			outlines.append("add_slope {0.1 4.9} \n")
-			outlines.append("add_load  {0.01 0.49} \n")
+			outlines.append("add_slope {0.1 0.7 4.9} \n")
+			outlines.append("add_load  {0.01 0.07 0.49} \n")
+			#outlines.append("add_slope {0.1 4.9} \n")
+			#outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		line_add_area = 'add_area '+str(area)+'\n'
@@ -204,10 +204,10 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
 		elif(target == "OSU350"):
-			#outlines.append("add_slope {0.1 0.7 4.9} \n")
-			#outlines.append("add_load  {0.01 0.07 0.49} \n")
-			outlines.append("add_slope {0.1 4.9} \n")
-			outlines.append("add_load  {0.01 0.49} \n")
+			outlines.append("add_slope {0.1 0.7 4.9} \n")
+			outlines.append("add_load  {0.01 0.07 0.49} \n")
+			#outlines.append("add_slope {0.1 4.9} \n")
+			#outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		outlines.append("add_clock_slope auto \n")

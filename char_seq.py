@@ -505,7 +505,8 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
 				tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
 				targetLib.print_msg_sim("Mid. stage precise removal search, timestep: "\
 					+str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
-				print("tmp_thold1: "+str(tmp_thold1))
+				#print("tmp_thold1: "+str(tmp_thold1))
+				#print("from: "+str(tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *3)+" to: "+str(tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2))
 				( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
 					tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 					tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
@@ -636,7 +637,7 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 	tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
 
 	#print ("debug "+str(thold_highest)+","+str(thold_lowest)+","+str(thold_tstep)+"\n\n")
-	for thold in np.arange (thold_highest, thold_lowest*0.99, -thold_tstep):
+	for thold in np.arange (thold_highest, thold_lowest*1.01, -thold_tstep):
 		first_stage_fail = 0
 		for j in range(len(tranmag)):
 			if(first_stage_fail == 0):
@@ -1265,7 +1266,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 		if(re.search("ngspice", targetLib.simulator)):
 			cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
 		elif(re.search("hspice", targetLib.simulator)):
-			cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
+			cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" > /dev/null 2>&1\n"
 		#cmd = str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+"\n"
 		with open(spicerun,'w') as f:
 			outlines = []
@@ -1288,60 +1289,60 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 				inline = re.sub('\=',' ',inline)
 			#targetLib.print_msg(inline)
 			# search measure
-			#if(re.match("ngspice", targetLib.simulator)):
-			if((re.search("prop_in_out", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
-			elif((re.search("prop_cin_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_prop_cin_out = "{:e}".format(float(sparray[2].strip()))
-			elif((re.search("trans_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_trans_out = "{:e}".format(float(sparray[2].strip()))
-			elif((re.search("prop_in_d2c", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_setup = "{:e}".format(float(sparray[2].strip()))
-			elif((re.search("prop_in_c2d", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-				sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-				res_hold = "{:e}".format(float(sparray[2].strip()))
-			if(sim_mode == "delay"):
-				if((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+			if(not (re.search("warning*", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+				if(re.search("prop_in_out", inline)): 
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_start = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("energy_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+					res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
+				elif(re.search("prop_cin_out", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_end = "{:e}".format(float(sparray[2].strip()))
-				if((re.search("energy_clk_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+					res_prop_cin_out = "{:e}".format(float(sparray[2].strip()))
+				elif(re.search("trans_out", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_clk_start = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("energy_clk_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+					res_trans_out = "{:e}".format(float(sparray[2].strip()))
+				elif(re.search("prop_in_d2c", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_energy_clk_end = "{:e}".format(float(sparray[2].strip()))
-			if(sim_mode == "energy"):
-				if((re.search("q_in_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+					res_setup = "{:e}".format(float(sparray[2].strip()))
+				elif(re.search("prop_in_c2d", inline)):
 					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("q_out_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("q_clk_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_clk_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("q_vdd_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("q_vss_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("i_vdd_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("i_vss_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
-				elif((re.search("i_in_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-					sparray = re.split(" +", inline) # separate words with spaces (use re.split)
-					res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
+					res_hold = "{:e}".format(float(sparray[2].strip()))
+				if(sim_mode == "delay"):
+					if(re.search("energy_start", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_energy_start = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("energy_end", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_energy_end = "{:e}".format(float(sparray[2].strip()))
+					if(re.search("energy_clk_start", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_energy_clk_start = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("energy_clk_end", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_energy_clk_end = "{:e}".format(float(sparray[2].strip()))
+				if(sim_mode == "energy"):
+					if(re.search("q_in_dyn", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("q_out_dyn", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("q_clk_dyn", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_q_clk_dyn = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("q_vdd_dyn", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("q_vss_dyn", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("i_vdd_leak", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("i_vss_leak", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
+					elif(re.search("i_in_leak", inline)):
+						sparray = re.split(" +", inline) # separate words with spaces (use re.split)
+						res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 
 
 	f.close()
