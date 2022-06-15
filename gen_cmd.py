@@ -113,13 +113,13 @@ def gen_char_cond(vdd, cmd_file):
 		outlines.append("set_logic_high_to_low_threshold 0.5\n")
 		outlines.append("set_logic_low_to_high_threshold 0.5\n")
 		outlines.append("set_work_dir work\n")
-		outlines.append("set_simulator /usr/local/bin/ngspice \n")
-#		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice \n")
+#		outlines.append("set_simulator /usr/local/bin/ngspice \n")
+		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice -CC -port 2990wx:25000 -i \n")
 #		outlines.append("set_run_sim false\n")
 		outlines.append("set_mt_sim true\n")
 		outlines.append("set_supress_message false\n")
 		outlines.append("set_supress_sim_message false\n")
-		outlines.append("set_supress_debug_message false\n")
+		outlines.append("set_supress_debug_message true\n")
 		outlines.append("set_energy_meas_low_threshold 0.01\n")
 		outlines.append("set_energy_meas_high_threshold 0.99\n")
 		outlines.append("set_energy_meas_time_extent 10\n")
@@ -148,13 +148,15 @@ def gen_comb(target, cmd_file, cell_name, logic, inports, outports, funcs, area,
 #		outlines.append("add_slope {0.1 0.4 1.6 6.4} \n")
 #		outlines.append("add_load  {0.01 0.04 0.16 0.64} \n")
 		if(target == "ROHM180"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.1 1.0} \n")
+			outlines.append("add_slope {0.1 0.7} \n")
+			outlines.append("add_load  {0.01 0.1} \n")
 		elif(target == "OSU350"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.07 0.49} \n")
-			#outlines.append("add_slope {0.1 4.9} \n")
-			#outlines.append("add_load  {0.01 0.49} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.07 0.49} \n")
+			outlines.append("add_slope {0.1 4.9} \n")
+			outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		line_add_area = 'add_area '+str(area)+'\n'
@@ -201,13 +203,15 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 		line_add_flop += '\n'
 		outlines.append(line_add_flop)
 		if(target == "ROHM180"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.1 1.0} \n")
+			outlines.append("add_slope {0.1 0.7} \n")
+			outlines.append("add_load  {0.01 0.1} \n")
 		elif(target == "OSU350"):
-			outlines.append("add_slope {0.1 0.7 4.9} \n")
-			outlines.append("add_load  {0.01 0.07 0.49} \n")
-			#outlines.append("add_slope {0.1 4.9} \n")
-			#outlines.append("add_load  {0.01 0.49} \n")
+			#outlines.append("add_slope {0.1 0.7 4.9} \n")
+			#outlines.append("add_load  {0.01 0.07 0.49} \n")
+			outlines.append("add_slope {0.1 4.9} \n")
+			outlines.append("add_load  {0.01 0.49} \n")
 		else:
 			print("target is not registered!\n")
 		outlines.append("add_clock_slope auto \n")
@@ -237,6 +241,6 @@ def exit_libretto(cmd_file):
 	f.close()
 
 if __name__ == '__main__':
-	main_350()
-	#main_180()
+	#main_350()
+	main_180()
 

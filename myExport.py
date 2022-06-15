@@ -255,7 +255,6 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.cclks)
 			outlines.append("      capacitance : \""+str(targetCell.cclks[index1])+"\";\n")
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
 			outlines.append("      clock : true;\n") 
@@ -290,7 +289,6 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 					outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 					outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-					print(targetCell.cins)
 					outlines.append("      capacitance : \""+str(targetCell.cins[index1])+"\";\n")
 					outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
 					## (2-1) setup
@@ -568,7 +566,6 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.crsts)
 			##outlines.append("      capacitance : \""+str(targetCell.crsts[index1])+"\";\n")
 			outlines.append("      capacitance : \""+str(targetCell.crsts[0])+"\";\n") # use 0 as representative
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
@@ -632,7 +629,6 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.csets)
 			#outlines.append("      capacitance : \""+str(targetCell.csets[index1])+"\";\n")
 			outlines.append("      capacitance : \""+str(targetCell.csets[0])+"\";\n") # use 0 as representative val
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")

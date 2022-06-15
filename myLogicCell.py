@@ -363,7 +363,7 @@ class MyLogicCell:
 					self.cclks.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
-				print("stored cins:"+str(tmp_index)+" for clk")
+				#print("stored cins:"+str(tmp_index)+" for clk")
 			elif((port.lower() == 'reset')or(port.lower() == 'rst')):
 				tmp_cin += float(targetHarness.cin) # .cin stores rst cap. 
 				## if this is (2n+1) then store averaged 
@@ -372,7 +372,7 @@ class MyLogicCell:
 					self.crsts.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
-				print("stored cins:"+str(tmp_index)+" for rst")
+				#print("stored cins:"+str(tmp_index)+" for rst")
 			elif(port.lower() == 'set'):
 				tmp_cin += float(targetHarness.cin) # .cin stores set cap.
 				## if this is (2n+1) then store averaged 
@@ -381,7 +381,7 @@ class MyLogicCell:
 					self.csets.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
-				print("stored cins:"+str(tmp_index)+" for set")
+				#print("stored cins:"+str(tmp_index)+" for set")
 			else:	
 				tmp_cin += float(targetHarness.cin) # else, .cin stores inport cap.
 				## if this is (2n+1) then store averaged 
@@ -390,6 +390,6 @@ class MyLogicCell:
 					self.cins.append(str((tmp_cin / 2)/targetLib.capacitance_mag))
 					tmp_cin = 0
 				tmp_index += 1
-				print("stored cins:"+str(tmp_index)+" for data")
-			print("stored cins:"+str(tmp_index))
+				#print("stored cins:"+str(tmp_index)+" for data")
+			#print("stored cins:"+str(tmp_index))
 
