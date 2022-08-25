@@ -115,6 +115,7 @@ def gen_char_cond(vdd, cmd_file):
 		outlines.append("set_work_dir work\n")
 #		outlines.append("set_simulator /usr/local/bin/ngspice \n")
 		outlines.append("set_simulator /cad/synopsys/hspice/P-2019.06-1/hspice/bin/hspice -CC -port 2990wx:25000 -i \n")
+		outlines.append("set_run_sim true\n")
 #		outlines.append("set_run_sim false\n")
 		outlines.append("set_mt_sim true\n")
 		outlines.append("set_supress_message false\n")
@@ -148,10 +149,10 @@ def gen_comb(target, cmd_file, cell_name, logic, inports, outports, funcs, area,
 #		outlines.append("add_slope {0.1 0.4 1.6 6.4} \n")
 #		outlines.append("add_load  {0.01 0.04 0.16 0.64} \n")
 		if(target == "ROHM180"):
-			#outlines.append("add_slope {0.1 0.7 4.9} \n")
-			#outlines.append("add_load  {0.01 0.1 1.0} \n")
-			outlines.append("add_slope {0.1 0.7} \n")
-			outlines.append("add_load  {0.01 0.1} \n")
+			outlines.append("add_slope {0.1 0.7 4.9} \n")
+			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7} \n")
+			#outlines.append("add_load  {0.01 0.1} \n")
 		elif(target == "OSU350"):
 			#outlines.append("add_slope {0.1 0.7 4.9} \n")
 			#outlines.append("add_load  {0.01 0.07 0.49} \n")
@@ -203,10 +204,10 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 		line_add_flop += '\n'
 		outlines.append(line_add_flop)
 		if(target == "ROHM180"):
-			#outlines.append("add_slope {0.1 0.7 4.9} \n")
-			#outlines.append("add_load  {0.01 0.1 1.0} \n")
-			outlines.append("add_slope {0.1 0.7} \n")
-			outlines.append("add_load  {0.01 0.1} \n")
+			outlines.append("add_slope {0.1 0.7 4.9} \n")
+			outlines.append("add_load  {0.01 0.1 1.0} \n")
+			#outlines.append("add_slope {0.1 0.7} \n")
+			#outlines.append("add_load  {0.01 0.1} \n")
 		elif(target == "OSU350"):
 			#outlines.append("add_slope {0.1 0.7 4.9} \n")
 			#outlines.append("add_load  {0.01 0.07 0.49} \n")
