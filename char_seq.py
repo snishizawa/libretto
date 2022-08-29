@@ -221,7 +221,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
 																	tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
 																	tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
 																	targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
-	
+			
 			## if target is D2Q, do standard setup/hold search
 			#if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
 			tmp_tstep_mag = 20
@@ -936,7 +936,8 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
 
 			targetLib.print_msg_sim("Min. D2Q found. Break loop at dHold: "+str(f'{thold:,.4f}'))
 
-			return ( float(thold + thold_tstep), tmp_min_prop_in_out, tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+			#return ( float(thold + thold_tstep), tmp_min_prop_in_out, tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+			return ( float(thold + thold_tstep), tmp_min_prop_in_out, tmp_min_prop_cin_out, float(res_setup), tmp_min_hold, tmp_min_trans_out, \
 							tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
 							tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn,  tmp_q_vdd_dyn, tmp_q_vss_dyn, \
 							tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak)
@@ -1271,7 +1272,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 				outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' td='_tclk5' fall=1 \n")
 				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  \n")
 				outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' td='_tclk5' rise=1\n")
-				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  \n")
+				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"' rise=1  \n")
 				#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
 				#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_high_threshold)+"' rise=1  td='_tclk5'\n")
 			## case, input 10 -> output 10
@@ -1279,7 +1280,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 				outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' td='_tclk5' fall=1 \n")
 				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  \n")
 				outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' td='_tclk5' fall=1\n")
-				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 \n")
+				outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"' fall=1 \n")
 				#outlines.append(".measure Tran ENERGY_START when v("+V_in_target+")='"+str(targetLib.energy_meas_high_threshold)+"' fall=1  td='_tclk5'\n")
 				#outlines.append(".measure Tran ENERGY_END when v(VOUT)='"+str(targetLib.energy_meas_low_threshold)+"' fall=1  td='_tclk5'\n")
 			else:

@@ -151,8 +151,8 @@ def gen_comb(target, cmd_file, cell_name, logic, inports, outports, funcs, area,
 		if(target == "ROHM180"):
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
-			#outlines.append("add_slope {0.1 0.7} \n")
-			#outlines.append("add_load  {0.01 0.1} \n")
+			#outlines.append("add_slope {0.1 } \n")
+			#outlines.append("add_load  {0.01 } \n")
 		elif(target == "OSU350"):
 			#outlines.append("add_slope {0.1 0.7 4.9} \n")
 			#outlines.append("add_load  {0.01 0.07 0.49} \n")
@@ -206,8 +206,8 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 		if(target == "ROHM180"):
 			outlines.append("add_slope {0.1 0.7 4.9} \n")
 			outlines.append("add_load  {0.01 0.1 1.0} \n")
-			#outlines.append("add_slope {0.1 0.7} \n")
-			#outlines.append("add_load  {0.01 0.1} \n")
+			#outlines.append("add_slope {0.1 } \n")
+			#outlines.append("add_load  {0.01 } \n")
 		elif(target == "OSU350"):
 			#outlines.append("add_slope {0.1 0.7 4.9} \n")
 			#outlines.append("add_load  {0.01 0.07 0.49} \n")
@@ -229,6 +229,8 @@ def gen_seq(target, cmd_file, cell_name, logic, inports, outports, storage, func
 		outlines.append("add_simulation_timestep auto\n")
 		outlines.append("add_simulation_setup_auto\n")
 		outlines.append("add_simulation_hold_auto\n")
+		#outlines.append("add_simulation_setup 0.1\n")
+		#outlines.append("add_simulation_hold 0.1\n")
 		outlines.append("characterize\n")
 		outlines.append("export\n")
 		f.writelines(outlines)

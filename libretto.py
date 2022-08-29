@@ -308,8 +308,11 @@ def characterizeFiles(targetLib, targetCell):
 
 	elif(targetCell.logic == 'AND2'):
 		print ("AND2\n")
-		## [in0, in1, out0]
-		expectationList2 = [['01','1','01'],['10','1','10'],['1','01','01'],['1','10','10']]
+										 ## [in0, in1, out0]
+		expectationList2 = [['01','1','01'],
+												['10','1','10'],
+												['1','01','01'],
+												['1','10','10']]
 		return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
 
 	elif(targetCell.logic == 'AND3'):
@@ -496,6 +499,32 @@ def characterizeFiles(targetLib, targetCell):
 												['0','1','01','01'],['0','1','10','10']]
 		return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
+	elif(targetCell.logic == 'HA'):
+		print ("HA\n")
+		## [in0, in1, cout, sum]
+		expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
+												['0','01','0','01'],['0','10','0','10'],\
+												['01','1','01','10'],['10','1','10','10'],\
+												['1','01','01','10'],['1','10','10','01']]
+		return runCombIn2Out2(targetLib, targetCell, expectationList2,"pos")
+
+	elif(targetCell.logic == 'FA'):
+		print ("FA\n")
+		## [in0, in1, sel, cout, sum]
+		expectationList2 = [['01','0','0','0','01'],['10','0','0','0','10'],\
+												['0','01','0','0','01'],['0','10','0','0','10'],\
+												['0','0','01','0','01'],['0','0','10','0','10'],\
+												['01','1','0','01','10'],['10','1','0','10','01'],\
+												['01','0','1','01','10'],['10','0','1','10','01'],\
+												['1','01','0','01','10'],['1','10','0','10','01'],\
+												['0','01','1','01','10'],['0','10','1','10','01'],\
+												['1','0','01','01','10'],['1','0','10','10','01'],\
+												['0','1','01','01','10'],['0','1','10','10','01'],\
+												['01','1','1','1','01'],['10','1','1','1','10'],\
+												['1','01','1','1','01'],['1','10','1','1','10'],\
+												['1','1','01','1','01'],['1','1','10','1','10']]
+		return runCombIn3Out2(targetLib, targetCell, expectationList2,"pos")
+
 
 	## Branch to sequencial logics
 	elif(targetCell.logic == 'DFF_PCPU'):
@@ -561,8 +590,6 @@ def characterizeFiles(targetLib, targetCell):
 										  	['10','0101','1', '1', '10'], \
 												['0','0101','01', '1', '01'], \
 										  	['1','0101', '1','01', '10']]
-#		expectationList2 = [['0','0101','01', '1', '01']]
-#		expectationList2 = [['1','0101','1', '01', '10']]
 
 		## run spice deck for flop
 		return runFlop(targetLib, targetCell, expectationList2)
