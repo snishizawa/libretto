@@ -265,3 +265,12 @@ export
 
 exit
 ```
+## Known issues (future works)
+(1) Support more logics
+(1-1) Combinationals: multi-output cells
+(1-2) Sequentials: latches, scans
+(1-3) Tristates
+(1-4) IOs and level shifters
+(2) Speed up: Use multithreads
+(3) Documentation support
+(4) Verilog generation for timing simulation
