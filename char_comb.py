@@ -174,6 +174,7 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
             tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
             tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
             tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+        # case input3 is target input pin
         elif ((tmp_inp3_val == '01') or (tmp_inp3_val == '10')):
             tmp_Harness.set_target_inport (targetCell.inports[3], tmp_inp3_val)
             tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
@@ -204,6 +205,166 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
 
     return harnessList2
 #end  runCombIn4Out1
+
+def runCombIn5Out1(targetLib, targetCell, expectationList2, unate):
+    harnessList = []
+    harnessList2 = []
+
+    for trial in range(len(expectationList2)):
+        tmp_Harness = mcar.MyConditionsAndResults()
+        tmp_Harness.set_timing_type_comb()
+        tmp_Harness.set_timing_sense(unate)
+        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_outp0_val=expectationList2[trial]
+        tmp_Harness.set_direction(tmp_outp0_val)
+        tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], tmp_outp0_val)
+        # case input0 is target input pin
+        if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+        # case input1 is target input pin
+        elif ((tmp_inp1_val == '01') or (tmp_inp1_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+        # case input2 is target input pin
+        elif ((tmp_inp2_val == '01') or (tmp_inp2_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+        # case input3 is target input pin
+        elif ((tmp_inp3_val == '01') or (tmp_inp3_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+        # case input4 is target input pin
+        elif ((tmp_inp4_val == '01') or (tmp_inp4_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+        else:
+            print ("Illiegal input vector type!!")
+            print ("Check logic definition of this program!!")
+            
+        #tmp_Harness.set_leak_inportval ("1")
+        #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
+        spicef = "delay1_"+str(targetCell.cell)+"_"\
+            +str(targetCell.inports[0])+str(tmp_inp0_val)\
+            +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
+            +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
+            +"_"+str(targetCell.inports[3])+str(tmp_inp3_val)\
+            +"_"+str(targetCell.inports[4])+str(tmp_inp4_val)\
+            +"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
+        # run spice and store result
+        if(targetLib.mtsim == "true"):
+            runSpiceCombDelayMultiThread(targetLib, targetCell, tmp_Harness, spicef)
+        else:
+            runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
+        harnessList.append(tmp_Harness)
+        harnessList2.append(harnessList)
+    
+    ## average cin of each harness
+    targetCell.set_cin_avg(targetLib, harnessList) 
+
+    return harnessList2
+#end  runCombIn5Out1
+
+def runCombIn6Out1(targetLib, targetCell, expectationList2, unate):
+    harnessList = []
+    harnessList2 = []
+
+    for trial in range(len(expectationList2)):
+        tmp_Harness = mcar.MyConditionsAndResults()
+        tmp_Harness.set_timing_type_comb()
+        tmp_Harness.set_timing_sense(unate)
+        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_outp0_val=expectationList2[trial]
+        tmp_Harness.set_direction(tmp_outp0_val)
+        tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], tmp_outp0_val)
+        # case input0 is target input pin
+        if ((tmp_inp0_val == '01') or (tmp_inp0_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[5], tmp_inp5_val)
+        # case input1 is target input pin
+        elif ((tmp_inp1_val == '01') or (tmp_inp1_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[5], tmp_inp5_val)
+        # case input2 is target input pin
+        elif ((tmp_inp2_val == '01') or (tmp_inp2_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[5], tmp_inp5_val)
+        # case input3 is target input pin
+        elif ((tmp_inp3_val == '01') or (tmp_inp3_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[5], tmp_inp5_val)
+        # case input4 is target input pin
+        elif ((tmp_inp4_val == '01') or (tmp_inp4_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[4], tmp_inp4_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[5], tmp_inp5_val)
+        # case input5 is target input pin
+        elif ((tmp_inp5_val == '01') or (tmp_inp5_val == '10')):
+            tmp_Harness.set_target_inport (targetCell.inports[5], tmp_inp5_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[0], tmp_inp0_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[1], tmp_inp1_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[2], tmp_inp2_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[3], tmp_inp3_val)
+            tmp_Harness.set_stable_inport (targetCell.inports[4], tmp_inp4_val)
+        else:
+            print ("Illiegal input vector type!!")
+            print ("Check logic definition of this program!!")
+            
+        #tmp_Harness.set_leak_inportval ("1")
+        #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
+        spicef = "delay1_"+str(targetCell.cell)+"_"\
+            +str(targetCell.inports[0])+str(tmp_inp0_val)\
+            +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
+            +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
+            +"_"+str(targetCell.inports[3])+str(tmp_inp3_val)\
+            +"_"+str(targetCell.inports[4])+str(tmp_inp4_val)\
+            +"_"+str(targetCell.inports[5])+str(tmp_inp5_val)\
+            +"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
+        # run spice and store result
+        if(targetLib.mtsim == "true"):
+            runSpiceCombDelayMultiThread(targetLib, targetCell, tmp_Harness, spicef)
+        else:
+            runSpiceCombDelay(targetLib, targetCell, tmp_Harness, spicef)
+        harnessList.append(tmp_Harness)
+        harnessList2.append(harnessList)
+    
+    ## average cin of each harness
+    targetCell.set_cin_avg(targetLib, harnessList) 
+
+    return harnessList2
+#end  runCombIn5Out1
 
 def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
     list2_prop =   []
@@ -267,7 +428,7 @@ def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
             try: 
                 tmp_list_prop.append(results_prop_in_out[str(thread_id)])
             except KeyError:
-                print_error("Simulation failed, your simulator was not running, die")
+                print_error("Simulation might be failed,, die")
                 
             tmp_list_tran.append(results_trans_out[str(thread_id)])
 
@@ -665,7 +826,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
                 ## if w1 is wire name, abort
                 ## check this is instance tmp_array[0] or circuit name tmp_array[-1]
                 if((w1 != tmp_array[0]) and (w1 != tmp_array[-1])): 
-                    targetLib.print_error("port: "+str(w1)+" has not matched in netlist parse!!")
+                    targetLib.print_error("port: "+str(w1)+" has not matched by netlist parser!!")
                     
         tmp_line += " "+str(tmp_array[len(tmp_array)-1])+"\n" # CIRCUIT NAME
         outlines.append(tmp_line)
@@ -689,6 +850,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
         cmd = str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
     elif(re.search("hspice", targetLib.simulator)):
         cmd = str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
+    else:
+        print_error("Specify simulator, ngspice or hspice, die")
     with open(spicerun,'w') as f:
         outlines = []
         outlines.append(cmd) 
@@ -710,39 +873,39 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
                 inline = re.sub('\=',' ',inline)
             #targetLib.print_msg(inline)
             # search measure
-            if((re.search("prop_in_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+            if((re.search("prop_in_out", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                 sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                 res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
-            elif((re.search("trans_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+            elif((re.search("trans_out", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                 sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                 res_trans_out = "{:e}".format(float(sparray[2].strip()))
             if(meas_energy == 0):
-                if((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                if((re.search("energy_start", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_energy_start = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("energy_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("energy_end", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_energy_end = "{:e}".format(float(sparray[2].strip()))
             if(meas_energy == 1):
-                if((re.search("q_in_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                if((re.search("q_in_dyn", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("q_out_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("q_out_dyn", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("q_vdd_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("q_vdd_dyn", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("q_vss_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("q_vss_dyn", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("i_vdd_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("i_vdd_leak", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("i_vss_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("i_vss_leak", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
-                elif((re.search("i_in_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+                elif((re.search("i_in_leak", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
                     sparray = re.split(" +", inline) # separate words with spaces (use re.split)
                     res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 
