@@ -274,6 +274,9 @@ class MyLibrarySetting:
         print(message)
         my_exit()
 
+    def print_warning(self, message=""):
+        print(message)
+
     def print_msg(self, message=""):
         if((self.supress_msg.lower() == "false")or(self.supress_msg.lower() == "f")):
             print(message)

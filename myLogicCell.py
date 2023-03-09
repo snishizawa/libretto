@@ -44,9 +44,9 @@ class MyLogicCell:
         tmp_array = line.split('-')
         ## expected format : add_cell -n(name) AND_X1 
         ##                            -l(logic) AND2 
-        ##                                                         -i(inports) A B 
-        ##                                                         -o(outports) YB
-        ##                                                         -f(function) YB=A*B
+        ##                            -i(inports) A B 
+        ##                            -o(outports) YB
+        ##                            -f(function) YB=A*B
         for options in tmp_array:
 
             ## add_cell command 
@@ -197,13 +197,13 @@ class MyLogicCell:
         tmp_array = line.split('-')
         ## expected format : add_floop -n(name) DFFRS_X1 /
         ##                             -l(logic)    DFFARAS : DFF w async RST and async SET
-        ##                                                          -i(inports)  DATA 
-        ##                                                          -c(clock)    CLK 
-        ##                                                          -s(set)      SET   (if used) 
-        ##                                                          -r(reset)    RESET (if used)
-        ##                                                          -o(outports) Q QN
-        ##                                                          -q(flops)    IQ IQN
-        ##                                                          -f(function) Q=IQ QN=IQN
+        ##                             -i(inports)  DATA 
+        ##                             -c(clock)    CLK 
+        ##                             -s(set)      SET   (if used) 
+        ##                             -r(reset)    RESET (if used)
+        ##                             -o(outports) Q QN
+        ##                             -q(flops)    IQ IQN
+        ##                             -f(function) Q=IQ QN=IQN
         self.isflop = 1  ## set as flop
         for options in tmp_array:
 
