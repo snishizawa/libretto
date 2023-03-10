@@ -4,7 +4,7 @@ An open cell library characterizer.
 Current version support timing characterization and power characterization of combinational cells and sequential cells.
 
 ## More better one?
-You may find LibreCell to generate layout (lclayout) and characterize (lctime). I have no try yet.
+Maybe LibreCell is more better than libretto for characterization (lctime). LibreCell also support layout generation (lclayout). I have not tried yet.
 https://codeberg.org/librecell
 
 ## Back to libretto, how to use
