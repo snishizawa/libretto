@@ -3,7 +3,11 @@
 An open cell library characterizer.
 Current version support timing characterization and power characterization of combinational cells and sequential cells.
 
-## How to use
+## More better one?
+You may find LibreCell to generate layout (lclayout) and characterize (lctime). I have no try yet.
+https://codeberg.org/librecell
+
+## Back to libretto, how to use
 Prepare .cmd file 
 Type 
 ```sh libretto.sh
