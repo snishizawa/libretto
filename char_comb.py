@@ -208,7 +208,7 @@ def runCombIn5Out1(targetLib, targetCell, expectationList2, unate):
         tmp_Harness = mcar.MyConditionsAndResults()
         tmp_Harness.set_timing_type_comb()
         tmp_Harness.set_timing_sense(unate)
-        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_outp0_val=expectationList2[trial]
+        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_inp4_val, tmp_outp0_val=expectationList2[trial]
         tmp_Harness.set_direction(tmp_outp0_val)
         tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], tmp_outp0_val)
         # case input0 is target input pin
@@ -281,7 +281,7 @@ def runCombIn6Out1(targetLib, targetCell, expectationList2, unate):
         tmp_Harness = mcar.MyConditionsAndResults()
         tmp_Harness.set_timing_type_comb()
         tmp_Harness.set_timing_sense(unate)
-        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_outp0_val=expectationList2[trial]
+        tmp_inp0_val, tmp_inp1_val, tmp_inp2_val, tmp_inp3_val, tmp_inp4_val, tmp_inp5_val, tmp_outp0_val=expectationList2[trial]
         tmp_Harness.set_direction(tmp_outp0_val)
         tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], tmp_outp0_val)
         # case input0 is target input pin
@@ -547,12 +547,17 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
     ## calculate whole slope length from logic threshold
     tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
 
-    # ## Sanity Check simulation 
-    # ## time_mag is used for light_weight simulation
-    # ## simulate maximum load slew condition 
-    # time_mag = 0.1
-    # res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
-    #     = genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, time_mag, "none", "none", spicefo)
+    ## Sanity Check simulation 
+    ## time_mag is used for light_weight simulation
+    ## simulate maximum load slew condition 
+    time_mag = 0.1
+    cap_line = ".param cap ="+str(targetCell.load[-1]*targetLib.capacitance_mag)+"\n"
+    slew_line = ".param slew ="+str(targetCell.slope[-1]*tmp_slope_mag*targetLib.time_mag)+"\n"
+    temp_line = ".temp "+str(targetLib.temperature)+"\n"
+    spicefo = str(spicef)+"_"+str(targetCell.load[-1])+"_"+str(targetCell.slope[-1])+"_check.sp"
+    res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
+        = genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, time_mag, "none", "none", spicefo)
+    targetLib.print_msg("Cell:"+str(targetCell.cell)+" pass sanity check, continue")
 
     for tmp_slope in targetCell.slope:
         tmp_list_prop =   []
@@ -570,11 +575,11 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
             temp_line = ".temp "+str(targetLib.temperature)+"\n"
             spicefo = str(spicef)+"_"+str(tmp_load)+"_"+str(tmp_slope)+".sp"
 
-            ## Sanity Check simulation 
-            ## time_mag is used for light_weight simulation
-            time_mag = 0.1
-            res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
-                = genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, time_mag, "none", "none", spicefo)
+#            ## Sanity Check simulation 
+#            ## time_mag is used for light_weight simulation
+#            time_mag = 0.1
+#            res_prop_in_out, res_trans_out, res_energy_start, res_energy_end, \
+#                = genFileLogic_trial1(targetLib, targetCell, targetHarness, 0, cap_line, slew_line, temp_line, time_mag, "none", "none", spicefo)
 
             ## 1st trial, extract energy_start and energy_end
             time_mag = 1

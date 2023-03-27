@@ -1,7 +1,7 @@
 #!/usr/bin/env pytghon
 # -*- coding: utf-8 -*-
 
-import argparse, re, os, shutil, subprocess, sys, inspect 
+import argparse, re, os, shutil, subprocess, sys, inspect, datetime 
 
 import myConditionsAndResults as mcar
 import myLibrarySetting as mls 
@@ -270,6 +270,17 @@ def main():
                 me.exportFiles(targetLib, targetCell, harnessList2) 
                 num_gen_file += 1
 
+            ## compress
+            elif(line.startswith('compress')):
+                now = datetime.datetime.now()
+                dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
+                print (dt_string + " creating " + targetCell.cell + " directory in " + targetLib.work_dir)
+                cmd_str1 = "mkdir "+ targetLib.work_dir+ "/" + targetCell.cell
+                subprocess.run(cmd_str1, shell=True)
+                print (dt_string + " moving " + targetCell.cell + " characterization files")
+                cmd_str2 = "mv "+ targetLib.work_dir+ "/delay1_" + targetCell.cell + "* " + targetLib.work_dir + "/" + targetCell.cell
+                subprocess.run(cmd_str2, shell=True)
+
             ## exit
             elif(line.startswith('quit') or line.startswith('exit')):
                 me.exitFiles(targetLib, num_gen_file) 
@@ -520,10 +531,10 @@ def characterizeFiles(targetLib, targetCell):
     elif(targetCell.logic == 'OA22'):
         print("OA22\n")
         ## [in0, in1, out0]
-        expectationList2 = [['10','1','0','1','10'],['01','1','0','1','01'],\
+        expectationList2 = [['10','0','0','1','10'],['01','0','0','1','01'],\
                             ['0','10','0','1','10'],['0','01','0','1','01'],\
                             ['0','1','10','0','10'],['0','1','01','0','01'],\
-                            ['0','1','0','10','10'],['0','1','0','10','01']]
+                            ['0','1','0','10','10'],['0','1','0','01','01']]
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
 
     # AND-OR-INV, OR-AND-INV
@@ -555,10 +566,10 @@ def characterizeFiles(targetLib, targetCell):
     elif(targetCell.logic == 'OAI22'):
         print("OAI22\n")
         ## [in0, in1, out0]
-        expectationList2 = [['10','1','0','1','01'],['01','1','0','1','10'],\
+        expectationList2 = [['10','0','0','1','01'],['01','0','0','1','10'],\
                             ['0','10','0','1','01'],['0','01','0','1','10'],\
                             ['0','1','10','0','01'],['0','1','01','0','10'],\
-                            ['0','1','0','10','01'],['0','1','0','10','10']]
+                            ['0','1','0','10','01'],['0','1','0','01','10']]
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
     # Exclusive
