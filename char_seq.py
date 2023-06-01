@@ -1,4 +1,4 @@
-import argparse, re, os, shutil, subprocess, sys, inspect 
+import argparse, re, os, shutil, subprocess, sys, inspect, threading 
 
 import myConditionsAndResults as mcar
 import myLibrarySetting as mls 
@@ -96,7 +96,7 @@ def runFlop(targetLib, targetCell, expectationList2):
             targetLib.print_msg_sim("D2Q simualtion mode!\n")
             # run spice and store result
             if(targetLib.mtsim == "true"):
-                runSpiceFlopDelayMT(targetLib, targetCell, tmp_Harness, spicef)
+                runSpiceFlopDelayMultiThread(targetLib, targetCell, tmp_Harness, spicef)
             else:
                 runSpiceFlopDelay(targetLib, targetCell, tmp_Harness, spicef)
         # reset operation (reset edge)
@@ -104,13 +104,19 @@ def runFlop(targetLib, targetCell, expectationList2):
             tmp_Harness.set_timing_flop_reset(targetCell, RST_val, Q_val)
             targetLib.print_msg_sim("R2Q simualtion mode!\n")
             # run spice and store result
-            runSpiceFlopRecoveryRemoval(targetLib, targetCell, tmp_Harness, spicef)
+            if(targetLib.mtsim == "true"):
+                runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, tmp_Harness, spicef)
+            else:
+                runSpiceFlopRecoveryRemoval(targetLib, targetCell, tmp_Harness, spicef)
         # set operation (set edge)
         elif((SET_val == '01') or (SET_val == '10')):
             tmp_Harness.set_timing_flop_set(targetCell, SET_val, Q_val)
             targetLib.print_msg_sim("S2Q simualtion mode!\n")
             # run spice and store result
-            runSpiceFlopRecoveryRemoval(targetLib, targetCell, tmp_Harness, spicef)
+            if(targetLib.mtsim == "true"):
+                runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, tmp_Harness, spicef)
+            else:
+                runSpiceFlopRecoveryRemoval(targetLib, targetCell, tmp_Harness, spicef)
         else:
             print("no suported input vector is inputted! error\n")
             print("CLK: "+CLK_val+"\n")
@@ -295,7 +301,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
             res_list_tran.append(res_min_trans_out)
             res_list_setup.append(res_min_setup)
             res_list_hold.append(res_min_hold)
-            print("Final C2Q: "+str(res_min_prop_cin_out)+",setup: "+str(res_min_setup)+", hold: "+str(res_min_hold))
+            targetLib.print_msg_sim("Final C2Q: "+str(res_min_prop_cin_out)+",setup: "+str(res_min_setup)+", hold: "+str(res_min_hold))
 
             ## intl. energy calculation
             ## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
@@ -337,284 +343,343 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
         list2_pleak.append(res_list_pleak)
 
     targetHarness.set_list2_prop(list2_prop)
-    #targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
     targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_prop()
     targetHarness.set_list2_tran(list2_tran)
-    #targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
     targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_tran()
     targetHarness.set_list2_setup(list2_setup)
-    #targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
     targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_setup()
     targetHarness.set_list2_hold(list2_hold)
-    #targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
     targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_hold()
     targetHarness.set_list2_eintl(list2_eintl)
-    #targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
     targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_eintl()
     targetHarness.set_list2_ein(list2_ein)
-    #targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
     targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_ein()
     targetHarness.set_list2_cin(list2_cin)
-    #targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
     targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_cin()
     targetHarness.set_list2_eclk(list2_eclk)
-    #targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
     targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_eclk()
     targetHarness.set_list2_cclk(list2_cclk)
-    #targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
     targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_cclk()
     targetHarness.set_list2_pleak(list2_pleak)
-    #targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
     targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
+
+    #targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_prop()
+    #targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_tran()
+    #targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_setup()
+    #targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_hold()
+    #targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_eintl()
+    #targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_ein()
+    #targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_cin()
+    #targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_eclk()
+    #targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_cclk()
+    #targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
     #targetHarness.print_lut_pleak()
         
-#def runSpiceFlopDelayMT(targetLib, targetCell, targetHarness, spicef):
-# no MT support for current version
-#    list2_prop =   []
-#    list2_setup =   []
-#    list2_hold =   []
-#    list2_tran =   []
-#    list2_estart = []
-#    list2_eend =   []
-#    list2_eintl =   []
-#    list2_ein =   []
-#    list2_cin =   []
-#    list2_eclk =   []
-#    list2_cclk =   []
-#    list2_pleak =   []
-#    for tmp_slope in targetCell.slope:
-#        res_list_prop =   []  # C2Q
-#        res_list_setup =  []  # D2C(setup)
-#        res_list_hold =   []  # C2D(hold)
-#        res_list_tran =   []
-#        res_list_estart = []
-#        res_list_eend =   []
-#        res_list_eintl =   []
-#        res_list_ein =   []
-#        res_list_cin =   []
-#        res_list_eclk =   []
-#        res_list_cclk =   []
-#        res_list_pleak =   []
-#
-#        for tmp_load in targetCell.load:
-#            tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
-#            tmp_min_setup = tmp_max_val_loop # temporal value for setup 
-#            tmp_tsetup1 = tmp_max_val_loop # temporal value for setup 
-#            tmp_tsetup2 = tmp_max_val_loop # temporal value for setup 
-#            tmp_tsetup3 = tmp_max_val_loop # temporal value for setup 
-#            tmp_thold1 = tmp_max_val_loop # temporal value for setup 
-#            tmp_thold2 = tmp_max_val_loop # temporal value for setup 
-#            tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
-#
-#            # C2Q and setup search (sparce)
-#            # perform two-stage simulation
-#            # 1st stage: sim w/  10-% output swing
-#            # 2nd stage: sim w/ 100-% output swing
-#            tsimendmag = [1, 10]; # magnify parameter of _tsimend
-#            tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
-#            tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
-#            tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
-#
-#            tmp_tstep_mag = 20
-#            tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
-#            targetLib.print_msg_sim("First stage sparse setup search, timestep: "\
-#                +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#            ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-#                tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-#             = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-#                                                                    targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 5, spicef)
-#
-#            tmp_tstep_mag = 2
-#            tmp_tstep_mag2 = tmp_tstep_mag1 
-#            tmp_tstep_mag1 = tmp_tstep_mag1 / tmp_tstep_mag
-#            targetLib.print_msg_sim("First stage sparse setup search, timestep: "\
-#                +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#            ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-#                tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-#             = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
-#                                                                    tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *2,\
-#                                                                    targetCell.sim_setup_timestep * tmp_tstep_mag1, tmp_min_hold, 3, spicef)
-#
-#            while(tmp_tstep_mag1 > tmp_tstep_mag ):
-#                tmp_tstep_mag2 = tmp_tstep_mag1 
-#                tmp_tstep_mag1 = tmp_tstep_mag1 / tmp_tstep_mag
-#                targetLib.print_msg_sim("Mid. stage precise setup search, timestep: "\
-#                    +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#                ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-#                    tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-#                 = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                        tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2  *1,\
-#                                                                        tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2  *3,\
-#                                                                        targetCell.sim_setup_timestep * tmp_tstep_mag1, tmp_min_hold, 3, spicef)
-#
-#            targetLib.print_msg_sim("Last stage precise setup search, timestep: "\
-#                +str(targetCell.sim_setup_timestep))
-#            ( tmp_tsetup3, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
-#                tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
-#             = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
-#                                                                    tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
-#                                                                    targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
-#    
-#            ## if target is D2Q, do standard setup/hold search
-#            #if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
-#            tmp_tstep_mag = 20
-#            tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
-#            targetLib.print_msg_sim("First stage sparse hold search, timestep: "\
-#                +str(targetCell.sim_hold_timestep*tmp_tstep_mag1))
-#            ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
-#                tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
-#                tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
-#                tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
-#            = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    targetCell.sim_hold_lowest, targetCell.sim_hold_highest, \
-#                                                                    targetCell.sim_hold_timestep*tmp_tstep_mag1, tmp_tsetup3, \
-#                                                                    3, spicef)
-#
-#            tmp_tstep_mag = 2
-#            tmp_tstep_mag2 = tmp_tstep_mag1
-#            tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
-#            targetLib.print_msg_sim("First stage sparse hold search, timestep: "\
-#                +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#            ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
-#                tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
-#                tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
-#                tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
-#             = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
-#                                                                    tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1,\
-#                                                                    targetCell.sim_hold_timestep * tmp_tstep_mag1, tmp_tsetup3, 3, spicef)
-#
-#            while(tmp_tstep_mag1 > tmp_tstep_mag ):
-#                tmp_tstep_mag2 = tmp_tstep_mag1
-#                tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
-#                targetLib.print_msg_sim("Mid. stage precise hold search, timestep: "\
-#                    +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
-#                ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
-#                    tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
-#                    tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
-#                    tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
-#                 = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                        tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *3 ,\
-#                                                                        tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1 ,\
-#                                                                        targetCell.sim_hold_timestep * tmp_tstep_mag1, tmp_tsetup3, 3, spicef)
-#
-#            targetLib.print_msg_sim("Last stage precise hold search, timestep: "\
-#                +str(targetCell.sim_hold_timestep))
-#            ( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
-#                res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
-#                res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
-#                res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
-#             = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
-#                                                                    tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *3,\
-#                                                                    tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1 ,\
-#                                                                    targetCell.sim_hold_timestep, tmp_tsetup3, 2, spicef)
-#            ## if target is not D2Q (= set or reset), clip lowest hold time to almost zero
-#            ## this is because removal simulation sometimes very small 
-#
-#            # end setup/hold search
-#            #res_list_prop.append(res_min_prop_in_out) # store D2Q 
-#            res_list_prop.append(res_min_prop_cin_out) # store C2Q (not D2Q)
-#            res_list_tran.append(res_min_trans_out)
-#            res_list_setup.append(res_min_setup)
-#            res_list_hold.append(res_min_hold)
-#            print("Final C2Q: "+str(res_min_prop_cin_out)+",setup: "+str(res_min_setup)+", hold: "+str(res_min_hold))
-#
-#            ## intl. energy calculation
-#            ## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
-#            ## larger Ql: intl. Q, load Q 
-#            ## smaller Qs: intl. Q
-#            ## Eintl = QsV
-#            if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
-#                res_list_eintl.append(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
-#                    abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
-#                    (targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
-#            else:
-#                res_list_eintl.append(abs(res_q_vss_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
-#                    abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2* \
-#                    (targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
-#
-#            ## input energy
-#            res_list_ein.append(abs(res_q_in_dyn)*targetLib.vdd_voltage)
-#            res_list_eclk.append(abs(res_q_clk_dyn)*targetLib.vdd_voltage)
-#
-#            ## Cin = Qin / V
-#            res_list_cin.append(abs(res_q_in_dyn)/(targetLib.vdd_voltage))
-#            res_list_cclk.append(abs(res_q_clk_dyn)/(targetLib.vdd_voltage))
-#
-#            ## Pleak = average of Pleak_vdd and Pleak_vss
-#            ## P = I * V
-#            res_list_pleak.append((abs(res_i_vdd_leak)+abs(res_i_vdd_leak))/2*(targetLib.vdd_voltage)) #
-#
-#        list2_prop.append(res_list_prop)
-#        list2_tran.append(res_list_tran)
-#        list2_setup.append(res_list_setup)
-#        list2_hold.append(res_list_hold)
-#        #list2_estart.append(res_list_estart)
-#        #list2_eend.append(res_list_eend)
-#        list2_eintl.append(res_list_eintl)
-#        list2_ein.append(res_list_ein)
-#        list2_cin.append(res_list_cin)
-#        list2_eclk.append(res_list_eclk)
-#        list2_cclk.append(res_list_cclk)
-#        list2_pleak.append(res_list_pleak)
-#
-#    targetHarness.set_list2_prop(list2_prop)
-#    #targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_prop()
-#    targetHarness.set_list2_tran(list2_tran)
-#    #targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_tran()
-#    targetHarness.set_list2_setup(list2_setup)
-#    #targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_setup()
-#    targetHarness.set_list2_hold(list2_hold)
-#    #targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_hold()
-#    targetHarness.set_list2_eintl(list2_eintl)
-#    #targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_eintl()
-#    targetHarness.set_list2_ein(list2_ein)
-#    #targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_ein()
-#    targetHarness.set_list2_cin(list2_cin)
-#    #targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
-#    targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_cin()
-#    targetHarness.set_list2_eclk(list2_eclk)
-#    #targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_eclk()
-#    targetHarness.set_list2_cclk(list2_cclk)
-#    #targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
-#    targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_cclk()
-#    targetHarness.set_list2_pleak(list2_pleak)
-#    #targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
-#    targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
-#    #targetHarness.print_lut_pleak()
+def runSpiceFlopDelaySingle(targetLib, targetCell, targetHarness, spicef,\
+        tmp_slope, tmp_load, tmp_slope_mag, \
+        results_prop_in_out, results_tran_out, results_setup, results_hold, \
+        results_energy_start, results_energy_end, \
+        results_q_in_dyn, results_q_out_dyn, results_q_clk_dyn, results_q_vdd_dyn, \
+        results_q_vss_dyn, results_i_in_leak, results_i_vdd_leak, results_i_vss_leak):
+    tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
+    tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+    tmp_tsetup1 = tmp_max_val_loop # temporal value for setup 
+    tmp_tsetup2 = tmp_max_val_loop # temporal value for setup 
+    tmp_tsetup3 = tmp_max_val_loop # temporal value for setup 
+    tmp_thold1 = tmp_max_val_loop # temporal value for setup 
+    tmp_thold2 = tmp_max_val_loop # temporal value for setup 
+    tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
+
+    # C2Q and setup search (sparse)
+    # perform two-stage simulation
+    # 1st stage: sim w/  10-% output swing
+    # 2nd stage: sim w/ 100-% output swing
+    tsimendmag = [1, 10]; # magnify parameter of _tsimend
+    tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
+    tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
+
+    tmp_tstep_mag = 20
+    tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse setup search, timestep: "\
+        +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+    ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
+                           targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 5, spicef)
+
+    tmp_tstep_mag = 2
+    tmp_tstep_mag2 = tmp_tstep_mag1 
+    tmp_tstep_mag1 = tmp_tstep_mag1 / tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse setup search, timestep: "\
+        +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+    ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
+                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *2,\
+                           targetCell.sim_setup_timestep * tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+
+    while(tmp_tstep_mag1 > tmp_tstep_mag ):
+        tmp_tstep_mag2 = tmp_tstep_mag1 
+        tmp_tstep_mag1 = tmp_tstep_mag1 / tmp_tstep_mag
+        targetLib.print_msg_sim("Mid. stage precise setup search, timestep: "\
+            +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+        ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+            tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+             = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                               tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2  *1,\
+                               tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2  *3,\
+                               targetCell.sim_setup_timestep * tmp_tstep_mag1, tmp_min_hold, 3, spicef)
+
+    targetLib.print_msg_sim("Last stage precise setup search, timestep: "\
+        +str(targetCell.sim_setup_timestep))
+    ( tmp_tsetup3, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
+                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
+                           targetCell.sim_setup_timestep, tmp_min_hold, 2, spicef)
+    
+    ## if target is D2Q, do standard setup/hold search
+    #if((targetHarness.target_inport_val == "01")or(targetHarness.target_inport_val == "10")):
+    tmp_tstep_mag = 20
+    tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse hold search, timestep: "\
+        +str(targetCell.sim_hold_timestep*tmp_tstep_mag1))
+    ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+        tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+        = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                         targetCell.sim_hold_lowest, targetCell.sim_hold_highest, \
+                         targetCell.sim_hold_timestep*tmp_tstep_mag1, tmp_tsetup3, \
+                         3, spicef)
+
+    tmp_tstep_mag = 2
+    tmp_tstep_mag2 = tmp_tstep_mag1
+    tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse hold search, timestep: "\
+        +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+    ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+        tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+         = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
+                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1,\
+                          targetCell.sim_hold_timestep * tmp_tstep_mag1, tmp_tsetup3, 3, spicef)
+
+    while(tmp_tstep_mag1 > tmp_tstep_mag ):
+        tmp_tstep_mag2 = tmp_tstep_mag1
+        tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+        targetLib.print_msg_sim("Mid. stage precise hold search, timestep: "\
+            +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+        ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+            tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+            tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+            tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+             = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                              tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *3 ,\
+                              tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1 ,\
+                              targetCell.sim_hold_timestep * tmp_tstep_mag1, tmp_tsetup3, 3, spicef)
+
+    targetLib.print_msg_sim("Last stage precise hold search, timestep: "\
+        +str(targetCell.sim_hold_timestep))
+    ( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
+        res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
+        res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
+         = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *3,\
+                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1 ,\
+                          targetCell.sim_hold_timestep, tmp_tsetup3, 2, spicef)
+    ## if target is not D2Q (= set or reset), clip lowest hold time to almost zero
+    ## this is because removal simulation sometimes very small 
+
+    # end setup/hold search
+    # results_prop_in_out[threading.current_thread().name]  = res_min_prop_in_out # D2Q
+    results_prop_in_out[threading.current_thread().name]  = res_min_prop_cin_out # C2Q
+    results_tran_out[threading.current_thread().name]  = res_min_trans_out
+    results_setup[threading.current_thread().name] = res_min_setup
+    results_hold[threading.current_thread().name]  = res_min_hold
+    results_energy_start[threading.current_thread().name]  = res_energy_start
+    results_energy_end[threading.current_thread().name]  = res_energy_end
+    results_q_in_dyn[threading.current_thread().name]    = res_q_in_dyn
+    results_q_out_dyn[threading.current_thread().name]   = res_q_out_dyn
+    results_q_clk_dyn[threading.current_thread().name]   = res_q_clk_dyn
+    results_q_vdd_dyn[threading.current_thread().name]   = res_q_vdd_dyn
+    results_q_vss_dyn[threading.current_thread().name]   = res_q_vss_dyn
+    results_i_in_leak[threading.current_thread().name]   = res_i_in_leak
+    results_i_vdd_leak[threading.current_thread().name]  = res_i_vdd_leak
+    results_i_vss_leak[threading.current_thread().name]  = res_i_vss_leak
+
+def runSpiceFlopDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
+    list2_prop =   []
+    list2_setup =  []
+    list2_hold =   []
+    list2_tran =   []
+    list2_estart = []
+    list2_eend =   []
+    list2_eintl =  []
+    list2_ein =   []
+    list2_cin =   []
+    list2_eclk =  []
+    list2_cclk =  []
+    list2_pleak = []
+    ## calculate whole slope length from logic threshold
+    tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
+
+    thread_id = 0
+
+    results_prop_in_out = dict()
+    results_tran_out = dict()
+    results_setup = dict()
+    results_hold = dict()
+    results_energy_start = dict()
+    results_energy_end = dict()
+    results_q_in_dyn = dict()
+    results_q_out_dyn = dict()
+    results_q_clk_dyn = dict()
+    results_q_vdd_dyn = dict()
+    results_q_vss_dyn = dict()
+    results_i_in_leak = dict()
+    results_i_vdd_leak = dict()
+    results_i_vss_leak = dict()
+
+    threadlist = list()
+    for tmp_slope in targetCell.slope:
+      for tmp_load in targetCell.load:
+        thread = threading.Thread(target=runSpiceFlopDelaySingle,
+        args=([targetLib, targetCell, targetHarness, spicef,\
+          tmp_slope, tmp_load, tmp_slope_mag, \
+          results_prop_in_out, results_tran_out, results_setup, results_hold, \
+          results_energy_start, results_energy_end, \
+          results_q_in_dyn, results_q_out_dyn, results_q_clk_dyn, results_q_vdd_dyn, results_q_vss_dyn, \
+          results_i_in_leak, results_i_vdd_leak, results_i_vss_leak]), \
+
+        name="%d" % thread_id)
+        threadlist.append(thread)
+        thread_id += 1
+
+    for thread in threadlist:
+      thread.start()
+
+    for thread in threadlist:
+      thread.join()
+
+    thread_id = 0
+
+    for tmp_slope in targetCell.slope:
+      tmp_list_prop =   []
+      tmp_list_setup =  []
+      tmp_list_hold =   []
+      tmp_list_tran =   []
+      tmp_list_estart = []
+      tmp_list_eend =   []
+      tmp_list_eintl =  []
+      tmp_list_ein =   []
+      tmp_list_cin =   []
+      tmp_list_eclk =  []
+      tmp_list_cclk =  []
+      tmp_list_pleak = []
+
+      for tmp_load in targetCell.load:
+
+          targetLib.print_msg(str(thread_id))
+
+          #targetLib.print_msg(str(results_prop_in_out))
+          #targetLib.print_msg(str(results_prop_in_out[str(thread_id)]))
+          try: 
+              tmp_list_prop.append(results_prop_in_out[str(thread_id)])
+          except KeyError:
+              targetLib.print_error("Simulation might be failed, die")
+              
+          tmp_list_setup.append(results_setup[str(thread_id)])
+          tmp_list_hold.append(results_hold[str(thread_id)])
+          tmp_list_tran.append(results_tran_out[str(thread_id)])
+          tmp_list_estart.append(results_energy_start[str(thread_id)])
+          tmp_list_eend.append(results_energy_end[str(thread_id)])
+
+          ## intl. energy calculation
+          ## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
+          ## larger Ql: intl. Q, load Q 
+          ## smaller Qs: intl. Q
+          ## Eintl = QsV
+          if(abs(results_q_vdd_dyn[str(thread_id)]) < abs(results_q_vss_dyn[str(thread_id)])):
+              res_q = results_q_vdd_dyn[str(thread_id)]
+          else:
+              res_q = results_q_vss_dyn[str(thread_id)]
+
+          tmp_list_eintl.append(abs(res_q*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold \
+              - abs((results_energy_end[str(thread_id)] - results_energy_start[str(thread_id)])*(abs(results_i_vdd_leak[str(thread_id)]) \
+              + abs(results_i_vdd_leak[str(thread_id)]))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+
+          ## input energy
+          tmp_list_ein.append(abs(results_q_in_dyn[str(thread_id)])*targetLib.vdd_voltage)
+
+          ## Cin = Qin / V
+          tmp_list_cin.append(abs(results_q_in_dyn[str(thread_id)])/(targetLib.vdd_voltage))
+
+          ## clock input energy
+          tmp_list_eclk.append(abs(results_q_clk_dyn[str(thread_id)])*targetLib.vdd_voltage)
+
+          ## clock Cin = Qin / V
+          tmp_list_cclk.append(abs(results_q_clk_dyn[str(thread_id)])/(targetLib.vdd_voltage))
+          ## Pleak = average of Pleak_vdd and Pleak_vss
+          ## P = I * V
+          tmp_list_pleak.append((abs(results_i_vdd_leak[str(thread_id)])+abs(results_i_vdd_leak[str(thread_id)]))/2*(targetLib.vdd_voltage)) #
+          thread_id += 1
+
+
+      list2_prop.append(tmp_list_prop)
+      list2_tran.append(tmp_list_tran)
+      list2_setup.append(tmp_list_setup)
+      list2_hold.append(tmp_list_hold)
+      #list2_estart.append(tmp_list_estart)
+      #list2_eend.append(tmp_list_eend)
+      list2_eintl.append(tmp_list_eintl)
+      list2_ein.append(tmp_list_ein)
+      list2_cin.append(tmp_list_cin)
+      list2_eclk.append(tmp_list_eclk)
+      list2_cclk.append(tmp_list_cclk)
+      list2_pleak.append(tmp_list_pleak)
+
+    targetHarness.set_list2_prop(list2_prop)
+    targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_tran(list2_tran)
+    targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_setup(list2_setup)
+    targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_hold(list2_hold)
+    targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_eintl(list2_eintl)
+    targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_ein(list2_ein)
+    targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_cin(list2_cin)
+    targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_eclk(list2_eclk)
+    targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_cclk(list2_cclk)
+    targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_pleak(list2_pleak)
+    targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
         
 
 def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
@@ -831,46 +896,353 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
         list2_pleak.append(res_list_pleak)
 
     targetHarness.set_list2_prop(list2_prop)
-    #targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
     targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_prop()
     targetHarness.set_list2_tran(list2_tran)
-    #targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
     targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_tran()
     targetHarness.set_list2_setup(list2_setup)
-    #targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
     targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_setup()
     targetHarness.set_list2_hold(list2_hold)
-    #targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
     targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_hold()
     targetHarness.set_list2_eintl(list2_eintl)
-    #targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
     targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_eintl()
     targetHarness.set_list2_ein(list2_ein)
-    #targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
     targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_ein()
     targetHarness.set_list2_cin(list2_cin)
-    #targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
     targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_cin()
     targetHarness.set_list2_eclk(list2_eclk)
-    #targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
     targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_eclk()
     targetHarness.set_list2_cclk(list2_cclk)
-    #targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
     targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
-    #targetHarness.print_lut_cclk()
     targetHarness.set_list2_pleak(list2_pleak)
-    #targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
     targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
+
+    #targetHarness.print_list2_prop(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_prop()
+    #targetHarness.print_list2_tran(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_tran()
+    #targetHarness.print_list2_setup(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_setup()
+    #targetHarness.print_list2_hold(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_hold()
+    #targetHarness.print_list2_eintl(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_eintl()
+    #targetHarness.print_list2_ein(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_ein()
+    #targetHarness.print_list2_cin(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_cin()
+    #targetHarness.print_list2_eclk(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_eclk()
+    #targetHarness.print_list2_cclk(targetCell.load, targetCell.slope)
+    #targetHarness.print_lut_cclk()
+    #targetHarness.print_list2_pleak(targetCell.load, targetCell.slope)
     #targetHarness.print_lut_pleak()
 
+def runSpiceFlopRecoveryRemovalSingle(targetLib, targetCell, targetHarness, spicef, \
+        tmp_slope, tmp_load, tmp_slope_mag, \
+        results_prop_in_out, results_tran_out, results_setup, results_hold, \
+        results_energy_start, results_energy_end, \
+        results_q_in_dyn, results_q_out_dyn, results_q_clk_dyn, results_q_vdd_dyn, \
+        results_q_vss_dyn, results_i_in_leak, results_i_vdd_leak, results_i_vss_leak):
+    tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
+    tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+    tmp_tsetup1 = tmp_max_val_loop   # temporal value for setup 
+    tmp_tsetup2 = tmp_max_val_loop   # temporal value for setup 
+    tmp_tsetup3 = tmp_max_val_loop   # temporal value for setup 
+    tmp_thold1 = tmp_max_val_loop    # temporal value for setup 
+    tmp_thold2 = tmp_max_val_loop    # temporal value for setup 
+    tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
+
+    # C2Q and recovery search (sparce)
+    # perform two-stage simulation
+    # 1st stage: sim w/  10-% output swing
+    # 2nd stage: sim w/ 100-% output swing
+    tsimendmag = [1, 10]; # magnify parameter of _tsimend
+    tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];         # magnify parameter of transient simulation
+    tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_start  = tmp_max_val_loop     # temporal value for D2Qmin search
+    tmp_energy_end    = tmp_max_val_loop     # temporal value for D2Qmin search
+    tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
+    spicefrr = spicef + "_rr"
+
+    ## for recovery search, invert reset/set signal 
+    targetHarness.invert_set_reset_val()
+
+    tmp_tstep_mag = 20
+    tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse recovery search, timestep: "\
+        +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
+    ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           targetCell.sim_setup_lowest, targetCell.sim_setup_highest*2, \
+                           targetCell.sim_setup_timestep*tmp_tstep_mag1, tmp_min_hold, 3, spicefrr)
+
+    tmp_tstep_mag = 2
+    tmp_tstep_mag2 = tmp_tstep_mag1 
+    tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse recovery search, timestep: "\
+        +str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+    ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
+                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
+                           targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 3, spicefrr)
+
+    while(tmp_tstep_mag1 > tmp_tstep_mag ):
+        tmp_tstep_mag2 = tmp_tstep_mag1 
+        tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+        targetLib.print_msg_sim("Mid. stage precise recovery search, timestep: "\
+            +str(targetCell.sim_setup_timestep*tmp_tstep_mag2))
+        ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
+            tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+             = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                               tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
+                               tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
+                               targetCell.sim_setup_timestep * tmp_tstep_mag2, tmp_min_hold, 3, spicefrr)
+
+    targetLib.print_msg_sim("Last stage precise recovery search, timestep: "+str(targetCell.sim_setup_timestep))
+    ( res_tsetup3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
+         = setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
+                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
+                           targetCell.sim_setup_timestep, tmp_min_hold, 2, spicefrr)
+    
+    ## Note! min_setup (min R2C) is recovery.
+    ## It is stored into setup object, and 
+    ## stored into recovery LUT 
+    res_setup = res_min_setup # recovery
+
+    ## for removal search, restore reset/set signal 
+    targetHarness.invert_set_reset_val()
+
+    tmp_tstep_mag = 20
+    tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    targetLib.print_msg_sim("First stage sparse removal search, timestep: "\
+        +str(targetCell.sim_hold_timestep*tmp_tstep_mag1))
+    ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+        tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+        = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                         targetCell.sim_hold_highest * 4, 0 , \
+                         -targetCell.sim_hold_timestep*tmp_tstep_mag1, -tmp_tsetup3, \
+                         3, spicefrr)
+
+    tmp_tstep_mag = 2
+    tmp_tstep_mag2 = tmp_tstep_mag1 
+    tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+    targetLib.print_msg_sim("Mid. stage precise removal search, timestep: "\
+        +str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
+    ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+        tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+        tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+         = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
+                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
+                          -targetCell.sim_hold_timestep * tmp_tstep_mag2, -tmp_tsetup3, 3, spicefrr)
+
+    while(tmp_tstep_mag1 > tmp_tstep_mag ):
+        tmp_tstep_mag2 = tmp_tstep_mag1 
+        tmp_tstep_mag1 = tmp_tstep_mag1 /  tmp_tstep_mag
+        targetLib.print_msg_sim("Mid. stage precise removal search, timestep: "\
+            +str(targetCell.sim_hold_timestep*tmp_tstep_mag2))
+        ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
+            tmp_energy_start, tmp_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+            tmp_q_in_dyn, tmp_q_out_dyn, tmp_q_clk_dyn, tmp_q_vdd_dyn, tmp_q_vss_dyn, \
+            tmp_i_in_leak, tmp_i_vdd_leak, tmp_i_vss_leak) \
+             = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                              tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *3,\
+                              tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
+                              -targetCell.sim_hold_timestep * tmp_tstep_mag2, -tmp_tsetup3, 3, spicefrr)
+
+    targetLib.print_msg_sim("Last stage precise removal search, timestep: "\
+        +str(targetCell.sim_hold_timestep))
+    ( res_thold3, res_min_prop_in_out, res_min_prop_cin_out, res_min_setup, res_min_hold, res_min_trans_out, \
+        res_energy_start, res_energy_end, tmp_energy_clk_start, tmp_energy_clk_end, \
+        res_q_in_dyn, res_q_out_dyn, res_q_clk_dyn, res_q_vdd_dyn, res_q_vss_dyn, \
+        res_i_in_leak, res_i_vdd_leak, res_i_vss_leak) \
+         = holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
+                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *3,\
+                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *1,\
+                          -targetCell.sim_hold_timestep, -tmp_tsetup3, 2, spicefrr)
+    ## Note! min_backside_setup = hold (min minus R2Q) is removal.
+    ## It is stored into hold object, and 
+    ## stored into removal LUT 
+    res_hold = -res_min_setup   # removal
+
+    results_prop_in_out[threading.current_thread().name]  = res_min_prop_cin_out # C2Q
+    results_tran_out[threading.current_thread().name]  = res_min_trans_out
+    results_setup[threading.current_thread().name] = res_setup
+    results_hold[threading.current_thread().name]  = res_hold
+    results_energy_start[threading.current_thread().name]  = res_energy_start
+    results_energy_end[threading.current_thread().name]  = res_energy_end
+    results_q_in_dyn[threading.current_thread().name]    = res_q_in_dyn
+    results_q_out_dyn[threading.current_thread().name]   = res_q_out_dyn
+    results_q_clk_dyn[threading.current_thread().name]   = res_q_clk_dyn
+    results_q_vdd_dyn[threading.current_thread().name]   = res_q_vdd_dyn
+    results_q_vss_dyn[threading.current_thread().name]   = res_q_vss_dyn
+    results_i_in_leak[threading.current_thread().name]   = res_i_in_leak
+    results_i_vdd_leak[threading.current_thread().name]  = res_i_vdd_leak
+    results_i_vss_leak[threading.current_thread().name]  = res_i_vss_leak
+     
+def runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, targetHarness, spicef):
+    list2_prop =   []
+    list2_setup =   []
+    list2_hold =   []
+    list2_tran =   []
+    list2_estart = []
+    list2_eend =   []
+    list2_eintl =   []
+    list2_ein =   []
+    list2_cin =   []
+    list2_eclk =   []
+    list2_cclk =   []
+    list2_pleak =   []
+    ## calculate whole slope length from logic threshold
+    tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
+
+    thread_id = 0
+
+    results_prop_in_out = dict()
+    results_tran_out = dict()
+    results_setup = dict()
+    results_hold = dict()
+    results_energy_start = dict()
+    results_energy_end = dict()
+    results_q_in_dyn = dict()
+    results_q_out_dyn = dict()
+    results_q_clk_dyn = dict()
+    results_q_vdd_dyn = dict()
+    results_q_vss_dyn = dict()
+    results_i_in_leak = dict()
+    results_i_vdd_leak = dict()
+    results_i_vss_leak = dict()
+
+    threadlist = list()
+    for tmp_slope in targetCell.slope:
+      for tmp_load in targetCell.load:
+        thread = threading.Thread(target=runSpiceFlopRecoveryRemovalSingle,
+        args=([targetLib, targetCell, targetHarness, spicef,\
+          tmp_slope, tmp_load, tmp_slope_mag, \
+          results_prop_in_out, results_tran_out, results_setup, results_hold, \
+          results_energy_start, results_energy_end, \
+          results_q_in_dyn, results_q_out_dyn, results_q_clk_dyn, results_q_vdd_dyn, results_q_vss_dyn, \
+          results_i_in_leak, results_i_vdd_leak, results_i_vss_leak]), \
+
+        name="%d" % thread_id)
+        threadlist.append(thread)
+        thread_id += 1
+
+    for thread in threadlist:
+      thread.start()
+
+    for thread in threadlist:
+      thread.join()
+
+    thread_id = 0
+
+    for tmp_slope in targetCell.slope:
+      tmp_list_prop =   []
+      tmp_list_setup =  []
+      tmp_list_hold =   []
+      tmp_list_tran =   []
+      tmp_list_estart = []
+      tmp_list_eend =   []
+      tmp_list_eintl =  []
+      tmp_list_ein =   []
+      tmp_list_cin =   []
+      tmp_list_eclk =  []
+      tmp_list_cclk =  []
+      tmp_list_pleak = []
+
+      for tmp_load in targetCell.load:
+
+          targetLib.print_msg(str(thread_id))
+
+          #targetLib.print_msg(str(results_prop_in_out))
+          #targetLib.print_msg(str(results_prop_in_out[str(thread_id)]))
+          try: 
+              tmp_list_prop.append(results_prop_in_out[str(thread_id)])
+          except KeyError:
+              targetLib.print_error("Simulation might be failed, die")
+              
+          tmp_list_setup.append(results_setup[str(thread_id)])
+          tmp_list_hold.append(results_hold[str(thread_id)])
+          tmp_list_tran.append(results_tran_out[str(thread_id)])
+          tmp_list_estart.append(results_energy_start[str(thread_id)])
+          tmp_list_eend.append(results_energy_end[str(thread_id)])
+
+          ## intl. energy calculation
+          ## intl. energy is the sum of short-circuit energy and drain-diffusion charge/discharge energy
+          ## larger Ql: intl. Q, load Q 
+          ## smaller Qs: intl. Q
+          ## Eintl = QsV
+          if(abs(results_q_vdd_dyn[str(thread_id)]) < abs(results_q_vss_dyn[str(thread_id)])):
+              res_q = results_q_vdd_dyn[str(thread_id)]
+          else:
+              res_q = results_q_vss_dyn[str(thread_id)]
+
+          tmp_list_eintl.append(abs(res_q*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold \
+              - abs((results_energy_end[str(thread_id)] - results_energy_start[str(thread_id)])*(abs(results_i_vdd_leak[str(thread_id)]) \
+              + abs(results_i_vdd_leak[str(thread_id)]))/2*(targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
+
+          ## input energy
+          tmp_list_ein.append(abs(results_q_in_dyn[str(thread_id)])*targetLib.vdd_voltage)
+
+          ## Cin = Qin / V
+          tmp_list_cin.append(abs(results_q_in_dyn[str(thread_id)])/(targetLib.vdd_voltage))
+
+          ## clock input energy
+          tmp_list_eclk.append(abs(results_q_clk_dyn[str(thread_id)])*targetLib.vdd_voltage)
+
+          ## clock Cin = Qin / V
+          tmp_list_cclk.append(abs(results_q_clk_dyn[str(thread_id)])/(targetLib.vdd_voltage))
+          ## Pleak = average of Pleak_vdd and Pleak_vss
+          ## P = I * V
+          tmp_list_pleak.append((abs(results_i_vdd_leak[str(thread_id)])+abs(results_i_vdd_leak[str(thread_id)]))/2*(targetLib.vdd_voltage)) #
+          thread_id += 1
+
+      list2_prop.append(tmp_list_prop)
+      list2_tran.append(tmp_list_tran)
+      list2_setup.append(tmp_list_setup)
+      list2_hold.append(tmp_list_hold)
+      #list2_estart.append(tmp_list_estart)
+      #list2_eend.append(tmp_list_eend)
+      list2_eintl.append(tmp_list_eintl)
+      list2_ein.append(tmp_list_ein)
+      list2_cin.append(tmp_list_cin)
+      list2_eclk.append(tmp_list_eclk)
+      list2_cclk.append(tmp_list_cclk)
+      list2_pleak.append(tmp_list_pleak)
+
+    targetHarness.set_list2_prop(list2_prop)
+    targetHarness.write_list2_prop(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_tran(list2_tran)
+    targetHarness.write_list2_tran(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_setup(list2_setup)
+    targetHarness.write_list2_setup(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_hold(list2_hold)
+    targetHarness.write_list2_hold(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_eintl(list2_eintl)
+    targetHarness.write_list2_eintl(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_ein(list2_ein)
+    targetHarness.write_list2_ein(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_cin(list2_cin)
+    targetHarness.average_list2_cin(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_eclk(list2_eclk)
+    targetHarness.write_list2_eclk(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_cclk(list2_cclk)
+    targetHarness.average_list2_cclk(targetLib, targetCell.load, targetCell.slope)
+    targetHarness.set_list2_pleak(list2_pleak)
+    targetHarness.write_list2_pleak(targetLib, targetCell.load, targetCell.slope)
+
+    
 def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
             thold_lowest, thold_highest, thold_tstep, tsetup, timestep_mag, spicef):
     # hold search
@@ -1130,8 +1502,6 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
 def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line, \
         slew_line, cslew_line, tunit_line, tsetup_line, thold_line, tsimend_line, \
         tran_line, estart_line, eend_line, eclkstart_line, eclkend_line, spicef):
-    #print (spicef)
-    #print ("generate AND2\n")
     #targetLib.print_msg_sim(dir(targetLib))
     spicelis = spicef
     spicelis += ".lis"
