@@ -282,7 +282,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                 ## select inport with setup/hold informatioin
                 index2 = targetCell.inports.index(target_inport) 
                 index1 = targetCell.outports.index(target_outport) 
-                #print(harnessList2[index1][index2*2].timing_type_setup)
+                #targetLib.print_msg(harnessList2[index1][index2*2].timing_type_setup)
                 if((harnessList2[index1][index2*2].timing_type_setup == "setup_rising") or (harnessList2[index1][index2*2].timing_type_setup == "setup_falling")):
                     outlines.append("    pin ("+target_inport+"){\n") #### inport pin start 
                     outlines.append("      direction : input;\n")
@@ -349,8 +349,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 ##target_inport = targetCell.clock
                 outlines.append("      timing () {\n")
@@ -395,13 +394,12 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                 index2_offset = 0
                 index2_offset_max = 10
                 while(index2_offset < index2_offset_max):
-                    #print(harnessList2[index1][index2*2+index2_offset])
+                    #targetLib.print_msg(harnessList2[index1][index2*2+index2_offset])
                     if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 outlines.append("        related_pin : \""+targetCell.reset+"\";\n")
                 outlines.append("        timing_sense : \""+harnessList2[index1][index2*2+index2_offset].timing_sense_reset+"\";\n")
@@ -435,8 +433,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 outlines.append("        related_pin : \""+targetCell.set+"\";\n")
                 outlines.append("        timing_sense : \""+harnessList2[index1][index2*2+index2_offset].timing_sense_set+"\";\n")
@@ -467,8 +464,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 outlines.append("      internal_power () {\n")
                 index2 = targetCell.inports.index(target_inport) 
@@ -496,13 +492,12 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                 index2_offset = 0
                 index2_offset_max = 10
                 while(index2_offset < index2_offset_max):
-                    #print(harnessList2[index1][index2*2+index2_offset])
+                    #targetLib.print_msg(harnessList2[index1][index2*2+index2_offset])
                     if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 outlines.append("      internal_power () {\n")
                 index2 = targetCell.inports.index(target_inport) 
@@ -530,13 +525,12 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
                 index2_offset = 0
                 index2_offset_max = 10
                 while(index2_offset < index2_offset_max):
-                    #print(harnessList2[index1][index2*2+index2_offset])
+                    #targetLib.print_msg(harnessList2[index1][index2*2+index2_offset])
                     if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_set"):
                         break
                     index2_offset += 1
                 if(index2_offset == 10):
-                    print("Error: index2_offset exceed max. search number\n")
-                    my_exit()
+                    targetLib.print_error("Error: index2_offset exceed max. search number\n")
 
                 outlines.append("      internal_power () {\n")
                 index2 = targetCell.inports.index(target_inport) 
@@ -579,13 +573,13 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             index2_offset = 0
             index2_offset_max = 10
             while(index2_offset < index2_offset_max):
-                #print(harnessList2[index1][index2*2+index2_offset])
+                #targetLib.print_msg(harnessList2[index1][index2*2+index2_offset])
                 if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_reset"):
                     break
                 index2_offset += 1
             if(index2_offset == 10):
-                print("Error: index2_offset exceed max. search number\n")
-                my_exit()
+                targetLib.print_error("Error: index2_offset exceed max. search number\n")
+
             #for a in inspect.getmembers(harnessList2[index1][index2*2+index2_offset]):
             #    print (a) 
             ## (4-1) recovery
@@ -593,8 +587,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
             outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset_recov+"\";\n")
             if (1 != len(targetCell.inports)):
-                print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-                my_exit()
+                targetLib.print_error("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+
             #for target_inport in targetCell.inports: ## only one target_inport should be available
             #    outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
             outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_reset_recov+" (recovery_template) {\n")
@@ -607,8 +601,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
             outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset_remov+"\";\n")
             if (1 != len(targetCell.inports)):
-                print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-                my_exit()
+                targetLib.print_error("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+
             #for target_inport in targetCell.inports: ## only one target_inport should be available
             #    outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_reset+"\";\n")
             outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_reset_remov+" (removal_template) {\n")
@@ -642,21 +636,20 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             index2_offset = 0
             index2_offset_max = 10
             while(index2_offset < index2_offset_max):
-                #print(harnessList2[index1][index2*2+index2_offset])
+                #targetLib.print_msg(harnessList2[index1][index2*2+index2_offset])
                 if hasattr(harnessList2[index1][index2*2+index2_offset], "timing_type_set"):
                     break
                 index2_offset += 1
             if(index2_offset == 10):
-                print("Error: index2_offset exceed max. search number\n")
-                my_exit()
+                targetLib.print_error("Error: index2_offset exceed max. search number\n")
   
             ## (5-1) recovery
             outlines.append("      timing () {\n")
             outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
             outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set_recov+"\";\n")
             if (1 != len(targetCell.inports)):
-                print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-                my_exit()
+                targetLib.print_error("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+
             #for target_inport in targetCell.inports: ## only one target_inport should be available
             #    outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
             outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_set_recov+" (recovery_template) {\n")
@@ -670,8 +663,8 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             outlines.append("        related_pin : \""+targetCell.clock+"\";\n")
             outlines.append("        timing_type : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set_remov+"\";\n")
             if (1 != len(targetCell.inports)):
-                print ("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
-                my_exit()
+                targetLib.print_error("Error: number of targetCell.inports is "+str(len(targetCell.inports))+", not one! die" )
+
             #for target_inport in targetCell.inports: ## only one target_inport should be available
             #    outlines.append("        when : \""+harnessList2[index1][index2*2+index2_offset].timing_type_set+"\";\n")
             outlines.append("        "+harnessList2[index1][index2*2+index2_offset].timing_sense_set_remov+" (removal_template) {\n")
@@ -714,8 +707,7 @@ def exportVerilog(targetLib, targetCell):
 
         ## branch for sequencial cell
         if(targetCell.logic == "DFFARAS"):
-            print ("This cell "+targetCell.logic+" is not supported for verilog out\n")
-            sys.exit
+            targetLib.print_error("This cell "+targetCell.logic+" is not supported for verilog out\n")
 
         ## branch for combinational cell
         else:
@@ -775,15 +767,14 @@ def exportVerilogFlop(targetLib, targetCell):
                 line = 'always@('
                 resetlines = []
                 setlines = []
-                #print(str(targetCell.logic))
+                #targetLib.print_msg(str(targetCell.logic))
                 ## clock
                 if(re.search('PC', targetCell.logic)):    ## posedge clock
                     line=line+"posedge "+targetCell.clock
                 elif(re.search('NC', targetCell.logic)):    ## negedge clock
                     line=line+"negedge "+targetCell.clock
                 else:
-                    print("Error! failed to generate DFF verilog!")
-                    my_exit()
+                    targetLib.print_error("Error! failed to generate DFF verilog!")
 
                 ## reset (option)
                 if(targetCell.reset != None):    ## reset
@@ -838,6 +829,6 @@ def exitFiles(targetLib, num_gen_file):
         outlines.append("}\n")
         f.writelines(outlines)
     f.close()
-    print("\n-- dotlib file generation completed!!  ")
-    print("--  "+str(num_gen_file)+" cells generated!!  \n")
+    targetLib.print_msg("\n-- dotlib file generation completed!!  ")
+    targetLib.print_msg("--  "+str(num_gen_file)+" cells generated!!  \n")
 

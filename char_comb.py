@@ -868,7 +868,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
         try:
             res = subprocess.check_call(cmd)
         except:
-            print ("Failed to lunch spice")
+            targetLib.print_msg ("Failed to lunch spice")
 
     # read results
     with open(spicelis,'r') as f:
@@ -919,14 +919,14 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
     try:
         res_prop_in_out
     except NameError:
-        targetLib.print_msg("Value res_prop_in_out is not defined!!")
-        targetLib.print_msg("Check simulation result in work directory")
+        targetLib.print("Value res_prop_in_out is not defined!!")
+        targetLib.print("Check simulation result in work directory")
         sys.exit()
     try:
         res_trans_out
     except NameError:
-        targetLib.print_msg("Value res_trans_out is not defined!!")
-        targetLib.print_msg("Check simulation result in work directory")
+        targetLib.print("Value res_trans_out is not defined!!")
+        targetLib.print("Check simulation result in work directory")
         sys.exit()
     if(meas_energy == 0):
         return float(res_prop_in_out), float(res_trans_out), float(res_energy_start), float(res_energy_end)

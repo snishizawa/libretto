@@ -294,32 +294,31 @@ def initializeFiles(targetLib, targetCell):
             shutil.rmtree(targetLib.work_dir)
         os.mkdir(targetLib.work_dir)
     elif (targetLib.runsim.lower() == "false"):
-        print("save past working directory and files\n")
+        targetLib.print_msg("save past working directory and files\n")
     else:
-        print("illigal setting for set_runsim option: "+targetLib.runsim+"\n")
-        my_exit()
+        targetLib.print_error("illigal setting for set_runsim option: "+targetLib.runsim+"\n")
     
 
 def characterizeFiles(targetLib, targetCell):
-    print("characterize\n")
+    targetLib.print_msg("characterize\n")
     os.chdir(targetLib.work_dir)
 
     ## Branches for combinationals
     if(targetCell.logic == 'INV'):
-        print("INV\n")
+        targetLib.print_msg("INV\n")
         ## [in0, out0]
         expectationList2 = [['01','10'],['10','01']]
         return runCombIn1Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'BUF'):
-        print("BUF\n")
+        targetLib.print_msg("BUF\n")
         ## [in0, out0]
         expectationList2 = [['01','01'],['10','10']]
         return runCombIn1Out1(targetLib, targetCell, expectationList2,"pos")
 
     # AND-OR
     elif(targetCell.logic == 'AND2'):
-        print("AND2\n")
+        targetLib.print_msg("AND2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','1','01'],
                             ['10','1','10'],
@@ -328,7 +327,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'AND3'):
-        print("AND3\n")
+        targetLib.print_msg("AND3\n")
         ## [in0, in1, in2, in3, out0]
         expectationList2 = [['01','1','1','01'],['10','1','1','10'],\
                             ['1','01','1','01'],['1','10','1','10'],\
@@ -336,7 +335,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'AND4'):
-        print("AND4\n")
+        targetLib.print_msg("AND4\n")
         ## [in0, in1, in2, in3,  out0]
         expectationList2 = [['01','1','1','1','01'],['10','1','1','1','10'],\
                             ['1','01','1','1','01'],['1','10','1','1','10'],\
@@ -345,7 +344,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
     
     elif(targetCell.logic == 'AND5'):
-        print("AND5\n")
+        targetLib.print_msg("AND5\n")
         ## [in0, in1, in2, in3, in4,  out0]
         expectationList2 = [['01','1','1','1','1','01'],['10','1','1','1','1','10'],\
                             ['1','01','1','1','1','01'],['1','10','1','1','1','10'],\
@@ -355,7 +354,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn5Out1(targetLib, targetCell, expectationList2,"pos")
     
     elif(targetCell.logic == 'AND6'):
-        print("AND6\n")
+        targetLib.print_msg("AND6\n")
         ## [in0, in1, in2, in3, in4, in5, out0]
         expectationList2 = [['01','1','1','1','1','1','01'],['10','1','1','1','1','1','10'],\
                             ['1','01','1','1','1','1','01'],['1','10','1','1','1','1','10'],\
@@ -366,14 +365,14 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn6Out1(targetLib, targetCell, expectationList2,"pos")
     
     elif(targetCell.logic == 'OR2'):
-        print("OR2\n")
+        targetLib.print_msg("OR2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','0','01'],['10','0','10'],\
                                         ['0','01','01'],['0','10','10']]
         return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OR3'):
-        print("OR3\n")
+        targetLib.print_msg("OR3\n")
         ## [in0, in1, in2, out0]
         expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
                             ['0','01','0','01'],['0','10','0','10'],\
@@ -381,7 +380,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OR4'):
-        print("OR4\n")
+        targetLib.print_msg("OR4\n")
         ## [in0, in1, in2, in3, out0]
         expectationList2 = [['01','0','0','0','01'],['10','0','0','0','10'],\
                             ['0','01','0','0','01'],['0','10','0','0','10'],\
@@ -390,7 +389,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OR5'):
-        print("OR5\n")
+        targetLib.print_msg("OR5\n")
         ## [in0, in1, in2, in3, in4, out0]
         expectationList2 = [['01','0','0','0','0','01'],['10','0','0','0','0','10'],\
                             ['0','01','0','0','0','01'],['0','10','0','0','0','10'],\
@@ -400,7 +399,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn5Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OR6'):
-        print("OR6\n")
+        targetLib.print_msg("OR6\n")
         ## [in0, in1, in2, in3, in4, in5, out0]
         expectationList2 = [['01','0','0','0','0','0','01'],['10','0','0','0','0','0','10'],\
                             ['0','01','0','0','0','0','01'],['0','10','0','0','0','0','10'],\
@@ -412,7 +411,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # NAND-NOR
     elif(targetCell.logic == 'NAND2'):
-        print("NAND2\n")
+        targetLib.print_msg("NAND2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','1','10'],\
                             ['10','1','01'],\
@@ -421,7 +420,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn2Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NAND3'):
-        print("NAND3\n")
+        targetLib.print_msg("NAND3\n")
         ## [in0, in1, in2, out0]
         expectationList2 = [['01','1','1','10'],['10','1','1','01'],\
                             ['1','01','1','10'],['1','10','1','01'],\
@@ -429,7 +428,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NAND4'):
-        print("NAND4\n")
+        targetLib.print_msg("NAND4\n")
         ## [in0, in1, in2, in3, out0]
         expectationList2 = [['01','1','1','1','10'],['10','1','1','1','01'],\
                             ['1','01','1','1','10'],['1','10','1','1','01'],\
@@ -438,7 +437,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NAND5'):
-        print("NAND5\n")
+        targetLib.print_msg("NAND5\n")
         ## [in0, in1, in2, in3, in4, out0]
         expectationList2 = [['01','1','1','1','1','10'],['10','1','1','1','1','01'],\
                             ['1','01','1','1','1','10'],['1','10','1','1','1','01'],\
@@ -448,7 +447,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn5Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NAND6'):
-        print("NAND6\n")
+        targetLib.print_msg("NAND6\n")
         ## [in0, in1, in2, in3, in4, out0]
         expectationList2 = [['01','1','1','1','1','1','10'],['10','1','1','1','1','1','01'],\
                             ['1','01','1','1','1','1','10'],['1','10','1','1','1','1','01'],\
@@ -459,13 +458,13 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn6Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NOR2'):
-        print("NOR2\n")
+        targetLib.print_msg("NOR2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','0','10'],['10','0','01'],['0','01','10'],['0','10','01']]
         return runCombIn2Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NOR3'):
-        print("NOR3\n")
+        targetLib.print_msg("NOR3\n")
         ## [in0, in1, in2, out0]
         expectationList2 = [['01','0','0','10'],['10','0','0','01'],\
                             ['0','01','0','10'],['0','10','0','01'],\
@@ -473,7 +472,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NOR4'):
-        print("NOR4\n")
+        targetLib.print_msg("NOR4\n")
         ## [in0, in1, in2, in3, out0]
         expectationList2 = [['01','0','0','0','10'],['10','0','0','0','01'],\
                             ['0','01','0','0','10'],['0','10','0','0','01'],\
@@ -482,7 +481,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NOR5'):
-        print("NOR5\n")
+        targetLib.print_msg("NOR5\n")
         ## [in0, in1, in2, in3, in4, out0]
         expectationList2 = [['01','0','0','0','0','10'],['10','0','0','0','0','01'],\
                             ['0','01','0','0','0','10'],['0','10','0','0','0','01'],\
@@ -492,7 +491,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn5Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'NOR6'):
-        print("NOR6\n")
+        targetLib.print_msg("NOR6\n")
         ## [in0, in1, in2, in3, in4, in5, out0]
         expectationList2 = [['01','0','0','0','0','0','10'],['10','0','0','0','0','0','01'],\
                             ['0','01','0','0','0','0','10'],['0','10','0','0','0','0','01'],\
@@ -504,7 +503,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # AND-OR, OR-AND
     elif(targetCell.logic == 'AO21'):
-        print("AO21\n")
+        targetLib.print_msg("AO21\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','1','0','10'],['01','1','0','01'],\
                             ['1','10','0','10'],['1','01','0','01'],\
@@ -512,7 +511,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'AO22'):
-        print("AO22\n")
+        targetLib.print_msg("AO22\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','1','0','0','10'],['01','1','0','0','01'],\
                             ['1','10','0','0','10'],['1','01','0','0','01'],\
@@ -521,7 +520,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OA21'):
-        print("OA21\n")
+        targetLib.print_msg("OA21\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','0','1','10'],['01','0','1','01'],\
                             ['0','10','1','10'],['0','01','1','01'],\
@@ -529,7 +528,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'OA22'):
-        print("OA22\n")
+        targetLib.print_msg("OA22\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','0','0','1','10'],['01','0','0','1','01'],\
                             ['0','10','0','1','10'],['0','01','0','1','01'],\
@@ -539,7 +538,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # AND-OR-INV, OR-AND-INV
     elif(targetCell.logic == 'AOI21'):
-        print("AOI21\n")
+        targetLib.print_msg("AOI21\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','1','0','01'],['01','1','0','10'],\
                             ['1','10','0','01'],['1','01','0','10'],\
@@ -547,7 +546,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'AOI22'):
-        print("AOI22\n")
+        targetLib.print_msg("AOI22\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','1','0','0','01'],['01','1','0','0','10'],\
                             ['1','10','0','0','01'],['1','01','0','0','10'],\
@@ -556,7 +555,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn4Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'OAI21'):
-        print("OAI21\n")
+        targetLib.print_msg("OAI21\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','0','1','01'],['01','0','1','10'],\
                             ['0','10','1','01'],['0','01','1','10'],\
@@ -564,7 +563,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"neg")
 
     elif(targetCell.logic == 'OAI22'):
-        print("OAI22\n")
+        targetLib.print_msg("OAI22\n")
         ## [in0, in1, out0]
         expectationList2 = [['10','0','0','1','01'],['01','0','0','1','10'],\
                             ['0','10','0','1','01'],['0','01','0','1','10'],\
@@ -574,7 +573,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # Exclusive
     elif(targetCell.logic == 'XOR2'):
-        print("XOR2\n")
+        targetLib.print_msg("XOR2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','0','01'],['10','0','10'],\
                             ['01','1','10'],['10','1','01'],\
@@ -583,7 +582,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn2Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'XNOR2'):
-        print("XNOR2\n")
+        targetLib.print_msg("XNOR2\n")
         ## [in0, in1, out0]
         expectationList2 = [['01','0','10'],['10','0','01'],\
                             ['01','1','01'],['10','1','10'],\
@@ -593,7 +592,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # Selecter
     elif(targetCell.logic == 'SEL2'):
-        print("SEL2\n")
+        targetLib.print_msg("SEL2\n")
         ## [in0, in1, sel, out]
         expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
                             ['0','01','1','01'],['0','10','1','10'],\
@@ -602,7 +601,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn3Out1(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'SEL4'):
-        print("SEL4\n")
+        targetLib.print_msg("SEL4\n")
         ## [in0, in1, in2, in3, sel[1], sel[0] out]
         expectationList2 = [['01','0','0','0', '0','0', '01'],['10','0','0','0', '0','0' ,'10'],\
                             ['0','01','0','0', '0','1', '01'],['0','10','0','0', '0','1' ,'10'],\
@@ -613,7 +612,7 @@ def characterizeFiles(targetLib, targetCell):
 
     # Half-adder, Full-adder
     elif(targetCell.logic == 'HA'):
-        print("HA\n")
+        targetLib.print_msg("HA\n")
         ## [in0, in1, cout, sum]
         expectationList2 = [['01','0','0','01'],['10','0','0','10'],\
                             ['0','01','0','01'],['0','10','0','10'],\
@@ -622,7 +621,7 @@ def characterizeFiles(targetLib, targetCell):
         return runCombIn2Out2(targetLib, targetCell, expectationList2,"pos")
 
     elif(targetCell.logic == 'FA'):
-        print("FA\n")
+        targetLib.print_msg("FA\n")
         ## [in0, in1, sel, cout, sum]
         expectationList2 = [['01','0','0','0','01'],['10','0','0','0','10'],\
                             ['0','01','0','0','01'],['0','10','0','0','10'],\
@@ -641,7 +640,7 @@ def characterizeFiles(targetLib, targetCell):
 
     ## Branches to sequencials
     elif(targetCell.logic == 'DFF_PCPU'):
-        print("DFF, positive clock, positive unate\n")
+        targetLib.print_msg("DFF, positive clock, positive unate\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ##                  [D,   C,     Q]
@@ -651,7 +650,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCNU'):
-        print("DFF, positive clock, negative unate\n")
+        targetLib.print_msg("DFF, positive clock, negative unate\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ##                  [D,   C,     Q]
@@ -661,7 +660,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_NCPU'):
-        print("DFF, negative clock, positive unate\n")
+        targetLib.print_msg("DFF, negative clock, positive unate\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ##                  [D,   C,     Q]
@@ -671,7 +670,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_NCNU'):
-        print("DFF, negative clock, negative unate\n")
+        targetLib.print_msg("DFF, negative clock, negative unate\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ##                  [D,   C,     Q]
@@ -681,7 +680,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_NR'):
-        print("DFF, positive clock, positive unate, async neg-reset\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async neg-reset\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## R10      -> Q10
@@ -693,7 +692,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_PR'):
-        print("DFF, positive clock, positive unate, async pos-reset\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async pos-reset\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## R01      -> Q10
@@ -705,7 +704,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_NS'):
-        print("DFF, positive clock, positive unate, async neg-set\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async neg-set\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## S10      -> Q01
@@ -717,7 +716,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_PS'):
-        print("DFF, positive clock, positive unate, async pos-set\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async pos-set\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## S01      -> Q01
@@ -729,7 +728,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_NRNS'):
-        print("DFF, positive clock, positive unate, async neg-reset, async neg-set\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async neg-reset, async neg-set\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## S10      -> Q01
@@ -744,7 +743,7 @@ def characterizeFiles(targetLib, targetCell):
         return runFlop(targetLib, targetCell, expectationList2)
 
     elif(targetCell.logic == 'DFF_PCPU_PRPS'):
-        print("DFF, positive clock, positive unate, async pos-reset, async pos-set\n")
+        targetLib.print_msg("DFF, positive clock, positive unate, async pos-reset, async pos-set\n")
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## S01      -> Q01

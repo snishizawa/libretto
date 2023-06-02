@@ -147,7 +147,7 @@ class MyLogicCell:
             #print("self.cell.lower:"+str(self.cell.lower()))
             #print("line.lower:"+str(line.lower()))
             if((self.cell.lower() in line.lower()) and (".subckt" in line.lower())):
-                print("Cell definition found!")
+                print("Cell definition found! "+self.cell.lower()+"\n")
                 #print(line)
                 self.definition = line
                 ## generate circuit call
