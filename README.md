@@ -2,6 +2,7 @@
 ## Introduction
 An open cell library characterizer.
 Current version support timing characterization and power characterization of combinational cells and sequential cells.
+Multithread supported. All of the indexes are simulated in parallel.
 
 ## More better one?
 Maybe LibreCell is more better than libretto for characterization (lctime). LibreCell also support layout generation (lclayout). I have not tried yet.
@@ -59,6 +60,10 @@ Define common settings for logic cells.
 | set_logic_low_to_high_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
 | set_work_dir | work | simulation working directory |
 | set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
+| set_run_sim | true | true: launch spice simulation. false: reuse existing simulation log | 
+| set_mt_sim | true | true: multithread simulation, all of the indexes are parallely simulated. false: single thread simulation | 
+| set_supress_sim_message | true | true: supress message. false: print message | 
+| set_supress_debug_message | true | true: supress debug message. false: print debug message | 
 | set_energy_meas_low_threshold | 0.01 | threshold to define voltage low for energy calculation (ratio:0~1) |
 | set_energy_meas_high_threshold | 0.99 | threshold to define voltage high for energy calculation (ratio:0~1) |
 | set_energy_meas_time_extent | 4 | simulation time extension for energy calculation target large output slew (real val.) |
@@ -183,11 +188,12 @@ Other **add command**(s) for sequential cells
 | add_simulation_hold_highest | 16 | manually set highst time for hold simulation (real val, unit in set_time_unit) |
 | add_simulation_hold_timestep | 5 | manually set timestep for hold simulation (real val, unit in set_time_unit) |
 
-**characterize** and **export** commands
+**characterize**, **export** and **compress** commands
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
 | characterize | n/a | run characterization |
-| export| n/a | export data into .lib and .v| 
+| export | n/a | export data into .lib and .v| 
+| compress | n/a | compress generated spice file into tgz (note: not reused for set_run_sim option)| 
 
 ### exit
 use **exit** command to return into shell.
