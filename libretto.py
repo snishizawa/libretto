@@ -7,6 +7,7 @@ import myConditionsAndResults as mcar
 import myLibrarySetting as mls 
 import myLogicCell as mlc
 import myExport as me
+import myExportDoc as med
 import numpy as np
 from char_comb import runCombIn1Out1, runCombIn2Out1, runCombIn3Out1, runCombIn4Out1, runCombIn5Out1, runCombIn6Out1, runSpiceCombDelay, genFileLogic_trial1
 from char_seq import runFlop, runSpiceFlopDelay, genFileFlop_trial1
@@ -35,6 +36,9 @@ def main():
 
             if(line.startswith('set_dotlib_name')):
                 targetLib.set_dotlib_name(line) 
+
+            if(line.startswith('set_doc_name')):
+                targetLib.set_doc_name(line) 
 
             if(line.startswith('set_verilog_name')):
                 targetLib.set_verilog_name(line) 
@@ -268,6 +272,7 @@ def main():
             ## export
             elif(line.startswith('export')):
                 me.exportFiles(targetLib, targetCell, harnessList2) 
+                med.exportDoc(targetLib, targetCell, harnessList2) 
                 num_gen_file += 1
 
             ## compress
@@ -278,7 +283,7 @@ def main():
                 cmd_str1 = "mkdir "+ targetLib.work_dir+ "/" + targetCell.cell
                 subprocess.run(cmd_str1, shell=True)
                 print (dt_string + " moving " + targetCell.cell + " characterization files")
-                cmd_str2 = "mv "+ targetLib.work_dir+ "/delay1_" + targetCell.cell + "* " + targetLib.work_dir + "/" + targetCell.cell
+                cmd_str2 = "mv "+ targetLib.work_dir+ "/simcell_" + targetCell.cell + "* " + targetLib.work_dir + "/" + targetCell.cell
                 subprocess.run(cmd_str2, shell=True)
 
             ## exit

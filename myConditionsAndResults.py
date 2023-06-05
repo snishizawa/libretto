@@ -235,6 +235,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_prop = []
+        self.lut_prop_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -266,6 +267,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_prop.append(outline)
         self.lut_prop.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_prop_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_prop_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_prop_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
 
     ## transient delay table
     def set_list2_tran(self, list2_tran=[]):
@@ -284,6 +292,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_tran = []
+        self.lut_tran_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -314,6 +323,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_tran.append(outline)
         self.lut_tran.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_tran_mintomax.append(str("{:5f}".format(self.list2_tran[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_tran_mintomax.append(str("{:5f}".format(self.list2_tran[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_tran_mintomax.append(str("{:5f}".format(self.list2_tran[-1][-1]/targetLib.time_mag)))
 
     ## internal power (energy) table 
     def set_list2_eintl(self, list2_eintl=[]):
@@ -332,6 +348,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_eintl = []
+        self.lut_eintl_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -362,6 +379,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\" \\"
             self.lut_eintl.append(outline)
         self.lut_eintl.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_eintl_mintomax.append(str("{:5f}".format(self.list2_eintl[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_eintl_mintomax.append(str("{:5f}".format(self.list2_eintl[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_eintl_mintomax.append(str("{:5f}".format(self.list2_eintl[-1][-1]/targetLib.time_mag)))
 
     ## input energy 
     def set_list2_ein(self, list2_ein=[]):
@@ -380,6 +404,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_ein = []
+        self.lut_ein_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -410,6 +435,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_ein.append(outline)
         self.lut_ein.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_ein_mintomax.append(str("{:5f}".format(self.list2_ein[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_ein_mintomax.append(str("{:5f}".format(self.list2_ein[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_ein_mintomax.append(str("{:5f}".format(self.list2_ein[-1][-1]/targetLib.time_mag)))
 
     ## input capacitance 
     def set_list2_cin(self, list2_cin=[]):
@@ -452,6 +484,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_eclk = []
+        self.lut_eclk_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -482,6 +515,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_eclk.append(outline)
         self.lut_eclk.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
 
     ## clock input capacitance 
     def set_list2_cclk(self, list2_cclk=[]):
@@ -546,6 +586,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_setup = []
+        self.lut_setup_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -580,6 +621,13 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_setup.append(outline)
         self.lut_setup.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
 
     ## hold (for flop)
     def set_list2_hold(self, list2_hold=[]):
@@ -598,6 +646,7 @@ class MyConditionsAndResults:
         ## index_1
         outline = "index_1(\""
         self.lut_hold = []
+        self.lut_hold_mintomax = []
         for j in range(len(jlist)-1):
             outline += str(jlist[j])+", " 
         outline += str(jlist[len(jlist)-1])+"\");" 
@@ -629,4 +678,11 @@ class MyConditionsAndResults:
                 outline += tmp_line+"\", \\"
             self.lut_hold.append(outline)
         self.lut_hold.append(");")
+        # store min/center/max for doc
+        # min
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        # center
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        # max
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
 

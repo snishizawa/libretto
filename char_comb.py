@@ -23,12 +23,12 @@ def runCombIn1Out1(targetLib, targetCell, expectationList2, unate):
             tmp_Harness.set_target_inport (targetCell.inports[0], tmp_inp0_val)
             tmp_Harness.set_stable_inport ("NULL", "NULL")
         else:
-            print ("Illiegal input vector type!!")
-            print ("Check logic definition of this program!!")
+            print("Illiegal input vector type!!")
+            print("Check logic definition of this program!!")
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
+        spicef = "simcell_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
             +str(tmp_inp0_val)+"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
         ## run spice and store result
         if(targetLib.mtsim == "true"):
@@ -70,7 +70,7 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
+        spicef = "simcell_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
             +str(tmp_inp0_val)+"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
             +"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
         # run spice and store result
@@ -119,7 +119,7 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"\
+        spicef = "simcell_"+str(targetCell.cell)+"_"\
             +str(targetCell.inports[0])+str(tmp_inp0_val)\
             +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
             +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
@@ -179,7 +179,7 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"\
+        spicef = "simcell_"+str(targetCell.cell)+"_"\
             +str(targetCell.inports[0])+str(tmp_inp0_val)\
             +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
             +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
@@ -251,7 +251,7 @@ def runCombIn5Out1(targetLib, targetCell, expectationList2, unate):
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"\
+        spicef = "simcell_"+str(targetCell.cell)+"_"\
             +str(targetCell.inports[0])+str(tmp_inp0_val)\
             +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
             +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
@@ -337,7 +337,7 @@ def runCombIn6Out1(targetLib, targetCell, expectationList2, unate):
             
         #tmp_Harness.set_leak_inportval ("1")
         #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-        spicef = "delay1_"+str(targetCell.cell)+"_"\
+        spicef = "simcell_"+str(targetCell.cell)+"_"\
             +str(targetCell.inports[0])+str(tmp_inp0_val)\
             +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
             +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
@@ -919,14 +919,14 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
     try:
         res_prop_in_out
     except NameError:
-        targetLib.print("Value res_prop_in_out is not defined!!")
-        targetLib.print("Check simulation result in work directory")
+        print("Value res_prop_in_out is not defined!!")
+        print("Check simulation result in work directory")
         sys.exit()
     try:
         res_trans_out
     except NameError:
-        targetLib.print("Value res_trans_out is not defined!!")
-        targetLib.print("Check simulation result in work directory")
+        print("Value res_trans_out is not defined!!")
+        print("Check simulation result in work directory")
         sys.exit()
     if(meas_energy == 0):
         return float(res_prop_in_out), float(res_trans_out), float(res_energy_start), float(res_energy_end)

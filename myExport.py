@@ -258,21 +258,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
             outlines.append("      capacitance : \""+str(targetCell.cclks[index1])+"\";\n")
             outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
             outlines.append("      clock : true;\n") 
-    #   internal_power() {
-    #     rise_power(passive_energy_template_7x1) {
-    #       index_1 ("0.01669, 0.030212, 0.094214, 0.230514, 0.461228, 0.919101, 2.29957");
-    #       values ("0.040923, 0.0374, 0.044187, 0.046943, 0.045139, 0.051569, 0.080466");
-    #     }
-    #     fall_power(passive_energy_template_7x1) {
-    #       index_1 ("0.016236, 0.030811, 0.094437, 0.232485, 0.461801, 0.919137, 2.29958");
-    #       values ("0.038868, 0.03793, 0.033501, 0.043008, 0.042432, 0.048973, 0.08357");
-    #     }
-    #   }
-    #   min_pulse_width_high : 0.145244;
-    #   min_pulse_width_low : 0.226781;
             outlines.append("    }\n") ## clock pin end
-
-
 
         ##
         ## (2) prop/tran/setup/hold for input pins 

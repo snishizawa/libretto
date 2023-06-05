@@ -4,26 +4,27 @@ from myFunc import my_exit
 
 class MyLogicCell:
     def __init__ (self):
-        self.cell = None    ## cell name
-        self.area = None    ## set area 
-        self.functions = [] ## cell function
-        self.inports = []   ## inport pins
-        self.cins = []      ## inport caps
-        self.clock = None   ## clock pin for flop
-        self.set = None     ## set pin for flop
-        self.reset = None   ## reset pin for flop 
-        self.cclks = []    ## clock pin cap. for flop
-        self.csets = []    ## set pin cap. for flop
-        self.crsts = []    ## reset pin cap. for flop 
-        self.outports = []  ## outport pins
-        self.flops = []     ## registers 
-        self.functions = [] ## logic/flop functions 
-        self.slope = []     ## inport slope
-        self.cslope = 0     ## inport clock slope
-        self.load = []      ## outport load
+        self.cell = None     ## cell name
+        self.area = None     ## set area 
+        self.functions = []  ## cell function
+        self.inports = []    ## inport pins
+        self.cins = []       ## inport caps
+        self.clock = None    ## clock pin for flop
+        self.set = None      ## set pin for flop
+        self.reset = None    ## reset pin for flop 
+        self.cclks = []      ## clock pin cap. for flop
+        self.csets = []      ## set pin cap. for flop
+        self.crsts = []      ## reset pin cap. for flop 
+        self.outports = []   ## outport pins
+        self.flops = []      ## registers 
+        self.functions = []  ## logic/flop functions 
+        self.slope = []      ## inport slope
+        self.cslope = 0      ## inport clock slope
+        self.load = []       ## outport load
         self.simulation_timestep = 0      ## simulation timestep 
-        self.isexport = 0   ## exported or not
-        self.isflop = 0     ## DFF or not
+        self.isexport = 0    ## exported or not
+        self.isexport2doc = 0 ## exported to doc or not
+        self.isflop = 0      ## DFF or not
         ## setup 
         self.sim_setup_lowest = 0    ## fastest simulation edge (pos. val.) 
         self.sim_setup_highest = 0   ## lowest simulation edge (pos. val.) 
@@ -185,6 +186,9 @@ class MyLogicCell:
 
     def set_exported(self):
         self.isexport = 1 
+
+    def set_exported2doc(self):
+        self.isexport2doc = 1 
 
     def set_inport_cap_pleak(self, index, harness):
         ## average leak power of all harness

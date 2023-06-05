@@ -4,6 +4,7 @@ from myFunc import my_exit
 class MyLibrarySetting:
     def __init__ (self):
         self.isexport = 0
+        self.isexport2doc = 0
         self.delay_model = "table_lookup"
         self.runsim = "true"
         self.supress_msg = "false"
@@ -18,6 +19,11 @@ class MyLibrarySetting:
     def set_dotlib_name(self, line="tmp"):
         tmp_array = line.split()
         self.dotlib_name = tmp_array[1] 
+        #print(tmp_array[1])
+        
+    def set_doc_name(self, line="tmp"):
+        tmp_array = line.split()
+        self.doc_name = tmp_array[1] 
         #print(tmp_array[1])
         
     def set_verilog_name(self, line="tmp"):
@@ -244,6 +250,9 @@ class MyLibrarySetting:
     
     def set_exported(self):
         self.isexport = 1 
+
+    def set_exported2doc(self):
+        self.isexport2doc = 1 
 
     def set_run_sim(self, line="true"):
         tmp_array = line.split()

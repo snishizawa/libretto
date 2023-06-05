@@ -63,7 +63,7 @@ def runFlop(targetLib, targetCell, expectationList2):
         if((RST_val != None)and(SET_val != None)):
             tmp_Harness.set_target_set (targetCell.set, SET_val)
             tmp_Harness.set_target_reset (targetCell.reset, RST_val)
-            spicef = "c2q1_"+str(targetCell.cell)+"_"\
+            spicef = "simcell_"+str(targetCell.cell)+"_"\
                     +str(targetCell.inports[0])+str(D_val)+"_"\
                     +str(targetCell.clock)+str(CLK_val)+"_"\
                     +str(targetCell.set)+str(SET_val)+"_"\
@@ -71,20 +71,20 @@ def runFlop(targetLib, targetCell, expectationList2):
                     +str(targetCell.outports[0])+str(Q_val)
         elif(SET_val != None):
             tmp_Harness.set_target_set (targetCell.set, SET_val)
-            spicef = "c2q1_"+str(targetCell.cell)+"_"\
+            spicef = "simcell_"+str(targetCell.cell)+"_"\
                     +str(targetCell.inports[0])+str(D_val)+"_"\
                     +str(targetCell.clock)+str(CLK_val)+"_"\
                     +str(targetCell.set)+str(SET_val)+"_"\
                     +str(targetCell.outports[0])+str(Q_val)
         elif(RST_val != None):
             tmp_Harness.set_target_reset (targetCell.reset, RST_val)
-            spicef = "c2q1_"+str(targetCell.cell)+"_"\
+            spicef = "simcell_"+str(targetCell.cell)+"_"\
                     +str(targetCell.inports[0])+str(D_val)+"_"\
                     +str(targetCell.clock)+str(CLK_val)+"_"\
                     +str(targetCell.reset)+str(RST_val)+"_"\
                     +str(targetCell.outports[0])+str(Q_val)
         else:    
-            spicef = "c2q1_"+str(targetCell.cell)+"_"\
+            spicef = "simcell_"+str(targetCell.cell)+"_"\
                     +str(targetCell.inports[0])+str(D_val)+"_"\
                     +str(targetCell.clock)+str(CLK_val)+"_"\
                     +str(targetCell.outports[0])+str(Q_val)
@@ -1252,12 +1252,23 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
     tsimendmag = [1, 10]; # magnify parameter of _tsimend
     tranmag = [float(targetLib.logic_threshold_low)*1.1, 1];  # magnify parameter of transient simulation
     tmp_max_val_loop = float(targetCell.slope[-1]) * 40 # use x10 of max. slope for max val.
-    tmp_min_setup = tmp_max_val_loop # temporal value for setup 
     tmp_min_prop_in_out   = tmp_max_val_loop # temporal value for D2Qmin search
     tmp_min_prop_cin_out  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_min_setup = tmp_max_val_loop # temporal value for setup 
+    tmp_min_hold = tmp_max_val_loop # temporal value for setup 
     tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
     tmp_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
     tmp_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_clk_start  = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_energy_clk_end    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_q_in_dyn    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_q_out_dyn    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_q_clk_dyn    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_q_vdd_dyn    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_q_vss_dyn    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_i_in_leak    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_i_vdd_leak    = tmp_max_val_loop # temporal value for D2Qmin search
+    tmp_i_vss_leak    = tmp_max_val_loop # temporal value for D2Qmin search
     
     ## calculate whole slope length from logic threshold
     tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
