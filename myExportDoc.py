@@ -43,7 +43,11 @@ def exportLib2doc(targetLib, targetCell):
         outlines.append("| "+str(targetLib.logic_low_to_high_threshold*100)+" | "+str(targetLib.logic_high_to_low_threshold*100)+" | "+str(targetLib.logic_low_to_high_threshold*100)+" | "+str(targetLib.logic_high_to_low_threshold*100)+" |\n")
         outlines.append("\n")
         outlines.append("# End library settings \n")
+        outlines.append("\n")
         outlines.append("# Cell settings \n")
+        f.writelines(outlines)
+    f.close()
+    targetLib.set_exported2doc()
 
 ## export harness data to .doc
 def exportHarness2doc(targetLib, targetCell, harnessList2):
@@ -118,6 +122,7 @@ def exportHarnessFlop2doc(targetLib, targetCell, harnessList2):
 
 ## (1) clock 
         if targetCell.clock is not None:
+            target_inport = targetCell.clock
             index1 = 0 
             outlines.append("### Clock pin : "+target_inport+"\n") ## input pin start
             outlines.append("| direction | related pwr pin | related gnd pin | max trans | cap. |\n")
@@ -136,7 +141,7 @@ def exportHarnessFlop2doc(targetLib, targetCell, harnessList2):
                 outlines.append("| input | "+targetLib.vdd_name+" | "+targetLib.vss_name+" | "+str(targetCell.slope[-1])+" | "+str(targetCell.cins[index1])+" |\n")
                 outlines.append("\n")
                 outlines.append("| direction | setup min. | setup center | setup max |\n")
-                outlines.append("|----|----|----|\n")
+                outlines.append("|----|----|----|----|\n")
                 outlines.append("| rise | "+str(harnessList2[index1][index2*2].lut_setup_mintomax[0])+" | "+str(harnessList2[index1][index2*2].lut_setup_mintomax[1])+" | "+str(harnessList2[index1][index2*2].lut_setup_mintomax[2])+" |\n")
                 outlines.append("| fall | "+str(harnessList2[index1][index2*2+1].lut_setup_mintomax[0])+" | "+str(harnessList2[index1][index2*2+1].lut_setup_mintomax[1])+" | "+str(harnessList2[index1][index2*2+1].lut_setup_mintomax[2])+" |\n")
                 outlines.append("\n")
@@ -149,7 +154,7 @@ def exportHarnessFlop2doc(targetLib, targetCell, harnessList2):
 ## (3) output 
         for target_outport in targetCell.outports:
             index1 = targetCell.outports.index(target_outport) 
-            outlines.append("### Output pin : "+target_inport+"\n") ## input pin start
+            outlines.append("### Output pin : "+target_outport+"\n") ## input pin start
             outlines.append("| direction | func | max cap | leak | \n")
             outlines.append("|----|----|----|----|\n")
             outlines.append("| output | "+targetCell.functions[index1]+" | "+str(targetCell.load[-1])+" | "+str(harnessList2[0][0].pleak)+" |\n")

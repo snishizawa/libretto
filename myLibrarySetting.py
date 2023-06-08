@@ -7,6 +7,7 @@ class MyLibrarySetting:
         self.isexport2doc = 0
         self.delay_model = "table_lookup"
         self.runsim = "true"
+        self.mtsim = "false"
         self.supress_msg = "false"
         self.supress_sim_msg = "false"
         self.supress_debug_msg = "false"

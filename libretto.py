@@ -285,6 +285,8 @@ def main():
                 print (dt_string + " moving " + targetCell.cell + " characterization files")
                 cmd_str2 = "mv "+ targetLib.work_dir+ "/simcell_" + targetCell.cell + "* " + targetLib.work_dir + "/" + targetCell.cell
                 subprocess.run(cmd_str2, shell=True)
+                cmd_str2 = "tar -zcvf "+ targetLib.work_dir+ "/simcell_" + targetCell.cell + ".tgz " + targetLib.work_dir + "/" + targetCell.cell
+                subprocess.run(cmd_str2, shell=True)
 
             ## exit
             elif(line.startswith('quit') or line.startswith('exit')):

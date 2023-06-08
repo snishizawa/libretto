@@ -464,7 +464,7 @@ class MyConditionsAndResults:
             for j in range(len(jlist)):
                 self.lut_cin += self.list2_cin[i][j]
         #self.cin = str(self.lut_cin / (len(ilist) * len(jlist))/targetLib.capacitance_mag) ## use average
-        self.cin = str(self.lut_cin / (len(ilist) * len(jlist))) ## use average
+        self.cin = str("{:5f}".format(self.lut_cin / (len(ilist) * len(jlist)))) ## use average
         #print("store cin:"+str(self.cin))
 
     ## clock input energy 
@@ -544,7 +544,7 @@ class MyConditionsAndResults:
             for j in range(len(jlist)):
                 self.lut_cclk += self.list2_cclk[i][j]
         #self.cclk = str(self.lut_cclk / (len(ilist) * len(jlist))/targetLib.capacitance_mag) ## use average
-        self.cclk = str(self.lut_cclk / (len(ilist) * len(jlist))) ## use average
+        self.cclk = str("{:5f}".format(self.lut_cclk / (len(ilist) * len(jlist)))) ## use average
         #print("store cclk:"+str(self.cclk))
 
     ## leak power
@@ -567,7 +567,7 @@ class MyConditionsAndResults:
         for i in range(len(ilist)):
             for j in range(len(jlist)):
                 self.lut_pleak += self.list2_pleak[i][j]
-        self.pleak = str(self.lut_pleak / (len(ilist) * len(jlist))/targetLib.leakage_power_mag) # use average
+        self.pleak = str("{:5f}".format(self.lut_pleak / (len(ilist) * len(jlist))/targetLib.leakage_power_mag)) # use average
     
     ## setup (for flop)
     def set_list2_setup(self, list2_setup=[]):
@@ -604,9 +604,9 @@ class MyConditionsAndResults:
             outline = "\""
             for j in range(len(jlist)-1):
                 #outline += str(self.list2_setup[i][j])+", "
-                print(str(i)+" "+str(j))
-                print(self.list2_setup)
-                print(str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag)))
+                #print(str(i)+" "+str(j))
+                #print(self.list2_setup)
+                #print(str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag)))
                 tmp_line = str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag))
                 outline += tmp_line+", "
             ## do not add "," for last line
