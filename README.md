@@ -60,6 +60,7 @@ Define common settings for logic cells.
 | set_logic_low_to_high_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
 | set_work_dir | work | simulation working directory |
 | set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
+| set_log_file | log.txt | log file same as standard output | 
 | set_run_sim | true | true: launch spice simulation. false: reuse existing simulation log | 
 | set_mt_sim | true | true: multithread simulation, all of the indexes are parallely simulated. false: single thread simulation | 
 | set_supress_sim_message | true | true: supress message. false: print message | 
