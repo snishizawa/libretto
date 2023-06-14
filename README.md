@@ -283,6 +283,6 @@ exit
 * Sequentials: latches, scans
 * Tristates
 * IOs and level shifters
-2. Speed up: Use multithreads
-3. Documentation support
+~~2. Speed up: Use multithreads~~(Done 23Jun)
+~~3. Documentation support~~(Done 23Jun)
 4. Verilog generation for timing simulation
