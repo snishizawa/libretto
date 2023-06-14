@@ -12,8 +12,11 @@ class MyConditionsAndResults:
         self.target_clock_val = None  ## target clock value
         self.target_reset     = None  ## target reset name
         self.target_reset_val = None  ## target reset val
+        self.target_reset_rr_val = None  ## target reset val for recov/remov
         self.target_set     = None    ## target set name
         self.target_set_val = None    ## target set val
+        self.target_set_rr_val = None  ## target set val for recov/remov
+        self.seq_sim_mode = "setup_hold"  ## sequential cell simulation mode. setup_hold/recovery/removal 
     
     def set_direction(self, outport="tmp"):
         if(outport == '01'):
@@ -180,6 +183,17 @@ class MyConditionsAndResults:
         #print(self.target_outport)
         #print(self.target_function)
 
+    # inverse Q value for
+    # 1. Hold search
+    # 2. recovery/removal search
+    def invert_target_outport (self):
+        if(self.target_outport_val == '01'):
+            self.target_outport_val = '10'
+        elif(self.target_outport_val == '10'):
+            self.target_outport_val = '01'
+        print("target output inverted!!:"+str(self.target_outport_val))
+
+
     def set_stable_inport(self, inport="tmp", val="1"):
         self.stable_inport.append(inport)
         self.stable_inport_val.append(val)
@@ -208,15 +222,32 @@ class MyConditionsAndResults:
         #print(self.target_set_val)
         #print(self.target_set)
 
-    def invert_set_reset_val(self):
-        if(self.target_reset_val == '01'):
-            self.target_reset_val = '10'
-        elif(self.target_reset_val == '10'):
-            self.target_reset_val = '01'
-        if(self.target_set_val == '01'):
-            self.target_set_val = '10'
-        elif(self.target_set_val == '10'):
-            self.target_set_val = '01'
+    def set_recov_remov_set_reset_val(self, mode="removal"):
+        if(mode == 'removal'):
+            if(self.target_reset_val == '01'):
+                self.target_reset_rr_val = '10'
+            elif(self.target_reset_val == '10'):
+                self.target_reset_rr_val = '01'
+            if(self.target_set_val == '01'):
+                self.target_set_rr_val = '10'
+            elif(self.target_set_val == '10'):
+                self.target_set_rr_val = '01'
+        elif(mode == 'recovery'):
+            if(self.target_reset_val == '01'):
+                self.target_reset_rr_val = '01'
+            elif(self.target_reset_val == '10'):
+                self.target_reset_rr_val = '10'
+            if(self.target_set_val == '01'):
+                self.target_set_rr_val = '01'
+            elif(self.target_set_val == '10'):
+                self.target_set_rr_val = '10'
+        self.seq_sim_mode = mode  ## simulation mode. setup_hold/recovery/removal 
+
+    def set_seq_sim_mode(self,mode="setup_hold"):
+        self.seq_sim_mode = mode  ## simulation mode. setup_hold/recovery/removal 
+
+    def print_set_reset(self):
+        print("set: "+str(self.target_set_val)+" reset: "+str(self.target_reset_val))
 
     ## propagation delay table
     def set_list2_prop(self, list2_prop=[]):

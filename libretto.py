@@ -142,6 +142,10 @@ def main():
             elif(line.startswith('set_work_dir')):
                 targetLib.set_work_dir(line) 
 
+            ## set_log_file
+            elif(line.startswith('set_log_file')):
+                targetLib.set_log_file(line) 
+
             ## set_simulator
             elif(line.startswith('set_simulator')):
                 targetLib.set_simulator(line) 
@@ -688,13 +692,14 @@ def characterizeFiles(targetLib, targetCell):
 
     elif(targetCell.logic == 'DFF_PCPU_NR'):
         targetLib.print_msg("DFF, positive clock, positive unate, async neg-reset\n")
+        ## !! Note modify this for clk 0001
         ## D1 & C01 -> Q01
         ## D0 & C01 -> Q10
         ## R10      -> Q10
         ##                  [D,   C,    R,    Q]
         expectationList2 = [['01','0101', '1', '01'], \
                             ['10','0101', '1', '10'], \
-                            [ '1', '0101','10', '10']]
+                            [ '1', '0001','10', '10']]
         ## run spice deck for flop
         return runFlop(targetLib, targetCell, expectationList2)
 

@@ -11,6 +11,8 @@ class MyLibrarySetting:
         self.supress_msg = "false"
         self.supress_sim_msg = "false"
         self.supress_debug_msg = "false"
+        self.log_file = "false"
+        self.logf = None 
 
     def set_lib_name(self, line="tmp"):
         tmp_array = line.split()
@@ -222,6 +224,18 @@ class MyLibrarySetting:
         self.work_dir = tmp_array[1] 
         #print(tmp_array[1])
 
+    def set_log_file(self, line="log.txt"):
+        tmp_array = line.split()
+        self.log_file = tmp_array[1] 
+        #print(tmp_array[1])
+        self.logf = open(self.log_file, 'w')
+        loglines = []
+        loglines.append("##start log\n")
+        self.logf.writelines(loglines)
+
+    def end_log_file(self):
+        self.logf.close()
+
     def set_simulator(self, line="tmp"):
         tmp_array = line.split()
         self.simulator = tmp_array[1] 
@@ -263,38 +277,54 @@ class MyLibrarySetting:
     def set_mt_sim(self, line="true"):
         tmp_array = line.split()
         self.mtsim = tmp_array[1] 
-        print(line)
+        #print(line)
 
     def set_supress_message(self, line="false"):
         tmp_array = line.split()
         self.supress_msg = tmp_array[1] 
-        print(line)
+        #print(line)
 
     def set_supress_sim_message(self, line="false"):
         tmp_array = line.split()
         self.supress_sim_msg = tmp_array[1] 
-        print(line)
+        #print(line)
 
     def set_supress_debug_message(self, line="false"):
         tmp_array = line.split()
         self.supress_debug_msg = tmp_array[1] 
-        print(line)
+        ##print(line)
 
     def print_error(self, message=""):
         print(message)
+        loglines = []
+        loglines.append(message+"\n")
+        self.logf.writelines(loglines)
+        self.end_log_file()
         my_exit()
 
     def print_warning(self, message=""):
+        loglines = []
+        loglines.append(message+"\n")
+        self.logf.writelines(loglines)
         print(message)
 
     def print_msg(self, message=""):
         if((self.supress_msg.lower() == "false")or(self.supress_msg.lower() == "f")):
+            loglines = []
+            loglines.append(message+"\n")
+            self.logf.writelines(loglines)
             print(message)
     
     def print_msg_sim(self, message=""):
         if((self.supress_sim_msg.lower() == "false")or(self.supress_sim_msg.lower() == "f")):
+            loglines = []
+            loglines.append(message+"\n")
+            self.logf.writelines(loglines)
             print(message)
     
     def print_msg_dbg(self,  message=""):
         if((self.supress_debug_msg.lower() == "false")or(self.supress_debug_msglower() == "f")):
+            loglines = []
+            loglines.append(message+"\n")
+            self.logf.writelines(loglines)
             print(message)
