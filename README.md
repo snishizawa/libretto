@@ -5,8 +5,10 @@ Current version support timing characterization and power characterization of co
 Multithread supported. All of the indexes are simulated in parallel.
 
 ## More better one?
-Maybe LibreCell is more better than libretto for characterization (lctime). LibreCell also support layout generation (lclayout). I have not tried yet.
+Maybe LibreCell is better than libretto for characterization (lctime). LibreCell also support layout generation (lclayout). I have not tried yet.
 https://codeberg.org/librecell
+Maybe CharLib is better than libretto for characterization. Why we can find some similarities in the code and data structure...
+https://github.com/stineje/CharLib/tree/main
 
 ## Back to libretto, how to use
 Prepare .cmd file 
