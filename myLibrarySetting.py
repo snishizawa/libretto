@@ -1,4 +1,4 @@
-import argparse, re, os, shutil, subprocess
+import sys, argparse, re, os, shutil, subprocess, inspect
 from myFunc import my_exit
 
 class MyLibrarySetting:
@@ -300,7 +300,10 @@ class MyLibrarySetting:
         loglines.append(message+"\n")
         self.logf.writelines(loglines)
         self.end_log_file()
-        my_exit()
+        frame = inspect.currentframe().f_back
+        path = frame.f_code.co_filename.split('/')
+        print("file:"+path[-1] +" in:"+frame.f_code.co_name+", line:"+str(frame.f_lineno))
+        sys.exit()
 
     def print_warning(self, message=""):
         loglines = []

@@ -350,7 +350,7 @@ class MyConditionsAndResults:
             ##  add "," for else 
             else:    
                 #outline += str(self.list2_tran[i][len(jlist)-1])+"\", \\"
-                tmp_line = str("{:5f}".format(self.list2_prop[i][len(jlist)-1]/targetLib.time_mag))
+                tmp_line = str("{:5f}".format(self.list2_tran[i][len(jlist)-1]/targetLib.time_mag))
                 outline += tmp_line+"\", \\"
             self.lut_tran.append(outline)
         self.lut_tran.append(");")
@@ -548,11 +548,11 @@ class MyConditionsAndResults:
         self.lut_eclk.append(");")
         # store min/center/max for doc
         # min
-        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_eclk[0][0]/targetLib.time_mag)))
         # center
-        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_eclk[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
         # max
-        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
+        self.lut_eclk_mintomax.append(str("{:5f}".format(self.list2_eclk[-1][-1]/targetLib.time_mag)))
 
     ## clock input capacitance 
     def set_list2_cclk(self, list2_cclk=[]):
@@ -654,11 +654,11 @@ class MyConditionsAndResults:
         self.lut_setup.append(");")
         # store min/center/max for doc
         # min
-        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_setup[0][0]/targetLib.time_mag)))
         # center
-        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_setup[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
         # max
-        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
+        self.lut_setup_mintomax.append(str("{:5f}".format(self.list2_setup[-1][-1]/targetLib.time_mag)))
 
     ## hold (for flop)
     def set_list2_hold(self, list2_hold=[]):
@@ -711,9 +711,9 @@ class MyConditionsAndResults:
         self.lut_hold.append(");")
         # store min/center/max for doc
         # min
-        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[0][0]/targetLib.time_mag)))
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_hold[0][0]/targetLib.time_mag)))
         # center
-        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_hold[int(len(ilist))-1][int(len(jlist))-1]/targetLib.time_mag)))
         # max
-        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_prop[-1][-1]/targetLib.time_mag)))
+        self.lut_hold_mintomax.append(str("{:5f}".format(self.list2_hold[-1][-1]/targetLib.time_mag)))
 

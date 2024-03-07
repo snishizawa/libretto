@@ -102,6 +102,7 @@ class MyLogicCell:
         line = re.sub('\}','',line)
         line = re.sub('^add_slope ','',line)
         tmp_array = line.split()
+        print (line)
         for w in tmp_array:
             self.slope.append(float(w))
         #print (self.slope)
