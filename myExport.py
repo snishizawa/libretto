@@ -262,7 +262,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.cclks)
+			targetLib.print_msg(targetCell.cclks)
 			outlines.append("      capacitance : \""+str(targetCell.cclks[index1])+"\";\n")
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
 			outlines.append("      clock : true;\n") 
@@ -297,11 +297,11 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 					outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 					outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 					outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-					print(targetCell.cins)
-					print(targetCell)
-					print(targetCell.inports)
-					print(targetCell.outports)
-					print(target_outport)
+					targetLib.print_msg(targetCell.cins)
+					targetLib.print_msg(targetCell)
+					targetLib.print_msg(targetCell.inports)
+					targetLib.print_msg(targetCell.outports)
+					targetLib.print_msg(target_outport)
 					outlines.append("      capacitance : \""+str(targetCell.cins[index1])+"\";\n")
 					outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
 					## (2-1) setup
@@ -584,7 +584,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.crsts)
+			targetLib.print_msg(targetCell.crsts)
 			##outlines.append("      capacitance : \""+str(targetCell.crsts[index1])+"\";\n")
 			outlines.append("      capacitance : \""+str(targetCell.crsts[0])+"\";\n") # use 0 as representative
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
@@ -650,7 +650,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
 			outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
 			outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
 			outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-			print(targetCell.csets)
+			targetLib.print_msg(targetCell.csets)
 			#outlines.append("      capacitance : \""+str(targetCell.csets[index1])+"\";\n")
 			outlines.append("      capacitance : \""+str(targetCell.csets[0])+"\";\n") # use 0 as representative val
 			outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
@@ -739,7 +739,7 @@ def exportVerilog(targetLib, targetCell):
 		## branch for sequencial cell
 		if(targetCell.logic == "DFFARAS"):
 			print ("This cell "+targetCell.logic+" is not supported for verilog out\n")
-			sys.exit
+			my_exit()	
 
 		## branch for combinational cell
 		else:

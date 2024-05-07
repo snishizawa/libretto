@@ -187,6 +187,7 @@ def main():
       elif(line.startswith('add_cell')):
         targetCell = mlc.MyLogicCell()
         targetCell.add_cell(line) 
+        targetCell.set_supress_message(targetLib) 
 
       ## add_slope
       elif(line.startswith('add_slope')):
@@ -217,6 +218,7 @@ def main():
       elif(line.startswith('add_flop')):
         targetCell = mlc.MyLogicCell()
         targetCell.add_flop(line) 
+        targetCell.set_supress_message(targetLib) 
 
       ## add_clock_slope
       elif(line.startswith('add_clock_slope')):

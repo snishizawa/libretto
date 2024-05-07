@@ -262,9 +262,9 @@ def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
     tmp_list_cin =   []
     tmp_list_pleak =   []
     for tmp_load in targetCell.load:
-      #targetLib.print_msg(str(thread_id))
-      #targetLib.print_msg(str(results_prop_in_out))
-      #targetLib.print_msg(str(results_prop_in_out[str(thread_id)]))
+      targetLib.print_msg(str(thread_id))
+      targetLib.print_msg(str(results_prop_in_out))
+      targetLib.print_msg(str(results_prop_in_out[str(thread_id)]))
       tmp_list_prop.append(results_prop_in_out[str(thread_id)])
       tmp_list_tran.append(results_trans_out[str(thread_id)])
 
