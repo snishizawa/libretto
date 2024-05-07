@@ -170,7 +170,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
   list2_eclk =   []
   list2_cclk =   []
   list2_pleak =  []
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
     res_list_prop =  [] # C2Q
     res_list_setup =  []  # D2C(setup)
     res_list_hold =  [] # C2D(hold)
@@ -184,7 +184,7 @@ def runSpiceFlopDelay(targetLib, targetCell, targetHarness, spicef):
     res_list_cclk =  []
     res_list_pleak =   []
 
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
       tmp_min_setup = tmp_max_val_loop # temporal value for setup 
       tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
@@ -436,8 +436,8 @@ def runSpiceFlopDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
   
   #-- create thread
   threadid=0
-  for tmp_slope in targetCell.slope:
-    for tmp_load in targetCell.load:
+  for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
       tmp_min_setup = tmp_max_val_loop # temporal value for setup 
       tmp_min_hold  = tmp_max_val_loop # temporal value for setup 
@@ -494,7 +494,7 @@ def runSpiceFlopDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
 
   #-- update list2
   threadid=0
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
     res_list_prop =  [] # C2Q
     res_list_setup =  []  # D2C(setup)
     res_list_hold =  [] # C2D(hold)
@@ -508,7 +508,7 @@ def runSpiceFlopDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
     res_list_cclk =  []
     res_list_pleak =   []
     
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
 
       #-- add result of load
       res_list_setup.append(rslt_setup[str(threadid)]['setup'][0])
@@ -594,7 +594,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
   list2_prop_set =   []
   list2_tran_set =   []
   
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
     res_list_prop =  [] # C2Q
     res_list_setup =  []  # D2C(setup)
     res_list_hold =  [] # C2D(hold)
@@ -612,7 +612,7 @@ def runSpiceFlopRecoveryRemoval(targetLib, targetCell, targetHarness, spicef):
     res_list_prop_set =  []
     res_list_tran_set =  []
 
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
       #tmp_min_setup = tmp_max_val_loop # temporal value for setup 
       #tmp_tsetup1 = tmp_max_val_loop  # temporal value for setup 
@@ -890,8 +890,8 @@ def runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, targetHarness,
   
   #-- create thread
   threadid = 0
-  for tmp_slope in targetCell.slope:
-    for tmp_load in targetCell.load:
+  for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       tmp_max_val_loop = float(targetCell.slope[-1]) * 10 # use x10 of max. slope for max val.
       tmp_min_setup  = tmp_max_val_loop # temporal value for setup 
       tmp_min_hold   = tmp_max_val_loop # temporal value for setup 
@@ -971,7 +971,7 @@ def runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, targetHarness,
 
   #-- update list2
   threadid=0
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
 
     res_list_prop =   []  # C2Q
     res_list_setup =  []  # D2C(setup)
@@ -990,9 +990,9 @@ def runSpiceFlopRecoveryRemovalMultiThread(targetLib, targetCell, targetHarness,
     res_list_prop_set =   []
     res_list_tran_set =   []
 
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
 
-      #-- add result of load
+      #-- add result of slope
       res_list_setup.append(rslt_recov[str(threadid)]['setup'][0])
       res_list_prop_set.append(rslt_recov[str(threadid)]['prop_set'][0])
       res_list_tran_set.append(rslt_recov[str(threadid)]['tran_set'][0])

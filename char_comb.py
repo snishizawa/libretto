@@ -232,8 +232,8 @@ def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
   results_i_vdd_leak   = dict()
   results_i_vss_leak   = dict()
   threadlist = list()
-  for tmp_slope in targetCell.slope:
-    for tmp_load in targetCell.load:
+  for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       thread = threading.Thread(target=runSpiceCombDelaySingle, \
                 args=([targetLib, targetCell, targetHarness, spicef, \
                     tmp_slope, tmp_load, tmp_slope_mag, \
@@ -252,7 +252,7 @@ def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
     thread.join() 
 
   thread_id = 0
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
     tmp_list_prop =   []
     tmp_list_tran =   []
     tmp_list_estart = []
@@ -261,7 +261,7 @@ def runSpiceCombDelayMultiThread(targetLib, targetCell, targetHarness, spicef):
     tmp_list_ein =   []
     tmp_list_cin =   []
     tmp_list_pleak =   []
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       targetLib.print_msg(str(thread_id))
       targetLib.print_msg(str(results_prop_in_out))
       targetLib.print_msg(str(results_prop_in_out[str(thread_id)]))
@@ -370,7 +370,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
   ## calculate whole slope length from logic threshold
   tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
 
-  for tmp_slope in targetCell.slope:
+  for tmp_load in targetCell.load:
     tmp_list_prop =   []
     tmp_list_tran =   []
     tmp_list_estart = []
@@ -379,7 +379,7 @@ def runSpiceCombDelay(targetLib, targetCell, targetHarness, spicef):
     tmp_list_ein =   []
     tmp_list_cin =   []
     tmp_list_pleak =   []
-    for tmp_load in targetCell.load:
+    for tmp_slope in targetCell.slope:
       tmp_loop += 1
       cap_line = ".param cap ="+str(tmp_load*targetLib.capacitance_mag)+"\n"
       slew_line = ".param slew ="+str(tmp_slope*tmp_slope_mag*targetLib.time_mag)+"\n"
