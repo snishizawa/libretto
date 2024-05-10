@@ -267,7 +267,7 @@ add_load  load2
 add_area 1
 add_netlist NETLIST/NETLIST_OSU350/INV_1X.spi
 add_model spice_model/model_OSU350_25C_TT.sp
-add_simulation_timestep auto slope1
+add_simulation_timestep auto slope2
 characterize
 export
 
