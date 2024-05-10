@@ -245,7 +245,6 @@ set_tmp_file __tmp__
 set_simulator ngspice 
 set_run_sim true
 set_mt_sim true
-set_mt_sim false
 set_supress_message true
 set_supress_sim_message true
 set_supress_debug_message true
@@ -293,8 +292,11 @@ exit
 1. Support more logics
 * Combinationals: multi-output cells
 * Sequentials: latches, scans
-* Tristates
-* IOs and level shifters
-~~2. Speed up: Use multithreads~~(Done 23Jun)
-~~3. Documentation support~~(Done 23Jun)
-4. Verilog generation for timing simulation
+2. Verilog generation for timing simulation
+3. Tristates
+4. Multiple voltage for IOs and level shifters
+
+## Done
+1. Speed up: Use multithreads (23Jun)
+2. Documentation support (23Jun)
+3. Support multiple loads slopes (24May)
