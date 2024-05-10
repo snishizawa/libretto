@@ -62,6 +62,7 @@ Define common settings for logic cells.
 | set_logic_high_to_low_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
 | set_logic_low_to_high_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
 | set_work_dir | work | simulation working directory |
+| set_tmp_dir | _tem_file | temporal file for dotlib generation |
 | set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
 | set_log_file | log.txt | log file same as standard output | 
 | set_run_sim | true | true: launch spice simulation. false: reuse existing simulation log | 
@@ -72,6 +73,8 @@ Define common settings for logic cells.
 | set_energy_meas_high_threshold | 0.99 | threshold to define voltage high for energy calculation (ratio:0~1) |
 | set_energy_meas_time_extent | 4 | simulation time extension for energy calculation target large output slew (real val.) |
 | set_operating_conditions | PVT_3P5V_25C | define operation condition (written into .lib) |
+| set_slope | slope_name {0.01 0.02 ...} | set of slope_name and its index (unit in set_time_unit) |
+| set_load | load_name {0.01 0.02 ...} | set of load_name and its index (unit in set_capacitance_unit)|
 
 If common characterization commands are done, use **initialize command**
 to initialize characterizor.
@@ -133,12 +136,12 @@ Supported logic functions (\*) are listed as follow,
 Other **add command**(s) for combinational cells
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
-| add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
-| add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_slope | slope_name | specify one slope_name defined by set_slope | 
+| add_load  | load_name  | specify one load_name defined by set_load | 
 | add_area  | 1 | area (real val, no unit) | 
 | add_netlist | NETLIST/INV_1X.spi | location of netlist | 
 | add_model | NETLIST/model.sp | location of model file (include simulation options) | 
-| add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
+| add_simulation_timestep | real val/auto | simulation timestep. If **auto slope_name** is selected then simulator automatically define timestep from min. slope | 
 
 **characterize** and **export** commands
 | Command | Argument example | Description |
@@ -176,13 +179,13 @@ Supported sequential functions (\*) are listed as follow,
 Other **add command**(s) for sequential cells
 | Command | Argument example | Description |
 |:-----------|------------:|:------------|
-| add_slope | {1 4 16 64} | slope index (unit in set_time_unit) | 
-| add_load  | {1 4 16 64}  | slope index (unit in set_capacitance_unit) | 
+| add_slope | slope_name | specify one slope_name defined by set_slope | 
+| add_load  | load_name  | specify one load_name defined by set_load | 
 | add_area  | 1  | area (real val, no unit) | 
 | add_netlist | NETLIST/DFF_ARAS_1X.spi | location of netlist | 
 | add_model | NETLIST/model.sp | location of model file (include simulation options) | 
-| add_clock_slope | real val/auto | slope for clock. If **auto** is selected then simulator automatically select min. slope |
-| add_simulation_timestep | real val/auto | simulation timestep. If **auto** is selected then simulator automatically define timestep from min. slope | 
+| add_clock_slope | real val/auto | slope for clock. If **auto slope_name** is selected then simulator automatically select min. slope of slope_name |
+| add_simulation_timestep | real val/auto | simulation timestep. If **auto slope_name** is selected then simulator automatically define timestep from min. slope of slope_name | 
 | add_simulation_setup_auto | n/a | automatically set setup simulation time (lowest, highest, timestep) |
 | add_simulation_setup_lowest | -10 | manually set lowest time for setup simulation (real val, unit in set_time_unit) |
 | add_simulation_setup_highest | 16 | manually set highst time for setup simulation (real val, unit in set_time_unit) |
@@ -208,16 +211,18 @@ use **exit** command to return into shell.
 ### sample
 ```txt libretto.cmd
 # common settings for library
-set_lib_name OSU035
-set_dotlib_name OSU035.lib
-set_verilog_name OSU035.v
-set_cell_name_suffix OSU035_
+set_lib_name         OSU350_5P0V_25C
+set_dotlib_name      OSU350_5P0V_25C.lib
+set_doc_name      OSU350_5P0V_25C.md
+set_verilog_name     OSU350.v
+set_cell_name_suffix OSU350_
 set_cell_name_prefix _V1
 set_voltage_unit V
 set_capacitance_unit pF
 set_resistance_unit Ohm
 set_current_unit mA
 set_leakage_power_unit pW 
+set_energy_unit fJ 
 set_time_unit ns
 set_vdd_name VDD
 set_vss_name VSS
@@ -225,57 +230,61 @@ set_pwell_name VPW
 set_nwell_name VNW
 
 # characterization conditions 
-set_process typ
-set_temperature 25
-set_vdd_voltage 3.5
+set_process 1.0
+set_temperature 25.0
+set_vdd_voltage 5.0
 set_vss_voltage 0
 set_pwell_voltage 0
-set_nwell_voltage 3.5
+set_nwell_voltage 5.0
 set_logic_threshold_high 0.8
 set_logic_threshold_low 0.2
 set_logic_high_to_low_threshold 0.5
 set_logic_low_to_high_threshold 0.5
 set_work_dir work
-set_simulator /usr/local/bin/ngspice 
+set_tmp_file __tmp__
+set_simulator ngspice 
+set_run_sim true
+set_mt_sim true
+set_mt_sim false
+set_supress_message true
+set_supress_sim_message true
+set_supress_debug_message true
 set_energy_meas_low_threshold 0.01
 set_energy_meas_high_threshold 0.99
-set_energy_meas_time_extent 4
-set_operating_conditions PVT_3P5V_25C
-
+set_energy_meas_time_extent 10
+set_operating_conditions TCCOM
+set_slope slope1 {0.1 0.7} 
+set_load  load1 {0.01 0.07} 
+set_slope slope2 {0.1 0.7 4.9} 
+set_load  load2 {0.01 0.07 0.49} 
 # initialize workspace
 initialize
 
 ## add circuit
-add_cell -n INV_1X -l INV -i A -o Y -f Y=!A 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
-add_netlist NETLIST/INV_1X.spi
-add_model NETLIST/model.sp
-add_simulation_timestep auto
+add_cell -n INV_1X -l INV -i A -o YB -f YB=!A 
+add_slope slope2 
+add_load  load2  
+add_area 1
+add_netlist NETLIST/NETLIST_OSU350/INV_1X.spi
+add_model spice_model/model_OSU350_25C_TT.sp
+add_simulation_timestep auto slope1
 characterize
 export
 
-add_cell -n AND2_1X -l AND2 -i A B -o Y -f Y=A*B 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
-add_netlist NETLIST/AND2_1X.spi
-add_model NETLIST/model.sp
-add_simulation_timestep auto
+## add circuit
+add_flop -n DFF_1X -l DFF_PCPU -i DATA -c CLK -o Q -q Q QN -f Q=IQ QN=IQN 
+add_slope slope1 
+add_load  load1  
+add_clock_slope auto slope1
+add_area 1
+add_netlist NETLIST/NETLIST_OSU350/DFF_1X.spi
+add_model spice_model/model_OSU350_25C_TT.sp
+add_simulation_timestep auto slope1
+add_simulation_setup_auto slope1
+add_simulation_hold_auto slope1
 characterize
 export
-
-## DFF, positive clock positive unate, async neg-reset, async neg-set
-add_flop -n DFF_ARAS_1X -l DFF_PCPU_NRNS -i DATA -c CLK -s NSET -r NRST -o Q -q IQ IQN -f Q=IQ QN=IQN 
-add_slope {1 4 16 64} 
-add_load  {1 4 16 64} 
-add_clock_slope auto 
-add_netlist NETLIST/DFF_ARAS_1X.spi
-add_model NETLIST/model.sp
-add_simulation_timestep auto
-add_simulation_setup_auto
-add_simulation_hold_auto
-characterize
-export
+exit
 
 exit
 ```
