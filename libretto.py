@@ -11,7 +11,7 @@ import myExportDoc as med
 import numpy as np
 from char_comb import runCombIn1Out1, runCombIn2Out1, runCombIn3Out1, runCombIn4Out1,  runSpiceCombDelay, genFileLogic_trial1
 from char_seq import runFlop, runSpiceFlopDelay, genFileFlop_trial1
-from myFunc import my_exit
+from myFunc import my_exit, startup
 
 def main():
   parser = argparse.ArgumentParser(description='argument')
@@ -20,6 +20,8 @@ def main():
   #print(args.batch)
 
   targetLib = mls.MyLibrarySetting() 
+  startup()
+  #history()
 
   num_gen_file = 0
 
@@ -142,6 +144,10 @@ def main():
       elif(line.startswith('set_work_dir')):
         targetLib.set_work_dir(line) 
 
+      ## set_tmp_file
+      elif(line.startswith('set_tmp_file')):
+        targetLib.set_tmp_file(line) 
+
       ## set_simulator
       elif(line.startswith('set_simulator')):
         targetLib.set_simulator(line) 
@@ -182,6 +188,14 @@ def main():
       elif(line.startswith('set_operating_conditions')):
         targetLib.set_operating_conditions(line) 
 
+      ## set_load
+      elif(line.startswith('set_load')):
+        targetLib.set_load(line) 
+
+      ## set_slope
+      elif(line.startswith('set_slope')):
+        targetLib.set_slope(line) 
+
 ##-- add function : common for comb. and seq. --#
       ## add_cell
       elif(line.startswith('add_cell')):
@@ -191,11 +205,11 @@ def main():
 
       ## add_slope
       elif(line.startswith('add_slope')):
-        targetCell.add_slope(line) 
+        targetCell.add_slope(targetLib, line) 
 
       ## add_load
       elif(line.startswith('add_load')):
-        targetCell.add_load(line) 
+        targetCell.add_load(targetLib, line) 
 
       ## add_area
       elif(line.startswith('add_area')):
@@ -226,9 +240,10 @@ def main():
 
       ## add_simulation_setup_auto
       elif(line.startswith('add_simulation_setup_auto')):
-        targetCell.add_simulation_setup_lowest('add_simulation_setup_lowest auto') 
-        targetCell.add_simulation_setup_highest('add_simulation_setup_highest auto') 
-        targetCell.add_simulation_setup_timestep('add_simulation_setup_timestep auto') 
+        tmp_array = line.split()
+        targetCell.add_simulation_setup_lowest('add_simulation_setup_lowest auto '+str(tmp_array[1])) 
+        targetCell.add_simulation_setup_highest('add_simulation_setup_highest auto '+str(tmp_array[1])) 
+        targetCell.add_simulation_setup_timestep('add_simulation_setup_timestep auto '+str(tmp_array[1])) 
 
       ## add_simulation_setup_lowest
       elif(line.startswith('add_simulation_setup_lowest')):
@@ -244,9 +259,10 @@ def main():
 
       ## add_simulation_hold_auto
       elif(line.startswith('add_simulation_hold_auto')):
-        targetCell.add_simulation_hold_lowest('add_simulation_hold_lowest auto') 
-        targetCell.add_simulation_hold_highest('add_simulation_hold_highest auto') 
-        targetCell.add_simulation_hold_timestep('add_simulation_hold_timestep auto') 
+        tmp_array = line.split()
+        targetCell.add_simulation_hold_lowest('add_simulation_hold_lowest auto '+str(tmp_array[1])) 
+        targetCell.add_simulation_hold_highest('add_simulation_hold_highest auto '+str(tmp_array[1])) 
+        targetCell.add_simulation_hold_timestep('add_simulation_hold_timestep auto '+str(tmp_array[1])) 
 
       ## add_simulation_hold_lowest
       elif(line.startswith('add_simulation_hold_lowest')):
@@ -299,6 +315,10 @@ def initializeFiles(targetLib, targetCell):
 def characterizeFiles(targetLib, targetCell):
   print ("characterize\n")
   os.chdir(targetLib.work_dir)
+
+  ## Register lut_template
+  targetLib.gen_lut_templates(targetCell)
+  targetCell.gen_lut_templates()
 
   ## Branch to each logic function
   if(targetCell.logic == 'INV'):

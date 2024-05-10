@@ -1,26 +1,29 @@
 import argparse, re, os, shutil, subprocess, inspect
+import copy
 
 from myFunc import my_exit
 
 class MyLogicCell:
   def __init__ (self):
-    self.cell = None    ## cell name
-    self.area = None    ## set area 
-    self.functions = [] ## cell function
-    self.inports = []   ## inport pins
-    self.cins = []      ## inport caps
-    self.clock = None   ## clock pin for flop
-    self.set = None     ## set pin for flop
-    self.reset = None   ## reset pin for flop 
-    self.cclks = []    ## clock pin cap. for flop
-    self.csets = []    ## set pin cap. for flop
-    self.crsts = []    ## reset pin cap. for flop 
-    self.outports = []  ## outport pins
-    self.flops = []     ## registers 
-    self.functions = [] ## logic/flop functions 
-    self.slope = []     ## inport slope
-    self.cslope = 0     ## inport clock slope
-    self.load = []      ## outport load
+    self.cell = None     ## cell name
+    self.area = None     ## set area 
+    self.functions = []  ## cell function
+    self.inports = []    ## inport pins
+    self.cins = []       ## inport caps
+    self.clock = None    ## clock pin for flop
+    self.set = None      ## set pin for flop
+    self.reset = None    ## reset pin for flop 
+    self.cclks = []      ## clock pin cap. for flop
+    self.csets = []      ## set pin cap. for flop
+    self.crsts = []      ## reset pin cap. for flop 
+    self.outports = []   ## outport pins
+    self.flops = []      ## registers 
+    self.functions = []  ## logic/flop functions 
+    self.slope = []      ## inport slope
+    self.cslope = 0      ## inport clock slope
+    self.load = []       ## outport load
+    self.slope_name = [] ## slope name
+    self.load_name = []  ## load name
     self.simulation_timestep = 0      ## simulation timestep 
     self.isexport = 0   ## exported or not
     self.isexport2doc = 0 ## exported to doc or not
@@ -39,6 +42,14 @@ class MyLogicCell:
     self.inport_cap = []   ## inport cap
     ## message
     self.supress_msg = None        ## supress message 
+    ## template_LUT_name
+    constraint_template_name = None
+    recovery_template_name = None
+    removal_template_name = None
+    mpw_constraint_template_name = None
+    passive_power_template_name = None
+    delay_template_name = None
+    power_template_name = None 
 
 ##                                                #
 ##-- add functions for both comb. and seq. cell --#   
@@ -108,23 +119,48 @@ class MyLogicCell:
     if((self.supress_msg.lower() == "false")or(self.supress_msg.lower() == "f")):
       print(message)
 
-  def add_slope(self, line="tmp"):
-    line = re.sub('\{','',line)
-    line = re.sub('\}','',line)
-    line = re.sub('^add_slope ','',line)
+  def add_slope(self, targetLib, line="tmp"):
     tmp_array = line.split()
     for w in tmp_array:
       self.slope.append(float(w))
     #print (self.slope)
 
-  def add_load(self, line="tmp"):
-    line = re.sub('\{','',line)
-    line = re.sub('\}','',line)
-    line = re.sub('^add_load ','',line)
+  def add_slope(self, targetLib, line="slope_name"):
     tmp_array = line.split()
-    for w in tmp_array:
-      self.load.append(float(w))
-    #print (self.load)
+    flag_match = 0
+    jlist = []
+    # search slope name from 2D slope array
+    for jlist in targetLib.slope:
+        if (jlist[-1] != tmp_array[1]):
+          continue
+        else:
+          flag_match = 1
+          break
+    if (flag_match == 0): # exit loop w/o match
+      print("cannot find slope: "+str(tmp_array[1]))
+      print(targetLib.slope)
+      my_exit()
+    self.slope = copy.deepcopy(jlist)
+    self.slope_name = self.slope.pop(-1) # delete slope name
+    self.print_msg("add slope "+self.slope_name) 
+
+  def add_load(self, targetLib, line="load_name"):
+    tmp_array = line.split()
+    flag_match = 0
+    jlist = []
+    # search load name from 2D load array
+    for jlist in targetLib.load:
+        if (jlist[-1] != tmp_array[1]):
+          continue
+        else:
+          flag_match = 1
+          break
+    if (flag_match == 0): # exit loop w/o match
+      print("cannot find load: "+str(tmp_array[1]))
+      my_exit()
+    self.load = copy.deepcopy(jlist)
+    self.load_name = self.load.pop(-1) # delete load name
+    self.print_msg("add load "+self.load_name) 
 
   def return_slope(self):
     jlist = self.slope
@@ -159,7 +195,7 @@ class MyLogicCell:
       #print("self.cell.lower:"+str(self.cell.lower()))
       #print("line.lower:"+str(line.lower()))
       if((self.cell.lower() in line.lower()) and (".subckt" in line.lower())):
-        print("Cell definition found!")
+        print("Cell definition found for: "+str(self.cell))
         #print(line)
         self.definition = line
         ## generate circuit call
@@ -297,6 +333,20 @@ class MyLogicCell:
       self.print_msg ("auto set clock slope as mininum slope.")
     else:
       self.cslope = float(tmp_array[1]) 
+
+  def gen_lut_templates(self):
+    if ((not self.slope_name) and (not self.load_name)):
+      print("slope / load are not registered!\m")
+      my_exit()
+    else:
+      self.constraint_template_name = "constraint_template_"+self.slope_name
+      self.recovery_template_name = "recovery_template_"+self.slope_name
+      self.removal_template_name = "removal_template_"+self.slope_name
+      self.mpw_constraint_template_name = "mpw_constraint_template_"+self.slope_name
+      self.passive_power_template_name = "passive_power_template_"+self.slope_name
+      self.delay_template_name = "delay_template_"+self.load_name+"_"+self.slope_name
+      self.power_template_name = "power_template_"+self.load_name+"_"+self.slope_name
+      #print("Done targetCell.gen_lut_template\m")
 
   ## this defines lowest limit of setup edge
   def add_simulation_setup_lowest(self, line="tmp"):
