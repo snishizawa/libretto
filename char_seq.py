@@ -2210,16 +2210,20 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
             is_matched += 1
         # search VDD/VSS/VNW/VPW
         if(w1.upper() == targetLib.vdd_name.upper()):
-            tmp_line += ' '+w1.upper() 
+            #tmp_line += ' '+w1.upper() 
+            tmp_line += ' VDD'
             is_matched += 1
         if(w1.upper() == targetLib.vss_name.upper()):
-            tmp_line += ' '+w1.upper() 
+            #tmp_line += ' '+w1.upper() 
+            tmp_line += ' VSS'
             is_matched += 1
         if(w1.upper() == targetLib.pwell_name.upper()):
-            tmp_line += ' '+w1.upper() 
+            #tmp_line += ' '+w1.upper() 
+            tmp_line += ' VPW'
             is_matched += 1
         if(w1.upper() == targetLib.nwell_name.upper()):
-            tmp_line += ' '+w1.upper() 
+            #tmp_line += ' '+w1.upper() 
+            tmp_line += ' VNW'
             is_matched += 1
         ## show error if this port has not matched
         if(is_matched == 0):

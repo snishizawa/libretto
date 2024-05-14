@@ -637,16 +637,20 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
           tmp_line += ' WFLOAT'+str(index_val)
           is_matched += 1
       if(w1.upper() == targetLib.vdd_name.upper()):
-          tmp_line += ' '+w1.upper() 
+          # tmp_line += ' '+w1.upper() 
+          tmp_line += ' VDD' 
           is_matched += 1
       if(w1.upper() == targetLib.vss_name.upper()):
-          tmp_line += ' '+w1.upper() 
+          # tmp_line += ' '+w1.upper() 
+          tmp_line += ' VSS' 
           is_matched += 1
       if(w1.upper() == targetLib.pwell_name.upper()):
-          tmp_line += ' '+w1.upper() 
+          # tmp_line += ' '+w1.upper() 
+          tmp_line += ' VPW' 
           is_matched += 1
       if(w1.upper() == targetLib.nwell_name.upper()):
-          tmp_line += ' '+w1.upper() 
+          # tmp_line += ' '+w1.upper() 
+          tmp_line += ' VNW' 
           is_matched += 1
       ## show error if this port has not matched
       if(is_matched == 0):
@@ -683,6 +687,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
   f.close()
 
   cmd = ['sh', spicerun]
+
   if(targetLib.runsim == "true"):
     try:
       res = subprocess.check_call(cmd)
