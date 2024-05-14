@@ -215,7 +215,16 @@ class MyLogicCell:
         
     ## if cell name is not found, show error
     if(self.definition == None):
-      print("Cell definition not found. Please use add_cell command to add your cell")
+      if((self.cell == None) and (self.cell == None)):
+        print("Cell definition not found. Please use add_cell command to add your cell")
+      elif(self.cell == None):
+        print("Cell is not defined by add_cell. Please use add_cell command to add your cell")
+      elif(self.logic == None):
+        print("Logic is not defined by add_cell. Please use add_cell command to add your cell")
+      else:
+        print("Options for add_cell command might be wrong")
+        print("Defined cell: "+self.cell)
+        print("Defined logic: "+self.logic)
       my_exit()
 
   def add_model(self, line="tmp"):
