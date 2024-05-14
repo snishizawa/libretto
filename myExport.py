@@ -864,24 +864,24 @@ def exportVerilogFlop(targetLib, targetCell):
 
         ## reset (option)
         if(targetCell.reset != None):  ## reset
-          if(re.search('PR', targetCell.reset)):  ## posedge async. reset
+          if(re.search('PR', targetCell.logic)):  ## posedge async. reset
             line=line+" or posedge "+targetCell.reset
             resetlines.append('if('+targetCell.reset+') begin\n')
             resetlines.append('  '+target_outport+'<=0;\n')
             resetlines.append('end else begin\n')
-          elif(re.search('NR', targetCell.reset)):  ## negedge async. reset
+          elif(re.search('NR', targetCell.logic)):  ## negedge async. reset
             line=str(line)+" or negedge "+targetCell.reset
             resetlines.append('if(!'+targetCell.reset+') begin\n')
             resetlines.append('  '+target_outport+'<=0;\n')
             resetlines.append('end else begin\n')
         ## set (option)
         if(targetCell.set != None):  ## reset
-          if(re.search('PS', targetCell.set)):  ## posedge async. set 
+          if(re.search('PS', targetCell.logic)):  ## posedge async. set 
             line=line+" or posedge "+targetCell.set
             setlines.append('if('+targetCell.set+') begin\n')
             setlines.append('  '+target_outport+'<=1;\n')
             setlines.append('end else begin\n')
-          elif(re.search('NS', targetCell.set)):  ## negedge async. set 
+          elif(re.search('NS', targetCell.logic)):  ## negedge async. set 
             line=line+" or negedge "+targetCell.set
             setlines.append('if(!'+targetCell.set+') begin\n')
             setlines.append('  '+target_outport+'<=1;\n')
