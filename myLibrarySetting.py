@@ -6,14 +6,6 @@ class MyLibrarySetting:
     self.isexport = 0
     self.isexport2doc = 0
     self.delay_model = "table_lookup"
-    self.runsim = "true"
-    self.mtsim = "false"
-    self.supress_msg = "false"
-    self.supress_sim_msg = "false"
-    self.supress_debug_msg = "false"
-    self.log_file = "false"
-    self.tmp_file = "__tmp__"
-    self.logf = None 
     # self.slope self.load are in 2D array
     # [[1, 2, 3, "slope1"],[2, 3, 4, "slope2"]]
     self.slope = [] 
@@ -29,6 +21,19 @@ class MyLibrarySetting:
     self.passive_power_template_lines = []
     self.delay_template_lines = []
     self.power_template_lines = []
+    ## characterizer setting 
+    self.runsim = "true"
+    self.mtsim = "false"
+    self.supress_msg = "false"
+    self.supress_sim_msg = "false"
+    self.supress_debug_msg = "false"
+    self.log_file = "false"
+    self.tmp_file = "__tmp__"
+    self.work_dir = "work"
+    self.tmp_dir = "work"
+    self.compress_result = "true" 
+    self.logf = None 
+    self.sim_nice = 19 
 
   def set_lib_name(self, line="tmp"):
     tmp_array = line.split()
@@ -240,14 +245,35 @@ class MyLibrarySetting:
     self.work_dir = tmp_array[1] 
     #print(tmp_array[1])
 
+  def set_tmp_dir(self, line="tmp"):
+    tmp_array = line.split()
+    self.tmp_dir = tmp_array[1] 
+    #print(tmp_array[1])
+
   def set_tmp_file(self, line="__tmp__"):
     tmp_array = line.split()
-    self.tmp_file = tmp_array[1] 
+    self.tmp_file = self.tmp_dir+"/"+tmp_array[1] 
+    #print(tmp_array[1])
+
+  def set_sim_nice(self, line="tmp"):
+    tmp_array = line.split()
+    self.sim_nice = tmp_array[1] 
     #print(tmp_array[1])
 
   def set_simulator(self, line="tmp"):
     tmp_array = line.split()
     self.simulator = tmp_array[1] 
+    if(re.search("ngspice", self.simulator)):
+      print("Set simulator ngspice")
+    elif(re.search("hspice", self.simulator)):
+      print("Set simulator hspice")
+    else:
+      print("Simulator "+self.simulator+" is not supported!")
+      my_exit()
+
+  def set_compress_result(self, line="True"):
+    tmp_array = line.split()
+    self.compress_result = tmp_array[1] 
     #print(tmp_array[1])
 
   def set_energy_meas_low_threshold(self, line="tmp"):
@@ -323,17 +349,17 @@ class MyLibrarySetting:
   def set_supress_message(self, line="false"):
     tmp_array = line.split()
     self.supress_msg = tmp_array[1] 
-    print(line)
+    self.print_msg(line)
 
   def set_supress_sim_message(self, line="false"):
     tmp_array = line.split()
     self.supress_sim_msg = tmp_array[1] 
-    print(line)
+    self.print_msg(line)
 
   def set_supress_debug_message(self, line="false"):
     tmp_array = line.split()
     self.supress_debug_msg = tmp_array[1] 
-    print(line)
+    self.print_msg(line)
 
   def print_error(self, message=""):
     print(message)
