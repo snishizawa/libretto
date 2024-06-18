@@ -1,0 +1,180 @@
+## dotlib file generated libretto; 
+library (SKY130_1P5V_25C){
+  delay_model : "table_lookup";
+  capacitive_load_unit (1,pF);
+  current_unit : "1mA";
+  leakage_power_unit : "1pW";
+  pulling_resistance_unit : "1Ohm";
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  voltage_map (VPWR, 1.5);
+  voltage_map (VGND, 0.0);
+  voltage_map (GND , 0.0);
+  default_cell_leakage_power : 0;
+  default_fanout_load : 1;
+  default_max_transition : 1000;
+  default_input_pin_cap : 0;
+  default_inout_pin_cap : 0;
+  default_leakage_power_density : 0;
+  default_max_fanout : 100;
+  default_output_pin_cap : 0;
+  in_place_swap_mode : match_footprint;
+  input_threshold_pct_fall : 50.0;
+  input_threshold_pct_rise : 50.0;
+  nom_process : 1;
+  nom_temperature : "25.0";
+  nom_voltage : "1.5";
+  output_threshold_pct_fall : 50.0;
+  output_threshold_pct_rise : 50.0;
+  slew_derate_from_library : 1;
+  slew_lower_threshold_pct_fall : 20.0;
+  slew_lower_threshold_pct_rise : 20.0;
+  slew_upper_threshold_pct_fall : 80.0;
+  slew_upper_threshold_pct_rise : 80.0;
+  operating_conditions (TCCOM) {
+    process : 1;
+    temperature : 25.0;
+    voltage : 1.5;
+  }
+  default_operating_conditions : TCCOM;
+  lu_table_template (constraint_template_slope2) {
+    variable_1 : constrained_pin_transition;
+    variable_2 : related_pin_transition;
+    index_1 ("0.1, 0.7, 4.9");
+    index_2 ("0.1, 0.7, 4.9");
+  }
+  lu_table_template (delay_template_load2_slope2) {
+    variable_1 : input_net_transition;
+    variable_2 : total_output_net_capacitance;
+    index_1 ("0.1, 0.7, 4.9");
+    index_2 ("0.01, 0.07, 0.49");
+  }
+  lu_table_template (recovery_template_slope2) {
+    variable_1 : related_pin_transition;    
+    variable_2 : constrained_pin_transition;
+    index_1 ("0.1, 0.7, 4.9");
+    index_2 ("0.1, 0.7, 4.9");
+  }
+  lu_table_template (removal_template_slope2) {
+    variable_1 : related_pin_transition;    
+    variable_2 : constrained_pin_transition;
+    index_1 ("0.1, 0.7, 4.9");
+    index_2 ("0.1, 0.7, 4.9");
+  }
+  lu_table_template (mpw_constraint_template_slope2) {
+    variable_1 : constrained_pin_transition;
+    index_1 ("0.1, 0.7, 4.9");
+  }
+  power_lut_template (passive_power_template_slope2) {
+    variable_1 : input_transition_time;
+    index_1 ("0.1, 0.7, 4.9");
+  }
+  power_lut_template (power_template_load2_slope2) {
+    variable_1 : input_transition_time;
+    variable_2 : total_output_net_capacitance;
+    index_1 ("0.1, 0.7, 4.9");
+    index_2 ("0.01, 0.07, 0.49");
+  }
+  input_voltage (default_VPWR_VGND_input) {
+    vil : 0.0;
+    vih : 1.5;
+    vimin : 0.0;
+    vimax : 1.5;
+  }
+  output_voltage (default_VPWR_VGND_output) {
+    vol : 0.0;
+    voh : 1.5;
+    vomin : 0.0;
+    vomax : 1.5;
+  }
+  cell (sky130_fd_sc_hd__inv_1) {
+    area : 1.0;
+    cell_leakage_power : 6.312599;
+    pg_pin (VPWR){
+      pg_type : primary_power;
+      voltage_name : "VPWR";
+    }
+    pg_pin (VGND){
+      pg_type : primary_ground;
+      voltage_name : "VGND";
+    }
+    pin (Y){
+      direction : output;
+      function : "(!A)"
+      related_power_pin : "VPWR";
+      related_ground_pin : "VGND";
+      max_capacitance : "0.49";
+      output_voltage : default_VPWR_VGND_output;
+      timing () {
+        related_pin : "A";
+        timing_sense : "negative_unate";
+        timing_type : "combinational";
+        cell_fall (delay_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.086980, 0.245128, 0.560833", \
+          "0.302916, 0.574510, 1.646490", \
+          "1.813387, 2.083019, 3.986189" \
+          );
+        }
+        fall_transition (delay_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.055171, 0.163422, 0.669480", \
+          "0.333303, 0.379015, 1.155269", \
+          "2.317061, 2.317061, 2.652201" \
+          );
+        }
+        cell_rise (delay_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.172281, 0.485371, 1.786246", \
+          "0.797034, 1.123414, 3.301117", \
+          "5.155586, 5.483078, 7.780295" \
+          );
+        }
+        rise_transition (delay_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.151742, 0.229696, 0.886984", \
+          "1.013046, 1.013050, 1.607038", \
+          "7.042749, 7.042749, 7.042748" \
+          );
+        }
+      }
+      internal_power () {
+        related_pin : "A";
+        fall_power (power_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.001073, 0.001410, 0.001226" \
+          "0.000925, 0.001066, 0.001289" \
+          "0.000899, 0.000923, 0.001036" \
+          );
+        }
+        rise_power (power_template_load2_slope2) {
+          index_1("0.1, 0.7, 4.9");
+          index_2("0.01, 0.07, 0.49");
+          values ( \
+          "0.021131, 0.020950, 0.021271" \
+          "0.155044, 0.154805, 0.154737" \
+          "1.090676, 1.090618, 1.090385" \
+          );
+        }
+      }
+    }
+    pin (A){
+      direction : input; 
+      related_power_pin : VPWR;
+      related_ground_pin : VGND;
+      max_transition : 4.9;
+      capacitance : "0.001967";
+      input_voltage : default_VPWR_VGND_input;
+    }
+  }
+}
