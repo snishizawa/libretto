@@ -1,0 +1,27 @@
+* Copyright 2020 The SkyWater PDK Authors
+*
+* Licensed under the Apache License, Version 2.0 (the "License");
+* you may not use this file except in compliance with the License.
+* You may obtain a copy of the License at
+*
+*     https://www.apache.org/licenses/LICENSE-2.0
+*
+* Unless required by applicable law or agreed to in writing, software
+* distributed under the License is distributed on an "AS IS" BASIS,
+* WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+* See the License for the specific language governing permissions and
+* limitations under the License.
+*
+* SPDX-License-Identifier: Apache-2.0
+
+
+.subckt sky130_fd_sc_hd__ebufn_1 A TE_B VGND VNB VPB VPWR Z
+X0 VGND TE_B a_193_369# VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+X1 VGND a_193_369# a_531_47# VNB sky130_fd_pr__nfet_01v8 w=650000u l=150000u
+X2 a_531_47# a_27_47# Z VNB sky130_fd_pr__nfet_01v8 w=650000u l=150000u
+X3 VPWR TE_B a_383_297# VPB sky130_fd_pr__pfet_01v8_hvt w=1e+06u l=150000u
+X4 a_383_297# a_27_47# Z VPB sky130_fd_pr__pfet_01v8_hvt w=1e+06u l=150000u
+X5 a_27_47# A VPWR VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X6 VPWR TE_B a_193_369# VPB sky130_fd_pr__pfet_01v8_hvt w=640000u l=150000u
+X7 a_27_47# A VGND VNB sky130_fd_pr__nfet_01v8 w=420000u l=150000u
+.ends
