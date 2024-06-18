@@ -1,0 +1,20 @@
+.subckt %CIRNAME% I OEN Z VDD VSS VNW VPW
+* OE
+MP1 VDD OEN oe  VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN1 VSS OEN oe  VPW %N% m=%MN% L=%LN%n W=%WN%n
+MP2 VDD oe  oeb VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN2 VSS oe  oeb VPW %N% m=%MN% L=%LN%n W=%WN%n
+* INEP
+MP10 VDD  I  INEP VNW %P% m=%MP% L=%LP%n W='2*%WP%n'
+MP11 VDD oe  INEP VNW %P% m=%MP% L=%LP%n W='2*%WP%n'
+MN10 10  oe  INEP VPW %N% m=%MN% L=%LN%n W='2*%WN%n'
+MN11 VSS  I  10   VPW %N% m=%MN% L=%LN%n W='2*%WN%n'
+* INEN
+MP20 VDD  I  20   VNW %P% m=%MP% L=%LP%n W='2*%WP%n'
+MP21 20  oeb INEN VNW %P% m=%MP% L=%LP%n W='2*%WP%n'
+MN20 VSS oeb INEN VPW %N% m=%MN% L=%LN%n W='2*%WN%n'
+MN21 VSS  I  INEN VPW %N% m=%MN% L=%LN%n W='2*%WN%n'
+* Z
+MP6 VDD INEP Z VNW %P% m=%MP% L=%LP%n W='8*%WP%n'
+MN6 VSS INEN Z VPW %N% m=%MN% L=%LN%n W='8*%WN%n'
+.ends

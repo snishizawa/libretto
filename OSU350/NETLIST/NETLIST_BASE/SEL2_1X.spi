@@ -1,0 +1,27 @@
+.subckt %CIRNAME% IN0 IN1 SEL Y VDD VSS VNW VPW
+* SELINV
+MP1 VDD SEL SELB VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN1 VSS SEL SELB VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* IN0INV
+MP2 VDD IN0 IN0B VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN2 VSS IN0 IN0B VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* IN1INV
+MP3 VDD IN1 IN1B VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN3 VSS IN1 IN1B VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* IN1TG
+MP4 Z SELB IN1B VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN4 Z SEL  IN1B VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* IN0TG
+MP5 Z SEL  IN0B VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN5 Z SELB IN0B VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* OUTINV
+MP6 Y Z VDD VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN6 Y Z VSS VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+
+.ends

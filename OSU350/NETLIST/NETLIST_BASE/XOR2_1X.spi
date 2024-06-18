@@ -1,0 +1,21 @@
+.subckt %CIRNAME% A B Y VDD VSS VNW VPW
+* AINV
+MP1 VDD A AB VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN1 VSS A AB VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* BINV
+MP2 VDD B BB VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN2 VSS B BB VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* TGB
+MP3 B AB TG VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN3 B A  TG VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* TGBB
+MP4 BB A  TG VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN4 BB AB TG VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+* OINV
+MP5 VDD TG Y VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN5 VSS TG Y VPW %N% m=%MN% L=%LN%n W=%WN%n
+.ends

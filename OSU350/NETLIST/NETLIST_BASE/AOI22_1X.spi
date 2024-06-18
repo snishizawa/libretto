@@ -1,0 +1,10 @@
+.subckt %CIRNAME% A1 A2 B1 B2 YB VDD VSS VNW VPW
+MP1 VDD A1 w1  VNW %P% m=%MP% L=%LP%n W=%WP%n
+MP2 VDD A2 w1  VNW %P% m=%MP% L=%LP%n W=%WP%n
+MP3 w1  B1 YB  VNW %P% m=%MP% L=%LP%n W=%WP%n
+MP4 w1  B2 YB  VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN1 VSS A1 w2  VPW %N% m=%MN% L=%LN%n W=%WN%n
+MN2 w2  A2 YB  VPW %N% m=%MN% L=%LN%n W=%WN%n
+MN3 VSS B1 w3  VPW %N% m=%MN% L=%LN%n W=%WN%n
+MN4 w3  B2 YB  VPW %N% m=%MN% L=%LN%n W=%WN%n
+.ends

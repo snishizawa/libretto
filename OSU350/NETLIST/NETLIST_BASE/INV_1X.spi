@@ -1,0 +1,4 @@
+.subckt %CIRNAME% A YB VDD VSS VNW VPW
+MP1 VDD A YB VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN1 VSS A YB VPW %N% m=%MN% L=%LN%n W=%WN%n
+.ends

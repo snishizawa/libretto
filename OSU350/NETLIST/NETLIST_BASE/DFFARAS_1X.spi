@@ -1,0 +1,48 @@
+.subckt %CIRNAME% CLK DATA NRST NSET Q VDD VSS VNW VPW  
+*.PININFO CLK:I DATA:I NRST:I NSET:I Q:O VNW:B VPW:B
+* CKB
+MP11 ckb CLK VDD VNW %P% L=%LP%n W=%WPMID%n
+MN11 ckb CLK VSS VPW %N% L=%LN%n W=%WNMID%n
+* CK
+MP3 ck ckb VDD VNW %P% L=%LP%n W=%WPMID%n
+MN3 ck ckb VSS VPW %N% L=%LN%n W=%WNMID%n
+* INCINV(D)
+MP12 23 DATA VDD VNW %P% L=%LP%n W=%WP%n
+MP6 mh ck 23 VNW     %P% L=%LP%n W=%WP%n
+MN2 mh ckb 22 VPW    %N% L=%LN%n W=%WN%n
+MN12 22 DATA VSS VPW %N% L=%LN%n W=%WN%n
+* MLNAND_SETN(D)
+MP15 ml NSET VDD VNW %P% L=%LP%n W=%WPMID%n
+MP4 ml mh VDD VNW    %P% L=%LP%n W=%WPMID%n
+MN4 ml mh 5 VPW      %N% L=%LN%n W=%WNMID%n
+MN15 5 NSET VSS VPW  %N% L=%LN%n W=%WNMID%n
+* MLNAND_RSTN(latch)
+MP14 21 NRST VDD VNW %P% L=%LP%n W=%WPMIN%n
+MP7 21 ml VDD VNW    %P% L=%LP%n W=%WPMIN%n
+MN7 21 ml 8 VPW      %N% L=%LN%n W=%WNMIN%n
+MN14 8 NRST VSS VPW  %N% L=%LN%n W=%WNMIN%n
+* MLTG(latch)
+MP2 mh ckb 21 VNW    %P% L=%LP%n W=%WPMIN%n
+MN6 mh ck 21 VPW     %N% L=%LN%n W=%WNMIN%n
+*TG(D)
+MP1 sh ckb ml VNW %P% L=%LP%n W=%WPMID%n
+MN5 sh ck ml VPW  %N% L=%LN%n W=%WNMID%n
+* SLNAND_NRST(D)
+MP10 sl sh VDD VNW   %P% L=%LP%n W=%WPMID%n
+MP13 sl NRST VDD VNW %P% L=%LP%n W=%WPMID%n
+MN10 sl sh 7 VPW     %N% L=%LN%n W=%WNMID%n
+MN13 7 NRST VSS VPW  %N% L=%LN%n W=%WNMID%n
+* SLNAND_NSET(latch)
+MP8 20 sl VDD VNW    %P% L=%LP%n W=%WPMIN%n
+MP16 20 NSET VDD VNW %P% L=%LP%n W=%WPMIN%n
+MN8 20 sl 6 VPW      %N% L=%LN%n W=%WNMIN%n
+MN16 6 NSET VSS VPW  %N% L=%LN%n W=%WNMIN%n
+* SLTG(latch)
+MP5 sh ck  20 VNW     %P% L=%LP%n W=%WPMIN%n
+MN1 sh ckb 20 VPW    %N% L=%LN%n W=%WNMIN%n
+
+* Q(D)
+MP9 Q sl VDD VNW %P% m=%MP% L=%LP%n W=%WP%n
+MN9 Q sl VSS VPW %N% m=%MN% L=%LN%n W=%WN%n
+
+.ENDS

@@ -1,0 +1,14 @@
+.subckt %CIRNAME% A Y VDD VSS VNW VPW
+MP1 VDD A  A1 VNW %P% m=%MP% L='3*%LP%n' W='%WP%n'
+MN1 VSS A  A1 VPW %N% m=%MN% L='3*%LN%n' W='%WN%n'
+MP2 VDD A1 A2 VNW %P% m=%MP% L='5*%LP%n' W='%WP%n'
+MN2 VSS A1 A2 VPW %N% m=%MN% L='5*%LN%n' W='%WN%n'
+MP3 VDD A2 A3 VNW %P% m=%MP% L='4*%LP%n' W='%WP%n'
+MN3 VSS A2 A3 VPW %N% m=%MN% L='4*%LN%n' W='%WN%n'
+MP4 VDD A3 A4 VNW %P% m=%MP% L='3*%LP%n' W='%WP%n'
+MN4 VSS A3 A4 VPW %N% m=%MN% L='3*%LN%n' W='%WN%n'
+MP5 VDD A4 A5 VNW %P% m=%MP% L='3*%LP%n' W='%WP%n'
+MN5 VSS A4 A5 VPW %N% m=%MN% L='3*%LN%n' W='%WN%n'
+MP6 VDD A5 Y  VNW %P% m=%MP% L='1*%LP%n' W='%WP%n'
+MN6 VSS A5 Y  VPW %N% m=%MN% L='1*%LN%n' W='%WN%n'
+.ends
