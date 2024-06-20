@@ -267,6 +267,8 @@ class MyLibrarySetting:
       print("Set simulator ngspice")
     elif(re.search("hspice", self.simulator)):
       print("Set simulator hspice")
+    elif(re.search("Xyce", self.simulator)):
+      print("Set simulator Xyce")
     else:
       print("Simulator "+self.simulator+" is not supported!")
       my_exit()
