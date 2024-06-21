@@ -540,21 +540,21 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
       outlines.append("** Delay \n")
       outlines.append("* Prop delay \n")
       if(targetHarness.target_inport_val == "01"):
-        outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) VAL='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
       elif(targetHarness.target_inport_val == "10"):
-        outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) val='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v(VIN) VAL='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
       if(targetHarness.target_outport_val == "10"):
-        outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(targetLib.logic_high_to_low_threshold_voltage)+"' fall=1 \n")
       elif(targetHarness.target_outport_val == "01"):
-        outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(targetLib.logic_low_to_high_threshold_voltage)+"' rise=1 \n")
       outlines.append("* Trans delay \n")
  
       if(targetHarness.target_outport_val == "10"):
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(targetLib.logic_threshold_high_voltage)+"' fall=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_threshold_low_voltage)+"' fall=1 \n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(targetLib.logic_threshold_high_voltage)+"' fall=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(targetLib.logic_threshold_low_voltage)+"' fall=1 \n")
       elif(targetHarness.target_outport_val == "01"):
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(targetLib.logic_threshold_low_voltage)+"' rise=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(targetLib.logic_threshold_high_voltage)+"' rise=1 \n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(targetLib.logic_threshold_low_voltage)+"' rise=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(targetLib.logic_threshold_high_voltage)+"' rise=1 \n")
  
       # get ENERGY_START and ENERGY_END for energy calculation in 2nd round 
       if(meas_energy == 0):
@@ -690,6 +690,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
     elif(re.search("hspice", targetLib.simulator)):
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
+    elif(re.search("Xyce",targetLib.simulator)):
+      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -hspice-ext all 1> "+str(spicelis)
     with open(spicerun,'w') as f:
       outlines = []
       outlines.append(cmd) 
@@ -704,6 +706,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
       except:
         print ("Failed to lunch spice")
 
+  if(re.search("Xyce",targetLib.simulator)):
+    spicelis = spicelis[:-3]+"mt0"
   # read results
   with open(spicelis,'r') as f:
     for inline in f:
@@ -711,39 +715,39 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
         inline = re.sub('\=',' ',inline)
       #targetLib.print_msg(inline)
       # search measure
-      if((re.search("prop_in_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+      if((re.search("prop_in_out", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
         sparray = re.split(" +", inline) # separate words with spaces (use re.split)
         res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
-      elif((re.search("trans_out", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+      elif((re.search("trans_out", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
         sparray = re.split(" +", inline) # separate words with spaces (use re.split)
         res_trans_out = "{:e}".format(float(sparray[2].strip()))
       if(meas_energy == 0):
-        if((re.search("energy_start", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        if((re.search("energy_start", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_energy_start = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("energy_end", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("energy_end", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_energy_end = "{:e}".format(float(sparray[2].strip()))
       if(meas_energy == 1):
-        if((re.search("q_in_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        if((re.search("q_in_dyn", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("q_out_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("q_out_dyn", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("q_vdd_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("q_vdd_dyn", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("q_vss_dyn", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("q_vss_dyn", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("i_vdd_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("i_vdd_leak", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("i_vss_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("i_vss_leak", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
-        elif((re.search("i_in_leak", inline))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
+        elif((re.search("i_in_leak", inline, re.IGNORECASE))and not (re.search("failed",inline)) and not (re.search("Error",inline))):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 
