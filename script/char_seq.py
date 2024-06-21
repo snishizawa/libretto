@@ -1965,52 +1965,52 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
 
       ## case, input 01 -> output 10
       if(((targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_outport_val == "10")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4' \n") 
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk4' \n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4' \n") 
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk4' \n")
       elif(((targetHarness.target_inport_val == "01"))and(targetHarness.target_outport_val == "10")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5' \n") 
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk5' \n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5' \n") 
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1 td='_tclk5' \n")
 
       ## case, input 01 -> output 01
       elif(((targetHarness.target_set_val == "01"))or(targetHarness.target_reset_val == "01")and(targetHarness.target_outport_val == "01")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") 
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk4'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") 
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk4'\n")
       elif(((targetHarness.target_inport_val == "01"))and(targetHarness.target_outport_val == "01")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
 
       ## case, input 10 -> output 01
       elif(((targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "01")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n")
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk4'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk4'\n")
       elif(((targetHarness.target_inport_val == "10"))and(targetHarness.target_outport_val == "01")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n")
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage))+"' rise=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage ))+"*tranmag' rise=1  td='_tclk5'\n")
 
 
       ## case, input 10 -> output 10
       elif(((targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_outport_val == "10")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n")
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk4'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk4'\n")
       elif(((targetHarness.target_inport_val == "10"))and(targetHarness.target_outport_val == "10")):
-        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n")
-        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) val='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk5'\n")
+        outlines.append(".measure Tran PROP_IN_OUT trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 \n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n")
+        outlines.append(".measure Tran TRANS_OUT trig v(VOUT) VAL='"+str(float(targetLib.logic_threshold_high)*float(targetLib.vdd_voltage))+"' fall=1\n")
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_threshold_low)*float(targetLib.vdd_voltage ))+"*tranmag' fall=1  td='_tclk5'\n")
 
       ## error
       else:
@@ -2024,55 +2024,55 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
       outlines.append("* Prop delay (C2Q)\n")
       ## case, clock 01 -> output 10
       if((targetHarness.target_clock_val == "0101")and((targetHarness.target_outport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))):
-        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
       ## case, clock 01 -> output 01
       elif((targetHarness.target_clock_val == "0101")and((targetHarness.target_outport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))):
-        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
       ## case, clock 10 -> output 10
       elif((targetHarness.target_clock_val == "1010")and((targetHarness.target_outport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))):
-        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
       ## case, clock 10 -> output 01
       elif((targetHarness.target_clock_val == "1010")and((targetHarness.target_outport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))):
-        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v(VOUT) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_CIN_OUT trig v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v(VOUT) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
   
       # measure D2C(setup)
       outlines.append("* Prop delay (D2C,setup)\n")
 
       # case, D 01 -> CLK 01
       if(((targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") # meas. 2nd clock  
       elif(((targetHarness.target_inport_val == "01"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
 
       # case, D 10 -> CLK 01
       elif(((targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk4'\n") # meas. 2nd clock  
       elif(((targetHarness.target_inport_val == "10"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") # meas. 2nd clock  
 
       # case, D 01 -> CLK 10
       elif(((targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n") # meas. 2nd clock  
       elif(((targetHarness.target_inport_val == "01"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
 
       # case, D 10 -> CLK 10
       elif(((targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk4'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk4'\n") # meas. 2nd clock  
       elif(((targetHarness.target_inport_val == "10"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
-        outlines.append("+ targ v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
+        outlines.append(".measure Tran PROP_IN_D2C trig v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n")
+        outlines.append("+ targ v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") # meas. 2nd clock  
       #else:
         #print ("Skip D2C(setup) simulation")
   
@@ -2081,20 +2081,20 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
       
       # case, CLK 01 -> D (01->)10 
       if(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
       # case, CLK 01 -> D (10->)01 
       elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "0101")):
-        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
       # case, CLK 10 -> D (01->)10 
       elif(((targetHarness.target_inport_val == "01")or(targetHarness.target_set_val == "01")or(targetHarness.target_reset_val == "01"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v("+V_in_target+") VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1  td='_tclk5'\n") 
       # case, CLK 10 -> D (10->)01 
       elif(((targetHarness.target_inport_val == "10")or(targetHarness.target_set_val == "10")or(targetHarness.target_reset_val == "10"))and(targetHarness.target_clock_val == "1010")):
-        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) val='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
-        outlines.append("+ targ v("+V_in_target+") val='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
+        outlines.append(".measure Tran PROP_IN_C2D trig v(VCIN) VAL='"+str(float(targetLib.logic_high_to_low_threshold)*float(targetLib.vdd_voltage))+"' fall=1 td='_tclk5'\n") # meas. 2nd clock
+        outlines.append("+ targ v("+V_in_target+") VAL='"+str(float(targetLib.logic_low_to_high_threshold)*float(targetLib.vdd_voltage))+"' rise=1  td='_tclk5'\n") 
       else:
         print ("Skip C2D(hold) simulation")
   
@@ -2266,6 +2266,8 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
     elif(re.search("hspice", targetLib.simulator)):
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
+    elif(re.search("Xyce", targetLib.simulator)):
+      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -hspice-ext all 1> "+str(spicelis)
     with open(spicerun,'w') as f:
       outlines = []
       outlines.append(cmd) 
@@ -2280,6 +2282,10 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
       except:
         print ("Failed to lunch spice")
 
+  # read .mt0 for Xyce
+  if(re.search("Xyce", targetLib.simulator)):
+    spicelis = spicelis[:-3]+"mt0" 
+
   # read results
   with open(spicelis,'r') as f:
     for inline in f:
@@ -2288,57 +2294,57 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
       #targetLib.print_msg(inline)
       # search measure
       if(not (re.search("warning*", inline)) and not (re.search("failed",inline)) and not (re.search("Error",inline))):
-        if(re.search("prop_in_out", inline)): 
+        if(re.search("prop_in_out", inline, re.IGNORECASE)): 
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_prop_in_out = "{:e}".format(float(sparray[2].strip()))
-        elif(re.search("prop_cin_out", inline)):
+        elif(re.search("prop_cin_out", inline, re.IGNORECASE)):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_prop_cin_out = "{:e}".format(float(sparray[2].strip()))
-        elif(re.search("trans_out", inline)):
+        elif(re.search("trans_out", inline, re.IGNORECASE)):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_trans_out = "{:e}".format(float(sparray[2].strip()))
-        elif(re.search("prop_in_d2c", inline)):
+        elif(re.search("prop_in_d2c", inline, re.IGNORECASE)):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_setup = "{:e}".format(float(sparray[2].strip()))
-        elif(re.search("prop_in_c2d", inline)):
+        elif(re.search("prop_in_c2d", inline, re.IGNORECASE)):
           sparray = re.split(" +", inline) # separate words with spaces (use re.split)
           res_hold = "{:e}".format(float(sparray[2].strip()))
         if(sim_mode == "delay"):
-          if(re.search("energy_start", inline)):
+          if(re.search("energy_start", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_energy_start = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("energy_end", inline)):
+          elif(re.search("energy_end", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_energy_end = "{:e}".format(float(sparray[2].strip()))
-          if(re.search("energy_clk_start", inline)):
+          if(re.search("energy_clk_start", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_energy_clk_start = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("energy_clk_end", inline)):
+          elif(re.search("energy_clk_end", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_energy_clk_end = "{:e}".format(float(sparray[2].strip()))
         if(sim_mode == "energy"):
-          if(re.search("q_in_dyn", inline)):
+          if(re.search("q_in_dyn", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_q_in_dyn = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("q_out_dyn", inline)):
+          elif(re.search("q_out_dyn", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_q_out_dyn = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("q_clk_dyn", inline)):
+          elif(re.search("q_clk_dyn", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_q_clk_dyn = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("q_vdd_dyn", inline)):
+          elif(re.search("q_vdd_dyn", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_q_vdd_dyn = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("q_vss_dyn", inline)):
+          elif(re.search("q_vss_dyn", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_q_vss_dyn = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("i_vdd_leak", inline)):
+          elif(re.search("i_vdd_leak", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_i_vdd_leak = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("i_vss_leak", inline)):
+          elif(re.search("i_vss_leak", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_i_vss_leak = "{:e}".format(float(sparray[2].strip()))
-          elif(re.search("i_in_leak", inline)):
+          elif(re.search("i_in_leak", inline, re.IGNORECASE)):
             sparray = re.split(" +", inline) # separate words with spaces (use re.split)
             res_i_in_leak = "{:e}".format(float(sparray[2].strip()))
 
