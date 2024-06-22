@@ -11,9 +11,21 @@ https://codeberg.org/librecell
 Maybe CharLib is better than libretto for characterization. Why we can find some similarities in the code and data structure...
 https://github.com/stineje/CharLib/tree/main
 
-## Back to libretto, how to use
-Prepare .cmd file 
-Type 
+## Back to libretto. Requirements
+(1) Simulator. We assume ngspice
+(2) Pandox, if you convert datasheet to PDF
+
+## How to use
+Use Makefile to speficy the target.
+```Makefile
+PROCESS_NAME := OSU350
+```
+Use make command to run libretto and pandoc. GEN_CMD in Makefile generate .cmd file and run libretto.
+```sh libretto_make.sh
+make
+```
+
+We can manually prepare .cmd file. Then type 
 ```sh libretto.sh
 python3 libretto.py -b [.cmd file]
 ```
@@ -44,7 +56,6 @@ Define common settings for target library.
 | set_vss_name | VSS | vss name, used to detect vss |
 | set_pwell_name | VPW | pwell name, used to detect pwell (option)|
 | set_nwell_name | VNW | nwell name, used to detect nwell (option)|
-| set_run_sim | true | true: clean working directory and run simulation (default), false: reuse previous simulation result for .lib creation|
 
 ### common characterization conditions
 Define common settings for logic cells.
@@ -61,20 +72,30 @@ Define common settings for logic cells.
 | set_logic_threshold_low | 0.2 | logic threshold for slew table (ratio: 0~1) |
 | set_logic_high_to_low_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
 | set_logic_low_to_high_threshold | 0.5 | logic threshold for delay table (ratio: 0~1) |
-| set_work_dir | work | simulation working directory |
-| set_tmp_dir | _temp_file | temporal file for dotlib generation |
-| set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
-| set_log_file | log.txt | log file same as standard output | 
-| set_run_sim | true | true: launch spice simulation. false: reuse existing simulation log | 
-| set_mt_sim | true | true: multithread simulation, all of the indexes are parallely simulated. false: single thread simulation | 
-| set_supress_sim_message | true | true: supress message. false: print message | 
-| set_supress_debug_message | true | true: supress debug message. false: print debug message | 
 | set_energy_meas_low_threshold | 0.01 | threshold to define voltage low for energy calculation (ratio:0~1) |
 | set_energy_meas_high_threshold | 0.99 | threshold to define voltage high for energy calculation (ratio:0~1) |
 | set_energy_meas_time_extent | 4 | simulation time extension for energy calculation target large output slew (real val.) |
 | set_operating_conditions | PVT_3P5V_25C | define operation condition (written into .lib) |
 | set_slope | slope_name {0.01 0.02 ...} | set of slope_name and its index (unit in set_time_unit) |
 | set_load | load_name {0.01 0.02 ...} | set of load_name and its index (unit in set_capacitance_unit)|
+
+### common characterization setting
+Define common settings for logic cells.
+(called **set command**)
+| Command | Argument example | Description |
+|:-----------|------------:|:------------|
+| set_work_dir | work | simulation working directory |
+| set_tmp_dir | _temp_dir_ | temporal dir for dotlib generation |
+| set_tmp_file | _temp_file_ | temporal file for dotlib generation |
+| set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
+| set_run_sim | true | true: clean working directory and run simulation (default), false: reuse previous simulation result for .lib creation|
+| set_mt_sim | true | true: multithread simulation, all of the indexes are parallely simulated. false: single thread simulation | 
+| set_sim_nice | value | specify nice value for simulator | 
+| set_compress_result | true | true: compress simulator log | 
+| set_supress_message | true | true: supress message. false: print message | 
+| set_supress_sim_message | true | true: supress simulation message. false: print message | 
+| set_supress_debug_message | true | true: supress debug message. false: print debug message | 
+
 
 If common characterization commands are done, use **initialize command**
 to initialize characterizor.
