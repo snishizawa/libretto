@@ -13,14 +13,14 @@ https://github.com/stineje/CharLib/tree/main
 
 ## Back to libretto. Requirements
 (1) Simulator. We assume ngspice
-(2) Pandox, if you convert datasheet to PDF
+(2) Pandox, if you want to convert datasheet in Markdown to PDF
 
 ## How to use
 Use Makefile to speficy the target.
 ```Makefile
 PROCESS_NAME := OSU350
 ```
-Use make command to run libretto and pandoc. GEN_CMD in Makefile generate .cmd file and run libretto.
+Use make command to run libretto and pandoc. Python script GEN_CMD in Makefile generates .cmd file and runs libretto.
 ```sh libretto_make.sh
 make
 ```
@@ -33,7 +33,7 @@ python3 libretto.py -b [.cmd file]
 ## How to prepare .cmd file
 .cmd file composes three blocks.
 (1) common settings for library
-(2) common settings for cell
+(2) common settings for cell (characterization conditions, settings)
 (3) individual settings for cell
 
 ### common settings for library
@@ -79,7 +79,7 @@ Define common settings for logic cells.
 | set_slope | slope_name {0.01 0.02 ...} | set of slope_name and its index (unit in set_time_unit) |
 | set_load | load_name {0.01 0.02 ...} | set of load_name and its index (unit in set_capacitance_unit)|
 
-### common characterization setting
+### common characterization settings
 Define common settings for logic cells.
 (called **set command**)
 | Command | Argument example | Description |
