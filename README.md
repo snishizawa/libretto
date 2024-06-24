@@ -13,7 +13,7 @@ https://github.com/stineje/CharLib/tree/main
 
 ## Back to libretto. Requirements
 (1) Simulator. We assume ngspice
-(2) Pandox, if you want to convert datasheet in Markdown to PDF
+(2) Pandoc, if you want to convert datasheet in Markdown to PDF
 
 ## How to use
 Use Makefile to speficy the target.
