@@ -89,7 +89,7 @@ Define common settings for logic cells.
 | set_tmp_file | _temp_file_ | temporal file for dotlib generation |
 | set_simulator | /usr/local/bin/ngspice | binary for ngspice | 
 | set_run_sim | true | true: clean working directory and run simulation (default), false: reuse previous simulation result for .lib creation|
-| set_mt_sim | true | true: multithread simulation, all of the indexes are parallely simulated. false: single thread simulation | 
+| set_num_thread | value | specify number of threads for simulation | 
 | set_sim_nice | value | specify nice value for simulator | 
 | set_compress_result | true | true: compress simulator log | 
 | set_supress_message | true | true: supress message. false: print message | 
