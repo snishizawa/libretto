@@ -118,7 +118,7 @@ def gen_char_cond(vdd, cmd_file, temperature="25", process="1.0", op_conditions=
 #      outlines.append("set_simulator /usr/local/bin/ngspice \n")
 #      outlines.append("set_simulator /eda/synopsys/hspice/T-2022.06/hspice/linux64/hspice \n")
       outlines.append("set_run_sim true\n")
-      outlines.append("set_mt_sim true\n")
+      outlines.append("set_num_thread 1\n")
 #      outlines.append("set_mt_sim false\n")
       outlines.append("set_sim_nice 19\n")
       outlines.append("set_compress_result False\n")
