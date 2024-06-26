@@ -1,4 +1,4 @@
-import argparse, re, os, shutil, subprocess
+import argparse, re, os, shutil, subprocess, threading
 from myFunc import my_exit
 
 class MyLibrarySetting:
@@ -23,7 +23,7 @@ class MyLibrarySetting:
     self.power_template_lines = []
     ## characterizer setting 
     self.runsim = "true"
-    self.mtsim = "false"
+    self.num_thread = 1 
     self.supress_msg = "false"
     self.supress_sim_msg = "false"
     self.supress_debug_msg = "false"
@@ -343,9 +343,9 @@ class MyLibrarySetting:
     self.runsim = tmp_array[1] 
     print(tmp_array[1])
 
-  def set_mt_sim(self, line="true"):
+  def set_num_thread(self, line="true"):
     tmp_array = line.split()
-    self.mtsim = tmp_array[1] 
+    self.num_thread = int(tmp_array[1]) 
     print(line)
 
   def set_supress_message(self, line="false"):

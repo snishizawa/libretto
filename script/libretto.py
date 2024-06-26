@@ -9,8 +9,8 @@ import myLogicCell as mlc
 import myExport as me
 import myExportDoc as med
 import numpy as np
-from char_comb import runCombIn1Out1, runCombIn2Out1, runCombIn3Out1, runCombIn4Out1,  runSpiceCombDelay, genFileLogic_trial1
-from char_seq import runFlop, runSpiceFlopDelay, genFileFlop_trial1
+from char_comb import runCombIn1Out1, runCombIn2Out1, runCombIn3Out1, runCombIn4Out1,  genFileLogic_trial1
+from char_seq import runFlop, genFileFlop_trial1
 from myFunc import my_exit, startup
 
 def main():
@@ -20,7 +20,7 @@ def main():
   #print(args.batch)
 
   targetLib = mls.MyLibrarySetting() 
-  startup()
+  #startup()
   #history()
 
   num_gen_file = 0
@@ -186,8 +186,8 @@ def main():
         targetLib.set_run_sim(line) 
 
       ## set_multithread_option
-      elif(line.startswith('set_mt_sim')):
-        targetLib.set_mt_sim(line) 
+      elif(line.startswith('set_num_thread')):
+        targetLib.set_num_thread(line) 
 
       ## set_simulator_nice
       elif(line.startswith('set_sim_nice')):
