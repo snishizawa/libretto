@@ -23,6 +23,7 @@ class MyLibrarySetting:
     self.power_template_lines = []
     ## characterizer setting 
     self.runsim = "true"
+    self.compress = "true"
     self.num_thread = 1 
     self.supress_msg = "false"
     self.supress_sim_msg = "false"
@@ -337,6 +338,10 @@ class MyLibrarySetting:
 
   def set_exported2doc(self):
     self.isexport2doc = 1 
+
+  def set_compress_result(self, line="true"):
+    tmp_array = line.split()
+    self.compress = tmp_array[1] 
 
   def set_run_sim(self, line="true"):
     tmp_array = line.split()

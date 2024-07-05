@@ -609,6 +609,31 @@ def characterizeFiles(targetLib, targetCell):
     ## run spice deck for flop
     return runFlop(targetLib, targetCell, expectationList2)
 
+  elif(targetCell.logic == 'DFF_NCPU_NR'):
+    print ("DFF, negative clock, positive unate, async neg-reset\n")
+    ## D1 & C01 -> Q01
+    ## D0 & C01 -> Q10
+    ## R10      -> Q10
+    ##                   [D,   C,    R,    Q]
+    expectationList2 = [['01', '1010', '1', '01'], \
+                        ['10', '1010', '1', '10'], \
+                        [ '1', '1010','10', '10']]
+    ## run spice deck for flop
+    return runFlop(targetLib, targetCell, expectationList2)
+
+  ## Not checked yet 24/05/15
+  elif(targetCell.logic == 'DFF_NCPU_PR'):
+    print ("DFF, negative clock, positive unate, async pos-reset\n")
+    ## D1 & C01 -> Q01
+    ## D0 & C01 -> Q10
+    ## R01      -> Q10
+    ##                   [D,   C,    R,    Q]
+    expectationList2 = [['01', '1010', '0', '01'], \
+                        ['10', '1010', '0', '10'], \
+                        [ '1', '1010','01', '10']]
+    ## run spice deck for flop
+    return runFlop(targetLib, targetCell, expectationList2)
+
   elif(targetCell.logic == 'DFF_PCPU_NS'):
     print ("DFF, positive clock, positive unate, async neg-set\n")
     ## D1 & C01 -> Q01
@@ -631,6 +656,31 @@ def characterizeFiles(targetLib, targetCell):
     expectationList2 = [['01','0101', '0', '01'], \
                         ['10','0101', '0', '10'], \
                         [ '0', '0101','01', '01']]
+    ## run spice deck for flop
+    return runFlop(targetLib, targetCell, expectationList2)
+
+  elif(targetCell.logic == 'DFF_NCPU_NS'):
+    print ("DFF, positive clock, positive unate, async neg-set\n")
+    ## D1 & C01 -> Q01
+    ## D0 & C01 -> Q10
+    ## S10      -> Q10
+    ##                   [D,   C,    S,    Q]
+    expectationList2 = [['01', '1010', '1', '01'], \
+                        ['10', '1010', '1', '10'], \
+                        [ '0', '1010','10', '01']]
+    ## run spice deck for flop
+    return runFlop(targetLib, targetCell, expectationList2)
+
+  ## Not checked yet 24/05/15
+  elif(targetCell.logic == 'DFF_NCPU_PS'):
+    print ("DFF, positive clock, positive unate, async pos-set\n")
+    ## D1 & C01 -> Q01
+    ## D0 & C01 -> Q10
+    ## S01      -> Q10
+    ##                   [D,   C,    S,    Q]
+    expectationList2 = [['01', '1010', '0', '01'], \
+                        ['10', '1010', '0', '10'], \
+                        [ '0', '1010','01', '01']]
     ## run spice deck for flop
     return runFlop(targetLib, targetCell, expectationList2)
 

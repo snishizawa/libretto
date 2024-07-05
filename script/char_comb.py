@@ -68,7 +68,8 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
       
     #tmp_Harness.set_leak_inportval ("1")
     #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-    spicef = "delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
+    spicef = "vt_"+str(targetLib.vdd_voltage)+"_"+str(targetLib.temperature)+"_"\
+      +"delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
       +str(tmp_inp0_val)+"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
       +"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
     # run spice and store result
@@ -121,7 +122,8 @@ def runCombIn3Out1(targetLib, targetCell, expectationList2, unate):
       
     #tmp_Harness.set_leak_inportval ("1")
     #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-    spicef = "delay1_"+str(targetCell.cell)+"_"\
+    spicef = "vt_"+str(targetLib.vdd_voltage)+"_"+str(targetLib.temperature)+"_"\
+      +"delay1_"+str(targetCell.cell)+"_"\
       +str(targetCell.inports[0])+str(tmp_inp0_val)\
       +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
       +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\
@@ -177,7 +179,8 @@ def runCombIn4Out1(targetLib, targetCell, expectationList2, unate):
       
     #tmp_Harness.set_leak_inportval ("1")
     #tmp_Harness.set_nontarget_outport (targetCell.outports[0], "01")
-    spicef = "delay1_"+str(targetCell.cell)+"_"\
+    spicef = "vt_"+str(targetLib.vdd_voltage)+"_"+str(targetLib.temperature)+"_"\
+      +"delay1_"+str(targetCell.cell)+"_"\
       +str(targetCell.inports[0])+str(tmp_inp0_val)\
       +"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
       +"_"+str(targetCell.inports[2])+str(tmp_inp2_val)\

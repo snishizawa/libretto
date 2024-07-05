@@ -1158,9 +1158,9 @@ class MyConditionsAndResults:
       outline = "\""
       for j in range(len(jlist)-1):
         #outline += str(self.list2_setup[i][j])+", "
-        targetLib.print_msg(str(i)+" "+str(j))
-        targetLib.print_msg(self.list2_setup)
-        targetLib.print_msg(str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag)))
+#        targetLib.print_msg(str(i)+" "+str(j))
+#        targetLib.print_msg(self.list2_setup)
+#        targetLib.print_msg(str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag)))
         tmp_line = str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
 

@@ -1,5 +1,5 @@
 
-import argparse, re, os, shutil, subprocess, sys, inspect 
+import argparse, re, os, shutil, subprocess, sys, inspect, datetime 
 from myFunc import my_exit
 
 def exportFiles(targetLib, targetCell, harnessList2):
@@ -15,10 +15,12 @@ def exportFiles(targetLib, targetCell, harnessList2):
   if((targetLib.isexport == 1) and (targetCell.isexport == 0) and (targetCell.isflop == 0)):
     exportHarness(targetLib, targetCell, harnessList2)
     exportVerilog(targetLib, targetCell)
+    compressFiles(targetLib, targetCell)
   ## export seq. logic
   elif((targetLib.isexport == 1) and (targetCell.isexport == 0) and (targetCell.isflop == 1)):
     exportHarnessFlop(targetLib, targetCell, harnessList2)
     exportVerilogFlop(targetLib, targetCell)
+    compressFiles(targetLib, targetCell)
 
 ## initialize export lib and verilog 
 def initLib(targetLib, targetCell):
@@ -292,7 +294,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
       outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
       outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
       outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-      targetLib.print_msg(targetCell.cclks)
+      #targetLib.print_msg(targetCell.cclks)
       outlines.append("      capacitance : \""+str(targetCell.cclks[index1])+"\";\n")
       outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
       outlines.append("      clock : true;\n") 
@@ -632,7 +634,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
       outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
       outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
       outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-      targetLib.print_msg(targetCell.crsts)
+      #targetLib.print_msg(targetCell.crsts)
       ##outlines.append("      capacitance : \""+str(targetCell.crsts[index1])+"\";\n")
       outlines.append("      capacitance : \""+str(targetCell.crsts[0])+"\";\n") # use 0 as representative
       outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
@@ -700,7 +702,7 @@ def exportHarnessFlop(targetLib, targetCell, harnessList2):
       outlines.append("      related_power_pin : \""+targetLib.vdd_name+"\";\n")
       outlines.append("      related_ground_pin : \""+targetLib.vss_name+"\";\n")
       outlines.append("      max_transition : "+str(targetCell.slope[-1])+";\n")
-      targetLib.print_msg(targetCell.csets)
+      #targetLib.print_msg(targetCell.csets)
       #outlines.append("      capacitance : \""+str(targetCell.csets[index1])+"\";\n")
       outlines.append("      capacitance : \""+str(targetCell.csets[0])+"\";\n") # use 0 as representative val
       outlines.append("      input_voltage : default_"+targetLib.vdd_name+"_"+targetLib.vss_name+"_input;\n")
@@ -907,8 +909,8 @@ def exportVerilogFlop(targetLib, targetCell):
 
 
 ## compress (Cristiano, 20240514)
-def compressFiles(targetLib, num_gen_file):
-  if(targetLib.compress == True):
+def compressFiles(targetLib, targetCell):
+  if(targetLib.compress == "true"):
     now = datetime.datetime.now()
     dt_string = now.strftime("%Y/%m/%d %H:%M:%S")
     targetLib.print_msg(dt_string+" creating "+targetCell.cell+" directory")
@@ -917,7 +919,7 @@ def compressFiles(targetLib, num_gen_file):
     targetLib.print_msg(dt_string+" compress "+targetCell.cell+" characterization result")
     cmd_str = "mv "+targetLib.work_dir+"/vt*"+targetCell.cell+"* "+targetLib.work_dir+"/"+targetCell.cell 
     subprocess.run(cmd_str, shell=True)  
-    cmd_str = "tar "+targetLib.work_dir+"/"+targetCell.cell+".tgz "+targetLib.work_dir+"/"+targetCell.cell 
+    cmd_str = "tar -zcvf "+targetLib.work_dir+"/"+targetCell.cell+".tgz "+targetLib.work_dir+"/"+targetCell.cell 
     subprocess.run(cmd_str, shell=True)  
 
 ## export harness data to .lib
