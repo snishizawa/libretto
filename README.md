@@ -316,6 +316,7 @@ exit
 2. Verilog generation for timing simulation
 3. Tristates
 4. Multiple voltage for IOs and level shifters
+5. Logic parser to find mismatch between logic definition and netlist.
 
 ## Done
 1. Speed up: Use multithreads (23Jun)
