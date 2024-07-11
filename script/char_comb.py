@@ -571,7 +571,7 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
     spicerun = spicef
     spicerun += ".run"
     if(re.search("ngspice", targetLib.simulator)):
-      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+" 2>&1 \n"
     elif(re.search("hspice", targetLib.simulator)):
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
     elif(re.search("Xyce", targetLib.simulator)):

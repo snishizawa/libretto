@@ -21,6 +21,7 @@ def runFlop(targetLib, targetCell, expectationList2):
   SET_val = None
   RST_val = None
   Q_val = None
+  QB_val = None
   
   for trial in range(len(expectationList2)):
     tmp_Harness = mcar.MyConditionsAndResults() 
@@ -40,6 +41,8 @@ def runFlop(targetLib, targetCell, expectationList2):
       D_val, CLK_val, Q_val = expectationList2[trial]
     elif(targetCell.logic == 'DFF_NCPU'):
       D_val, CLK_val, Q_val = expectationList2[trial]
+    elif(targetCell.logic == 'DFF_NCBU'):
+      D_val, CLK_val, Q_val , QB_val = expectationList2[trial]
     else:
       targetLib.print_error("Error! target cell "+str(targetCell.logic)+" is not defined!")
 
@@ -54,7 +57,12 @@ def runFlop(targetLib, targetCell, expectationList2):
       
 
     tmp_Harness.set_target_inport (targetCell.inports[0], D_val)
-    tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], Q_val)
+    if((Q_val == "01") or (Q_val == "10")):
+      tmp_Harness.set_target_outport (targetCell.outports[0], targetCell.functions[0], Q_val)
+    elif((Q_val == 'X') and ((QB_val == "01") or (QB_val == "10"))):
+      tmp_Harness.set_target_outport (targetCell.outports[1], targetCell.functions[1], QB_val)
+    else:
+      targetLib.print_error("Error! target cell "+str(targetCell.logic)+" has wrong condition for Q_val (and QB_val)!!")
     tmp_Harness.set_direction(Q_val)
     tmp_Harness.set_target_clock (targetCell.clock, CLK_val)
     #tmp_Harness.set_nontarget_outport (targetCell.outports[1])
@@ -788,6 +796,8 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
   tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
   tmp_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
   tmp_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+  tmp_q_in_dyn = tmp_q_out_dyn = tmp_q_clk_dyn =  tmp_q_vdd_dyn = tmp_q_vss_dyn = 0
+  tmp_i_in_leak = tmp_i_vdd_leak = tmp_i_vss_leak = 0
   
   ## calculate whole slope length from logic threshold
   tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
@@ -902,11 +912,11 @@ def holdSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, \
       tmp_q_vdd_dyn  = float(q_vdd_dyn)
     if(q_vss_dyn != "failed"):
       tmp_q_vss_dyn  = float(q_vss_dyn)
-    if(q_in_dyn != "failed"):
+    if(i_in_leak != "failed"):
       tmp_i_in_leak  = float(i_in_leak)
-    if(q_vdd_dyn != "failed"):
+    if(i_vdd_leak != "failed"):
       tmp_i_vdd_leak = float(i_vdd_leak)
-    if(q_vss_dyn != "failed"):
+    if(i_vss_leak != "failed"):
       tmp_i_vss_leak = float(i_vss_leak)
     if(res_setup != "failed"):
       tmp_min_setup = float(res_setup)
@@ -1095,6 +1105,8 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
   tmp_min_trans_out     = tmp_max_val_loop # temporal value for D2Qmin search
   tmp_energy_start  = tmp_max_val_loop # temporal value for D2Qmin search
   tmp_energy_end    = tmp_max_val_loop # temporal value for D2Qmin search
+  tmp_q_in_dyn = tmp_q_out_dyn = tmp_q_clk_dyn =  tmp_q_vdd_dyn = tmp_q_vss_dyn = 0
+  tmp_i_in_leak = tmp_i_vdd_leak = tmp_i_vss_leak = 0
 
   ## calculate whole slope length from logic threshold
   tmp_slope_mag = 1 / (targetLib.logic_threshold_high - targetLib.logic_threshold_low)
@@ -1206,11 +1218,11 @@ def setupSearchFlop(targetLib, targetCell, targetHarness, tmp_load, tmp_slope, t
       tmp_q_vdd_dyn  = float(q_vdd_dyn)
     if(q_vss_dyn != "failed"):
       tmp_q_vss_dyn  = float(q_vss_dyn)
-    if(q_in_dyn != "failed"):
+    if(i_in_leak != "failed"):
       tmp_i_in_leak  = float(i_in_leak)
-    if(q_vdd_dyn != "failed"):
+    if(i_vdd_leak != "failed"):
       tmp_i_vdd_leak = float(i_vdd_leak)
-    if(q_vss_dyn != "failed"):
+    if(i_vss_leak != "failed"):
       tmp_i_vss_leak = float(i_vss_leak)
     if(res_setup != "failed"):
       tmp_min_setup = float(res_setup)
@@ -1719,7 +1731,7 @@ def genFileFlop_trial1(targetLib, targetCell, targetHarness, sim_mode, cap_line,
   
     # run simulation
     if(re.search("ngspice", targetLib.simulator)):
-      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" 1> "+str(spicelis)+" 2> /dev/null \n"
+      cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" -b "+str(spicef)+" > "+str(spicelis)+" 2>&1 \n"
     elif(re.search("hspice", targetLib.simulator)):
       cmd = "nice -n "+str(targetLib.sim_nice)+" "+str(targetLib.simulator)+" "+str(spicef)+" -o "+str(spicelis)+" 2> /dev/null \n"
     elif(re.search("Xyce", targetLib.simulator)):
