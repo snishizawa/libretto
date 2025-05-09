@@ -613,7 +613,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
     ## smaller Qs: intl. Q
     ## Eintl = QsV
     if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
-      res__eintl=(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
+      res_eintl=(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
                                 abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vss_leak))/2* \
                                     (targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
     else:
