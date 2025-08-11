@@ -28,7 +28,8 @@
 .SUFFIXES:
 .SUFFIXES: .cmd .md .sp
 
-PROCESS_NAME := OSU350
+#PROCESS_NAME := OSU350
+PROCESS_NAME := IHP130
 #PROCESS_NAME := SKY130
 #PROCESS_NAME := ROHM180
 #PROCESS_NAME := GF180
@@ -74,6 +75,13 @@ ifeq ($(PROCESS_NAME),ROHM180)
     TEMP = 25
   endif
 endif
+ifeq ($(PROCESS_NAME),IHP130)
+  ifeq ($(CONDITION),TCCOM)
+  	VDD  = 1.5
+  	SPEED= TT
+    TEMP = 27
+  endif
+endif
 
 
 VDD_STR      := $(subst .,P,$(VDD))V
@@ -104,7 +112,8 @@ all:$(LIB) $(PDF)
 $(PDF):$(LIB) $(MD) 
 	/bin/pandoc $(MD) -o $@ -V documentclass=ltjarticle --pdf-engine=lualatex -V geometry:margin=1in -N --toc -V secnumdepth=4;
 
-$(LIB):prep $(MODEL) 
+#$(LIB):prep $(MODEL) 
+$(LIB): $(MODEL) 
 	python3 $(GEN_CMD) --vdd $(VDD) --temp  $(TEMP) --process $(PROCESS) --condition $(CONDITION) \
 		--p_name $(PROCESS_NAME) --lib_name $(LIB_NAME)  \
 		--path_model $(PATH_MODEL) --path_cell $(PATH_CELL);
