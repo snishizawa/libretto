@@ -1,0 +1,43 @@
+* Library name: sg13g2_stdcell
+* Cell name: sg13g2_dfrbp_2
+* View name: schematic
+* Inherited view list: spectre cmos_sch cmos.sch schematic veriloga ahdl
+* pspice dspf
+*.subckt sg13g2_dfrbp_2 CLK D Q Q_N RESET_B VDD VSS
+.subckt sg13g2_dfrbp_2 CLK D Q RESET_B VDD VSS
+XN13 net12 net2 VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN14 net5 clkneg net12 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN15 net2 net5 net11 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN16 net11 RESET_B VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN6 Q_N net5 VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=2
+XN0 Db D net10 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN1 net10 RESET_B VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN7 Db clkneg net6 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN8 net6 clkpos net9 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN9 net9 net4 net8 VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN10 net8 RESET_B VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN11 net4 net6 VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN2 clkneg CLK VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN12 net4 clkpos net5 VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN3 clkpos clkneg VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XN4 Q net1 VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=2
+XN5 net1 net5 VSS VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP14 net5 clkpos net3 VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP15 net2 net5 VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP16 net2 RESET_B VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP6 Q_N net5 VDD VDD sg13_lv_pmos w=1.12u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=2
+XP7 Db clkpos net6 VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP0 Db RESET_B VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP1 Db D VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP8 net7 net4 VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP9 net6 clkneg net7 VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP10 net6 RESET_B VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP2 clkneg CLK VDD VDD sg13_lv_pmos w=1.12u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP3 clkpos clkneg VDD VDD sg13_lv_pmos w=1.12u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP11 net4 net6 VDD VDD sg13_lv_pmos w=1.000u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP12 net4 clkneg net5 VDD sg13_lv_pmos w=1.000u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP4 Q net1 VDD VDD sg13_lv_pmos w=1.12u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=2
+XP13 net3 net2 VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XP5 net1 net5 VDD VDD sg13_lv_pmos w=1.000u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+.ends
+* End of subcircuit definition.

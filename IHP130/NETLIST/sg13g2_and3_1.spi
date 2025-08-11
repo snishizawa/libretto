@@ -1,0 +1,16 @@
+* Library name: sg13g2_stdcell
+* Cell name: sg13g2_and3_1
+* View name: schematic
+* Inherited view list: spectre cmos_sch cmos.sch schematic veriloga ahdl
+* pspice dspf
+.subckt sg13g2_and3_1 A B C VDD VSS X
+XX0 net3 C VSS VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX2 X net2 VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX5 net2 A net1 VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX6 net1 B net3 VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX3 X net2 VDD VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX1 net2 B VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX4 net2 A VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX7 net2 C VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+.ends
+* End of subcircuit definition.

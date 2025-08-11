@@ -1,0 +1,32 @@
+* Library name: sg13g2_stdcell
+* Cell name: sg13g2_dllr_1
+* View name: schematic
+* Inherited view list: spectre cmos_sch cmos.sch schematic veriloga ahdl
+* pspice dspf
+.subckt sg13g2_dllr_1 D GATE_N Q Q_N RESET_B VDD VSS
+XX19 VDD a_686_74_ a_889_92_ VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX17 a_802_508_ a_889_92_ VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX16 a_27_424_ D VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX11 VDD a_27_424_ a_611_392_ VDD sg13_lv_pmos w=1.000u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX10 a_889_92_ RESET_B VDD VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX9 a_686_74_ a_231_74_ a_802_508_ VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX7 VDD GATE_N a_231_74_ VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX6 a_1437_112_ a_889_92_ VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX5 a_611_392_ a_373_74_ a_686_74_ VDD sg13_lv_pmos w=1.000u l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX3 VDD a_889_92_ Q VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX2 a_373_74_ a_231_74_ VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX1 VDD a_1437_112_ Q_N VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX23 VSS a_1437_112_ Q_N VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX22 a_373_74_ a_231_74_ VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX21 a_889_92_ a_686_74_ a_1133_74_ VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX20 VSS GATE_N a_231_74_ VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX18 a_1437_112_ a_889_92_ VSS VSS sg13_lv_nmos w=550.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX15 a_27_424_ D VSS VSS sg13_lv_nmos w=550.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX14 a_841_118_ a_889_92_ VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX13 VSS a_27_424_ a_608_74_ VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX12 a_686_74_ a_373_74_ a_841_118_ VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX8 VSS a_889_92_ Q VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX4 a_608_74_ a_231_74_ a_686_74_ VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX0 a_1133_74_ RESET_B VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+.ends
+* End of subcircuit definition.

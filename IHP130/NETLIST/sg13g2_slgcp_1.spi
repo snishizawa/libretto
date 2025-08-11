@@ -1,0 +1,30 @@
+* Library name: sg13g2_stdcell
+* Cell name: sg13g2_slgcp_1
+* View name: schematic
+* Inherited view list: spectre cmos_sch cmos.sch schematic veriloga ahdl
+* pspice dspf
+.subckt sg13g2_slgcp_1 CLK GATE GCLK SCE VDD VSS
+XX19 GCLK a_1238_94_ VDD VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX18 a_114_112_ CLKbb a_566_74_ VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX16 CLKbb CLKb VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX14 a_1238_94_ int_GATE VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX13 a_116_424_ SCE VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX11 a_566_74_ CLKb a_722_492_ VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX9 int_GATE a_566_74_ VDD VDD sg13_lv_pmos w=1.12e-06 l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX7 CLKb CLK VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX5 a_1238_94_ CLK VDD VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX3 a_722_492_ int_GATE VDD VDD sg13_lv_pmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX2 a_114_112_ GATE a_116_424_ VDD sg13_lv_pmos w=840.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX21 int_GATE a_566_74_ VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX20 net2 CLK VSS VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX17 a_114_112_ SCE VSS VSS sg13_lv_nmos w=550.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX15 a_566_74_ CLKb a_114_112_ VSS sg13_lv_nmos w=550.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX12 a_667_80_ int_GATE VSS VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX10 a_1238_94_ int_GATE net2 VSS sg13_lv_nmos w=640.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX8 GCLK a_1238_94_ VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX6 CLKbb CLKb VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX4 a_114_112_ GATE VSS VSS sg13_lv_nmos w=550.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX1 CLKb CLK VSS VSS sg13_lv_nmos w=740.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+XX0 a_566_74_ CLKbb a_667_80_ VSS sg13_lv_nmos w=420.00n l=130.00n ng=1 ad=0 as=0 pd=0 ps=0 m=1
+.ends
+* End of subcircuit definition.

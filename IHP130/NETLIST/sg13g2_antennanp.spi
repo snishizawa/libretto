@@ -1,0 +1,10 @@
+* Library name: sg13g2_stdcell
+* Cell name: sg13g2_antennanp
+* View name: schematic
+* Inherited view list: spectre cmos_sch cmos.sch schematic veriloga ahdl
+* pspice dspf
+.subckt sg13g2_antennanp A VDD VSS
+Xdn_1 VSS A dantenna l=780n w=780n m=1
+XD0 A VDD dpantenna l=1.34u w=1.05u m=1
+.ends
+* End of subcircuit definition.
