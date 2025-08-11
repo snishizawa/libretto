@@ -304,8 +304,8 @@ class MyLibrarySetting:
   # self.slope is 2D array
   # [[1, 2, 3, "slope1"],[2, 3, 4, "slope2"]]
   def set_slope(self, line="tmp"):
-    line = re.sub('\{','',line)
-    line = re.sub('\}','',line)
+    line = re.sub(r'\{','',line)
+    line = re.sub(r'\}','',line)
     line = re.sub('^set_slope ','',line)
     tmp_array = line.split()
     tmp_name = tmp_array.pop(0) # pop out slope name
@@ -320,8 +320,8 @@ class MyLibrarySetting:
   # self.load is 2D array
   # [[1, 2, 3, "load1"],[2, 3, 4, "load2"]]
   def set_load(self, line="tmp"):
-    line = re.sub('\{','',line)
-    line = re.sub('\}','',line)
+    line = re.sub(r'\{','',line)
+    line = re.sub(r'\}','',line)
     line = re.sub('^set_load ','',line)
     tmp_array = line.split()
     tmp_name = tmp_array.pop(0) # pop out load name

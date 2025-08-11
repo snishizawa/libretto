@@ -541,6 +541,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
     #-- 1st
     tmp_tstep_mag = 20
     tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    #tmp_tstep_mag1 = tmp_tstep_mag
     targetLib.print_msg_sim("(slope/load=" + str(slope) + "/" + str(load) +") 1st stage sparse hold search, timestep: "\
                             +str(targetCell.sim_hold_timestep*tmp_tstep_mag1))
     ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
@@ -550,7 +551,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
       = holdSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                        targetCell.sim_hold_lowest, targetCell.sim_hold_highest, \
                        targetCell.sim_hold_timestep*tmp_tstep_mag1, min_setup, \
-                       3, spicef
+                       tmp_tstep_mag1, spicef
                        )
   
     #-- 2nd
@@ -566,7 +567,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
       = holdSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                        tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
                        tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1,\
-                       targetCell.sim_hold_timestep * tmp_tstep_mag1, min_setup, 3, spicef)
+                       targetCell.sim_hold_timestep * tmp_tstep_mag2, min_setup, tmp_tstep_mag2, spicef)
   
     #-- 3rd
     while(tmp_tstep_mag1 > tmp_tstep_mag ):
@@ -583,7 +584,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
         = holdSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *3 ,\
                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *1 ,\
-                         targetCell.sim_hold_timestep * tmp_tstep_mag1, min_setup, 3, spicef)
+                         targetCell.sim_hold_timestep * tmp_tstep_mag2, min_setup, tmp_tstep_mag2, spicef)
   
     #-- 4th
     tmp_tstep_mag2 = tmp_tstep_mag1
@@ -613,7 +614,7 @@ def holdSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targe
     ## smaller Qs: intl. Q
     ## Eintl = QsV
     if(abs(res_q_vdd_dyn) < abs(res_q_vss_dyn)):
-      res_eintl=(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
+      res__eintl=(abs(res_q_vdd_dyn*targetLib.vdd_voltage*targetLib.energy_meas_high_threshold-\
                                 abs((res_energy_end - res_energy_start)*(abs(res_i_vdd_leak)+abs(res_i_vss_leak))/2* \
                                     (targetLib.vdd_voltage*targetLib.energy_meas_high_threshold))))
     else:
@@ -670,6 +671,7 @@ def removalSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, ta
     #-- 1st
     tmp_tstep_mag = 20
     tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    #tmp_tstep_mag1 =  tmp_tstep_mag
     targetLib.print_msg_sim("(slope/load=" + str(slope) + "/" + str(load) +") 1st stage sparse removal search, timestep: " +str(targetCell.sim_hold_timestep*tmp_tstep_mag1))
                             
     ( tmp_thold1, tmp_min_prop_in_out,tmp_min_prop_cin_out, tmp_min_setup, tmp_min_hold, tmp_min_trans_out, \
@@ -680,7 +682,7 @@ def removalSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, ta
                        targetCell.sim_hold_highest, 
                        targetCell.sim_hold_lowest*0.5, 
                        -targetCell.sim_hold_timestep*tmp_tstep_mag1, min_setup, \
-                       3, spicef)
+                       tmp_tstep_mag1, spicef)
  
     #-- 2nd
     tmp_tstep_mag = 2
@@ -695,7 +697,7 @@ def removalSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, ta
       = holdSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                        tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
                        tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
-                       -targetCell.sim_hold_timestep * tmp_tstep_mag1, min_setup, 3, spicef)
+                       -targetCell.sim_hold_timestep * tmp_tstep_mag2, min_setup, tmp_tstep_mag2, spicef)
  
     #-- 3rd
     while(tmp_tstep_mag1 > tmp_tstep_mag ):
@@ -710,7 +712,7 @@ def removalSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, ta
         = holdSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                          tmp_thold1 + targetCell.sim_hold_timestep * tmp_tstep_mag2 *3,\
                          tmp_thold1 - targetCell.sim_hold_timestep * tmp_tstep_mag2 *2,\
-                         -targetCell.sim_hold_timestep * tmp_tstep_mag1, min_setup, 3, spicef)
+                         -targetCell.sim_hold_timestep * tmp_tstep_mag2, min_setup, tmp_tstep_mag2, spicef)
  
     #-- 4th
     tmp_tstep_mag2 = tmp_tstep_mag
@@ -955,6 +957,7 @@ def setupSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targ
     #-- 1st
     tmp_tstep_mag = 20
     tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    #tmp_tstep_mag1 =  tmp_tstep_mag
     targetLib.print_msg_sim("(slope/load=" + str(slope) + "/" + str(load) +") 1st stage sparse setup search, timestep: "\
                             +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
  
@@ -962,7 +965,7 @@ def setupSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targ
       tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
       = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                         targetCell.sim_setup_lowest, targetCell.sim_setup_highest, \
-                        targetCell.sim_setup_timestep*tmp_tstep_mag1, min_hold, 5, spicef)
+                        targetCell.sim_setup_timestep*tmp_tstep_mag1, min_hold, tmp_tstep_mag1, spicef)
  
     #-- 2nd
     tmp_tstep_mag = 2
@@ -975,7 +978,7 @@ def setupSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targ
       = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                         tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
                         tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *2,\
-                        targetCell.sim_setup_timestep * tmp_tstep_mag1, min_hold, 3, spicef)
+                        targetCell.sim_setup_timestep * tmp_tstep_mag2, min_hold, tmp_tstep_mag2, spicef)
  
     #-- 3rd
     while(tmp_tstep_mag1 > tmp_tstep_mag ):
@@ -988,7 +991,7 @@ def setupSearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, targ
         = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2  *1,\
                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2  *3,\
-                          targetCell.sim_setup_timestep * tmp_tstep_mag1, min_hold, 3, spicef)
+                          targetCell.sim_setup_timestep * tmp_tstep_mag2, min_hold, tmp_tstep_mag2, spicef)
  
     #-- 4th
     tmp_tstep_mag2 = tmp_tstep_mag
@@ -1030,12 +1033,13 @@ def recoverySearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, t
     #-- 1st
     tmp_tstep_mag = 20
     tmp_tstep_mag1 = float(targetCell.slope[-1])/float(targetCell.slope[0])* tmp_tstep_mag
+    #tmp_tstep_mag1 =  tmp_tstep_mag
     targetLib.print_msg_sim("(slope/load=" + str(slope) + "/" + str(load) +") 1st stage sparse recovery search, timestep: " +str(targetCell.sim_setup_timestep*tmp_tstep_mag1))
     ( tmp_tsetup1, tmp_min_prop_in_out, _, _, _, tmp_min_trans_out, \
       tmp_energy_start, tmp_energy_end, _, _, _, _, _, _, _, _, _, _) \
       = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                         targetCell.sim_setup_lowest-slope, targetCell.sim_setup_highest, \
-                        targetCell.sim_setup_timestep*tmp_tstep_mag1, min_hold, 3, spicef)
+                        targetCell.sim_setup_timestep*tmp_tstep_mag1, min_hold, tmp_tstep_mag1, spicef)
     #-- 2nd
     tmp_tstep_mag = 2
     tmp_tstep_mag2 = tmp_tstep_mag1 
@@ -1046,7 +1050,7 @@ def recoverySearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, t
       = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                         tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
                         tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *2,\
-                        targetCell.sim_setup_timestep * tmp_tstep_mag1, min_hold, 3, spicef)
+                        targetCell.sim_setup_timestep * tmp_tstep_mag2, min_hold, tmp_tstep_mag2, spicef)
   
     #-- 3rd
     while(tmp_tstep_mag1 > tmp_tstep_mag ):
@@ -1058,7 +1062,7 @@ def recoverySearchFlop4timesSingle(pool_sema, threadid, targetLib, targetCell, t
         = setupSearchFlop(targetLib, targetCell, targetHarness, load, slope, \
                           tmp_tsetup1 - targetCell.sim_setup_timestep * tmp_tstep_mag2 *1,\
                           tmp_tsetup1 + targetCell.sim_setup_timestep * tmp_tstep_mag2 *3,\
-                          targetCell.sim_setup_timestep * tmp_tstep_mag1, min_hold, 3, spicef)
+                          targetCell.sim_setup_timestep * tmp_tstep_mag2, min_hold, tmp_tstep_mag2, spicef)
   
     #-- 4th
     tmp_tstep_mag2 = tmp_tstep_mag

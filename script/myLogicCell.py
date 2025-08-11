@@ -345,7 +345,7 @@ class MyLogicCell:
 
   def gen_lut_templates(self):
     if ((not self.slope_name) and (not self.load_name)):
-      print("slope / load are not registered!\m")
+      print("slope / load are not registered!\n")
       my_exit()
     else:
       self.constraint_template_name = "constraint_template_"+self.slope_name

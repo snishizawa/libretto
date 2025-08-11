@@ -388,7 +388,8 @@ def genFileLogic_trial1(targetLib, targetCell, targetHarness, meas_energy, cap_l
       outlines.append(".param _tstart = slew\n")
       outlines.append(".param _tend = '_tstart + _tslew'\n")
                   #outlines.append(".param _tsimend = '_tslew * 10000' \n")
-      outlines.append(".param _tsimend = '10 * _tslew + 1us' \n")
+      #outlines.append(".param _tsimend = '10 * _tslew + 1us' \n")
+      outlines.append(".param _tsimend = '25 * _tslew ' \n")
  
       outlines.append(".param _Energy_meas_end_extent = "+str(targetLib.energy_meas_time_extent)+"\n")
       outlines.append(" \n")
