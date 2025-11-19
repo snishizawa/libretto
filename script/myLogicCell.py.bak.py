@@ -1,29 +1,26 @@
 import argparse, re, os, shutil, subprocess, inspect
-import copy
 
 from myFunc import my_exit
 
 class MyLogicCell:
   def __init__ (self):
-    self.cell = None     ## cell name
-    self.area = None     ## set area 
-    self.functions = []  ## cell function
-    self.inports = []    ## inport pins
-    self.cins = []       ## inport caps
-    self.clock = None    ## clock pin for flop
-    self.set = None      ## set pin for flop
-    self.reset = None    ## reset pin for flop 
-    self.cclks = []      ## clock pin cap. for flop
-    self.csets = []      ## set pin cap. for flop
-    self.crsts = []      ## reset pin cap. for flop 
-    self.outports = []   ## outport pins
-    self.flops = []      ## registers 
-    self.functions = []  ## logic/flop functions 
-    self.slope = []      ## inport slope
-    self.cslope = 0      ## inport clock slope
-    self.load = []       ## outport load
-    self.slope_name = [] ## slope name
-    self.load_name = []  ## load name
+    self.cell = None    ## cell name
+    self.area = None    ## set area 
+    self.functions = [] ## cell function
+    self.inports = []   ## inport pins
+    self.cins = []      ## inport caps
+    self.clock = None   ## clock pin for flop
+    self.set = None     ## set pin for flop
+    self.reset = None   ## reset pin for flop 
+    self.cclks = []    ## clock pin cap. for flop
+    self.csets = []    ## set pin cap. for flop
+    self.crsts = []    ## reset pin cap. for flop 
+    self.outports = []  ## outport pins
+    self.flops = []     ## registers 
+    self.functions = [] ## logic/flop functions 
+    self.slope = []     ## inport slope
+    self.cslope = 0     ## inport clock slope
+    self.load = []      ## outport load
     self.simulation_timestep = 0      ## simulation timestep 
     self.isexport = 0   ## exported or not
     self.isexport2doc = 0 ## exported to doc or not
@@ -42,14 +39,6 @@ class MyLogicCell:
     self.inport_cap = []   ## inport cap
     ## message
     self.supress_msg = None        ## supress message 
-    ## template_LUT_name
-    constraint_template_name = None
-    recovery_template_name = None
-    removal_template_name = None
-    mpw_constraint_template_name = None
-    passive_power_template_name = None
-    delay_template_name = None
-    power_template_name = None 
 
 ##                                                #
 ##-- add functions for both comb. and seq. cell --#   
@@ -119,51 +108,52 @@ class MyLogicCell:
     if((self.supress_msg.lower() == "false")or(self.supress_msg.lower() == "f")):
       print(message)
 
-  def add_slope(self, targetLib, line="tmp"):
+  # self.slope is 2D array
+  # [[1, 2, 3, "slope1"],[2, 3, 4, "slope2"]]
+  def add_slope(self, line="tmp"):
+    line = re.sub('\{','',line)
+    line = re.sub('\}','',line)
+    line = re.sub('^add_slope ','',line)
     tmp_array = line.split()
+    tmp_name = tmp_array.pop(0) # pop out slope name
+    tmp_slope = [] 
     for w in tmp_array:
-      self.slope.append(float(w))
+      #self.slope.append(float(w))
+      tmp_slope.append(float(w))
+    tmp_slope.append(tmp_name)
+    self.slope.append(tmp_slope)
     #print (self.slope)
 
-  def add_slope(self, targetLib, line="slope_name"):
+  # self.load is 2D array
+  # [[1, 2, 3, "load1"],[2, 3, 4, "load2"]]
+  def add_load(self, line="tmp"):
+    line = re.sub('\{','',line)
+    line = re.sub('\}','',line)
+    line = re.sub('^add_load ','',line)
     tmp_array = line.split()
+    tmp_name = tmp_array.pop(0) # pop out load name
+    tmp_load = [] 
+    for w in tmp_array:
+      #self.load.append(float(w))
+      tmp_load.append(float(w))
+    tmp_load.append(tmp_name)
+    self.load.append(tmp_load)
+    #print (self.load)
+
+  def return_slope(self, line="slope_name"):
     flag_match = 0
     jlist = []
     # search slope name from 2D slope array
-    for jlist in targetLib.slope:
-        if (jlist[-1] != tmp_array[1]):
+    for jlist in self.slope:
+        if (jlist[-1] != line):
           continue
         else:
           flag_match = 1
           break
     if (flag_match == 0): # exit loop w/o match
-      print("cannot find slope: "+str(tmp_array[1]))
-      print(targetLib.slope)
+      print("cannot find slope:"+str(line))
       my_exit()
-    self.slope = copy.deepcopy(jlist)
-    self.slope_name = self.slope.pop(-1) # delete slope name
-    self.print_msg("add slope "+self.slope_name) 
-
-  def add_load(self, targetLib, line="load_name"):
-    tmp_array = line.split()
-    flag_match = 0
-    jlist = []
-    # search load name from 2D load array
-    for jlist in targetLib.load:
-        if (jlist[-1] != tmp_array[1]):
-          continue
-        else:
-          flag_match = 1
-          break
-    if (flag_match == 0): # exit loop w/o match
-      print("cannot find load: "+str(tmp_array[1]))
-      my_exit()
-    self.load = copy.deepcopy(jlist)
-    self.load_name = self.load.pop(-1) # delete load name
-    self.print_msg("add load "+self.load_name) 
-
-  def return_slope(self):
-    jlist = self.slope
+    jlist.pop(-1) # delete slope name
     outline = "(\""
     self.lut_prop = []
     for j in range(len(jlist)-1):
@@ -173,6 +163,19 @@ class MyLogicCell:
 
   def return_load(self):
     jlist = self.load
+    flag_match = 0
+    jlist = []
+    # search load name from 2D load array
+    for jlist in self.load:
+        if (jlist[-1] != line):
+          continue
+        else:
+          flag_match = 1
+          break
+    if (flag_match == 0): # exit loop w/o match
+      print("cannot find load:"+str(line))
+      my_exit()
+    jlist.pop(-1) # delete load name
     outline = "(\""
     self.lut_prop = []
     for j in range(len(jlist)-1):
@@ -195,7 +198,7 @@ class MyLogicCell:
       #print("self.cell.lower:"+str(self.cell.lower()))
       #print("line.lower:"+str(line.lower()))
       if((self.cell.lower() in line.lower()) and (".subckt" in line.lower())):
-        print("Cell definition found for: "+str(self.cell))
+        print("Cell definition found!")
         #print(line)
         self.definition = line
         ## generate circuit call
@@ -215,16 +218,7 @@ class MyLogicCell:
         
     ## if cell name is not found, show error
     if(self.definition == None):
-      if((self.cell == None) and (self.cell == None)):
-        print("Cell definition not found. Please use add_cell command to add your cell")
-      elif(self.cell == None):
-        print("Cell is not defined by add_cell. Please use add_cell command to add your cell")
-      elif(self.logic == None):
-        print("Logic is not defined by add_cell. Please use add_cell command to add your cell")
-      else:
-        print("Options for add_cell command might be wrong")
-        print("Defined cell: "+self.cell)
-        print("Defined logic: "+self.logic)
+      print("Cell definition not found. Please use add_cell command to add your cell")
       my_exit()
 
   def add_model(self, line="tmp"):
@@ -233,10 +227,11 @@ class MyLogicCell:
 
   def add_simulation_timestep(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 1/10 of min slope
-    if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-      self.simulation_timestep = float(self.slope[0])/10 
-      self.print_msg ("auto set simulation timestep")
+    ## if auto, use 1/10 of min slope
+    if (tmp_array[1] == 'auto'):
+      #self.simulation_timestep = float(self.slope[0])/10 
+      self.simulation_timestep = self.search_min_slope(line) / 10 
+      self.print_msg ("auto set simulation timestep: "+str(self.simulation_timestep))
     else:
       self.simulation_timestep = float(tmp_array[1])
 
@@ -334,91 +329,114 @@ class MyLogicCell:
     # do not use print_msg 
     print ("finish add_flop")
 
+  def search_min_slope(self, line="tmp"):
+    tmp_array = line.split()
+    flag_match = 0
+    jlist = []
+    # search slope name from 2D slope array
+    for jlist in self.slope:
+        if (jlist[-1] != tmp_array[2]):
+          continue
+        else:
+          flag_match = 1
+          break
+    if (flag_match == 0): # exit loop w/o match
+      print("cannot find slope:"+str(line))
+      my_exit()
+    return float(jlist[0]) 
+    
+  def search_max_slope(self, line="tmp"):
+    tmp_array = line.split()
+    flag_match = 0
+    jlist = []
+    # search slope name from 2D slope array
+    for jlist in self.slope:
+        if (jlist[-1] != tmp_array[2]):
+          continue
+        else:
+          flag_match = 1
+          break
+    if (flag_match == 0): # exit loop w/o match
+      print("cannot find slope:"+str(line))
+      my_exit()
+    return float(jlist[-2]) 
+    
+
   def add_clock_slope(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use mininum slope
+    ## if auto, and slope is defined, use mininum slope
     if (tmp_array[1] == 'auto'):
-      self.cslope = float(self.slope[0]) 
-      self.print_msg ("auto set clock slope as mininum slope.")
+      self.cslope = self.search_min_slope(line)
+      self.print_msg ("auto set clock slope "+str(self.cslope)+" from slope "+str(tmp_array[2])+" of mininum slope.")
+ 
     else:
       self.cslope = float(tmp_array[1]) 
-
-  def gen_lut_templates(self):
-    if ((not self.slope_name) and (not self.load_name)):
-      print("slope / load are not registered!\n")
-      my_exit()
-    else:
-      self.constraint_template_name = "constraint_template_"+self.slope_name
-      self.recovery_template_name = "recovery_template_"+self.slope_name
-      self.removal_template_name = "removal_template_"+self.slope_name
-      self.mpw_constraint_template_name = "mpw_constraint_template_"+self.slope_name
-      self.passive_power_template_name = "passive_power_template_"+self.slope_name
-      self.delay_template_name = "delay_template_"+self.load_name+"_"+self.slope_name
-      self.power_template_name = "power_template_"+self.load_name+"_"+self.slope_name
-      #print("Done targetCell.gen_lut_template\m")
 
   ## this defines lowest limit of setup edge
   def add_simulation_setup_lowest(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 10x of max slope 
+    ## if auto, use 10x of max slope 
     ## "10" should be the same value of tstart1 and tclk5 in spice 
-    if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-      self.sim_setup_lowest = float(self.slope[-1]) * -10 
-      self.print_msg ("auto set setup simulation time lowest limit")
+    if (tmp_array[1] == 'auto'):
+      self.sim_setup_lowest = self.search_max_slope(line) * -10 
+      self.print_msg ("auto set setup simulation time lowest limit: "+str(self.sim_setup_lowest))
     else:
       self.sim_setup_lowest = float(tmp_array[1]) 
       
   ## this defines highest limit of setup edge
   def add_simulation_setup_highest(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 10x of max slope 
-    if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
-      self.sim_setup_highest = float(self.slope[-1]) * 10 
-      self.print_msg ("auto set setup simulation time highest limit")
+    ## if auto, use 10x of max slope 
+    if (tmp_array[1] == 'auto'):
+      self.sim_setup_lowest = self.search_max_slope(line) * 10 
+      self.print_msg ("auto set setup simulation time highest limit: "+str(self.sim_setup_highest))
     else:
       self.sim_setup_highest = float(tmp_array[1])
       
   def add_simulation_setup_timestep(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 1/10x min slope
-    if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-      self.sim_setup_timestep = float(self.slope[0])/10
-      self.print_msg ("auto set setup simulation timestep")
+    ## if auto, use 1/10x min slope
+    if (tmp_array[1] == 'auto'):
+      self.sim_setup_timestep = self.search_min_slope(line) / 10 
+      self.print_msg ("auto set setup simulation timestep: "+str(self.sim_setup_highest))
     else:
       self.sim_setup_timestep = float(tmp_array[1])
       
   ## this defines lowest limit of hold edge
   def add_simulation_hold_lowest(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use very small val. 
+    ## if auto, use very small val. 
     #remove# if hold is less than zero, pwl time point does not be incremental
     #remove# and simulation failed
-    if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+    if (tmp_array[1] == 'auto'):
       #self.sim_hold_lowest = float(self.slope[-1]) * -5 
-      self.sim_hold_lowest = float(self.slope[-1]) * -1 
+      #self.sim_hold_lowest = float(self.slope[-1]) * -10 
       #self.sim_hold_lowest = float(self.slope[-1]) * 0.001 
-      self.print_msg ("auto set hold simulation time lowest limit")
+      self.sim_hold_lowest = self.search_min_slope(line) * -10 
+      self.print_msg ("auto set hold simulation time lowest limit: "+str(self.sim_hold_lowest))
     else:
       self.sim_hold_lowest = float(tmp_array[1])
       
   ## this defines highest limit of hold edge
   def add_simulation_hold_highest(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 5x of max slope 
+    ## if auto,  use 5x of max slope 
     ## value should be smaller than "tmp_max_val_loop" in holdSearchFlop
-    if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
+    if (tmp_array[1] == 'auto'):
       #self.sim_hold_highest = float(self.slope[-1]) * 5 
-      self.sim_hold_highest = float(self.slope[-1]) * 10 
-      self.print_msg ("auto set hold simulation time highest limit")
+      #self.sim_hold_highest = float(self.slope[-1]) * 10 
+      self.sim_hold_highest = self.search_max_slope(line) * 10 
+      self.print_msg ("auto set hold simulation time highest limit: "+str(self.sim_hold_highest))
     else:
       self.sim_hold_highest = float(tmp_array[1])
       
   def add_simulation_hold_timestep(self, line="tmp"):
     tmp_array = line.split()
-    ## if auto, amd slope is defined, use 1/10x min slope
-    if ((tmp_array[1] == 'auto') and (self.slope[0] != None)):
-      self.sim_hold_timestep = float(self.slope[0])/10 
-      self.print_msg ("auto set hold simulation timestep")
+    ## if auto,  use 1/10x min slope
+    if (tmp_array[1] == 'auto'):
+      #self.sim_hold_timestep = float(self.slope[0])/10 
+      self.sim_hold_timestep = self.search_min_slope(line) / 10 
+      self.print_msg ("auto set hold simulation timestep: "+str(self.sim_hold_timestep))
     else:
       self.sim_hold_timestep = float(tmp_array[1])
 
@@ -439,7 +457,7 @@ class MyLogicCell:
           self.cclks.append(str("{:5f}".format((tmp_cin / 2)/targetLib.capacitance_mag)))
           tmp_cin = 0
         tmp_index += 1
-        #self.print_msg("stored cins:"+str(tmp_index)+" for clk")
+        self.print_msg("stored cins:"+str(tmp_index)+" for clk")
       elif((port.lower() == 'reset')or(port.lower() == 'rst')):
         tmp_cin += float(targetHarness.cin) # .cin stores rst cap. 
         ## if this is (2n+1) then store averaged 
@@ -449,7 +467,7 @@ class MyLogicCell:
           self.crsts.append(str("{:5f}".format((tmp_cin / 2)/targetLib.capacitance_mag)))
           tmp_cin = 0
         tmp_index += 1
-        #self.print_msg("stored cins:"+str(tmp_index)+" for rst")
+        self.print_msg("stored cins:"+str(tmp_index)+" for rst")
       elif(port.lower() == 'set'):
         tmp_cin += float(targetHarness.cin) # .cin stores set cap.
         ## if this is (2n+1) then store averaged 
@@ -459,7 +477,7 @@ class MyLogicCell:
           self.csets.append(str("{:5f}".format((tmp_cin / 2)/targetLib.capacitance_mag)))
           tmp_cin = 0
         tmp_index += 1
-        #self.print_msg("stored cins:"+str(tmp_index)+" for set")
+        self.print_msg("stored cins:"+str(tmp_index)+" for set")
       else: 
         tmp_cin += float(targetHarness.cin) # else, .cin stores inport cap.
         ## if this is (2n+1) then store averaged 
@@ -469,6 +487,6 @@ class MyLogicCell:
           self.cins.append(str("{:5f}".format((tmp_cin / 2)/targetLib.capacitance_mag)))
           tmp_cin = 0
         tmp_index += 1
-        #self.print_msg("stored cins:"+str(tmp_index)+" for data")
-      #self.print_msg("stored cins:"+str(tmp_index))
+        self.print_msg("stored cins:"+str(tmp_index)+" for data")
+      self.print_msg("stored cins:"+str(tmp_index))
 

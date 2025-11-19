@@ -313,6 +313,7 @@ class MyLibrarySetting:
     for w in tmp_array:
       #self.slope.append(float(w))
       tmp_slope.append(float(w))
+    tmp_slope.sort() # sort values ascending order
     tmp_slope.append(tmp_name)
     self.slope.append(tmp_slope)
     # print (self.slope)
@@ -327,8 +328,8 @@ class MyLibrarySetting:
     tmp_name = tmp_array.pop(0) # pop out load name
     tmp_load = [] 
     for w in tmp_array:
-      #self.load.append(float(w))
       tmp_load.append(float(w))
+    tmp_load.sort() # sort values ascending order
     tmp_load.append(tmp_name)
     self.load.append(tmp_load)
     # print (self.load)
@@ -346,12 +347,12 @@ class MyLibrarySetting:
   def set_run_sim(self, line="true"):
     tmp_array = line.split()
     self.runsim = tmp_array[1] 
-    print(tmp_array[1])
+    #print(tmp_array[1])
 
   def set_num_thread(self, line="true"):
     tmp_array = line.split()
     self.num_thread = int(tmp_array[1]) 
-    print(line)
+    #print(line)
 
   def set_supress_message(self, line="false"):
     tmp_array = line.split()
