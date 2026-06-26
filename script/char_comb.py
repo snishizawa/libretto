@@ -78,7 +78,7 @@ def runCombIn2Out1(targetLib, targetCell, expectationList2, unate):
 #      +str(tmp_inp0_val)+"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
 #      +"_"+str(targetCell.outports[0])+str(tmp_outp0_val)
     tmp_Harness.set_spicef("vt_"+str(targetLib.vdd_voltage)+"_"+str(targetLib.temperature)+"_"\
-      +"delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[1])\
+      +"delay1_"+str(targetCell.cell)+"_"+str(targetCell.inports[0])\
       +str(tmp_inp0_val)+"_"+str(targetCell.inports[1])+str(tmp_inp1_val)\
       +"_"+str(targetCell.outports[0])+str(tmp_outp0_val))
     # run spice and store result

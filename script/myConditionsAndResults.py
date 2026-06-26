@@ -30,9 +30,7 @@ class MyConditionsAndResults:
     self.iternum = None               ## simulation iteration num for seq. cell 
     self.spicef = None                ## spice file (part)
     self.spicefo = None               ## spice file (full)
-    self.is_delay_energy = "None"     ## "delay or energy" 
-    self.mode = "None"                ## "setup" "hold" "recov" "remov" 
-    self.pwlmode = "None"             ## set pwlmode for DATA/CLK/RST/SET. default is "default"
+    self.is_delay_energy = "None"     ## spice file (full)
 
   def set_target_load(self, load = None):
     self.target_load = load 
@@ -76,13 +74,13 @@ class MyConditionsAndResults:
     outlines.append(".param load ="+str(self.target_load)+str(targetLib.capacitance_unit)+"\n")
     outlines.append(".param slope ="+str(self.target_slope * self.slope_mag)+str(targetLib.time_unit)+"\n")
     outlines.append(".temp "+str(targetLib.temperature)+"\n" )
+    outlines.append(".tran "+str(targetCell.simulation_timestep)+str(targetLib.time_unit)+" '_tsimend'\n")
     return outlines
   
   def get_spice_lines_comb(self, targetLib, targetCell):
     outlines = []
     outlines.append(".param tunit ="+str(targetCell.slope[-1])+str(targetLib.time_unit)+"\n" )
     outlines.append(".param _tsimend ='20 * tunit\n" )
-    outlines.append(".tran "+str(targetCell.simulation_timestep)+str(targetLib.time_unit)+" '_tsimend'\n")
     return outlines
   
   def get_spice_lines_comb_energy(self, targetLib, targetCell):
@@ -110,41 +108,35 @@ class MyConditionsAndResults:
   
   def check_time_order(self, tmp_min_time=0.00001, str_fwd="0", str_adv="0", val_fwd=0, val_adv=0):
     if(val_adv > val_fwd):
-      print("Warning!! Order "+str(str_adv)+" ("+str(f'{val_adv:.4f}')+") -> "+str(str_fwd)+" ("+str(f'{val_fwd:.4f}')+") is not correct!")
-      #print("spice file: "+str(self.spicefo))
-      #val_fwd = val_adv + tmp_min_time 
-      return -1
+      print("Warning!! Order "+str(str_adv)+" ("+str(val_adv)+") -> "+str(str_fwd)+" ("+str(val_fwd)+") is not correct, check input condition!")
+      val_fwd = val_adv + tmp_min_time 
     
-    return 0
+    return val_fwd
 
-  def round_down_pwltime(self, targetCell, pwltime):
-    return (int(pwltime/targetCell.simulation_timestep)) * targetCell.simulation_timestep
-
-  def get_spice_lines_pwltime(self, targetLib, targetCell, pwlmode="default"):
-    tmp_min_time = targetCell.simulation_timestep
+  def get_spice_lines_pwltime(self, targetLib, targetCell,mode="default"):
+    tmp_min_time = targetCell.slope[-1] / 100
     tmp_tunit = targetCell.slope[-1]  
     tmp_cslope = targetCell.cslope
     tmp_slope = self.target_slope   
     tmp_tsetup = self.target_tsetup 
     tmp_thold = self.target_thold   
-    error_sum = 0
 
     ## define time for pwl
-    if(pwlmode == "default"):
+    if(mode == "default"):
       tmp_tclk1 =  tmp_slope                                 # ^ first clock
       tmp_tclk2 =  tmp_tclk1 + tmp_cslope                    # | 
       tmp_tclk3 =  tmp_tclk2 + tmp_tunit                     # | 
       tmp_tclk4 =  tmp_tclk3 + tmp_cslope                    # v ^ Recovery 
       tmp_tclk5 =  tmp_tclk4 + tmp_tunit                     #   V Removal    
-      tmp_tstart1 = tmp_tclk5 + tmp_tunit * 10 + tmp_tsetup  # ^ data input start (variable) 
+      tmp_tstart1 = tmp_tclk5 + tmp_tunit * 10 + tmp_tsetup  # ^ data input start 
       tmp_tstart2 = tmp_tstart1 + tmp_slope                  # v varied w/ dedge
-      tmp_tend1 =  tmp_tstart2 + tmp_thold                   # ^ data input end (variable)
+      tmp_tend1 =  tmp_tstart2 + tmp_tunit + tmp_thold       # ^ data input end
       tmp_tend2 =  tmp_tend1 + tmp_slope                     # v varied w/ dedge
       tmp_tclk6 =  tmp_tclk4 + tmp_tunit * 10                # ^ second clock
       tmp_tclk7 =  tmp_tclk6 + tmp_cslope                    # v 
       tmp_tsimend = tmp_tend2 + tmp_tunit * 50 * self.tsimendmag
-    elif(pwlmode == "LR_mode1"):
-      print("this pwlmode is not supported")
+    elif(mode == "LR_mode1"):
+      print("this mode is not supported")
                         ##-- LR mode1
       #outlines.append(".param _tclk1 = 100n \n")                # ^ first clock
       #outlines.append(".param _tclk2 = '_tclk1 + cslope '\n")    # | 
@@ -159,8 +151,8 @@ class MyConditionsAndResults:
       #outlines.append(".param _tclk7 = '_tclk6 + cslope '\n")           # v 
       #outlines.append(".param _tsimend = '_tend2 + 200n' \n")
 
-    elif(pwlmode == "LR_mode2"):
-      print("this pwlmode is not supported")
+    elif(mode == "LR_mode2"):
+      print("this mode is not supported")
       #                  #-- LR mode2
       #outlines.append(".param _tclk1 = 50n \n")                # ^ first clock
       #outlines.append(".param _tclk2 = '_tclk1 + cslope '\n")    # | 
@@ -175,8 +167,8 @@ class MyConditionsAndResults:
       #outlines.append(".param _tclk7 = '_tclk6 + cslope '\n")           # v 
       #outlines.append(".param _tsimend = '_tclk7 + 50n' \n")
 
-    elif(pwlmode == "LR_mode3"):
-      print("this pwlmode is not supported")
+    elif(mode == "LR_mode3"):
+      print("this mode is not supported")
 
                         #-- LR mode3
 #      outlines.append(".param _tclk1 = 50n \n")                # ^ first clock
@@ -192,76 +184,57 @@ class MyConditionsAndResults:
 #      outlines.append(".param _tclk7 = '_tclk6 + cslope '\n")           # v 
 #      outlines.append(".param _tsimend = '_tclk7 + 50n' \n")
     else:
-      my_exit("Non-registered pwlmode:"+str(pwlmode)+"\n")
+      my_exit("Non-registered pwltime mode:"+str(mode)+"\n")
 
     ## check time order
     ## DATA 
     if((self.target_inport_val == "01") or (self.target_inport_val == "10")):
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
-      
-      ## activate this check only for setup or recovery simulation 
-      ## hold (and removal) simulation try to find simulation failure -> let simulation fail 
-      if((self.mode == "setup") or (self.mode == "recov")):
-        error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tend2"     , tmp_tsimend, tmp_tend2)
-
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tstart1", "tmp_tclk4"     , tmp_tstart1, tmp_tclk4)
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tend1", "tmp_tstart2"     , tmp_tend1, tmp_tstart2)
+      tmp_tclk5 =   self.check_time_order (tmp_min_time, "tmp_tclk5",   "tmp_tclk4"     , tmp_tclk5, tmp_tclk4)     
+      tmp_tstart1 = self.check_time_order (tmp_min_time, "tmp_tstart1", "tmp_tclk5"     , tmp_tstart1, tmp_tclk5)
+      tmp_tstart2 = self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
+      tmp_tend1 =   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
+      tmp_tend2 =   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
+      tmp_tsimend = self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tend2"     , tmp_tsimend, tmp_tend2)
     ## CLOCK                                           
     if((self.target_clock_val == "0101") or (self.target_clock_val == "0101")):
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk2",   "tmp_tclk1"     , tmp_tclk2, tmp_tclk1)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk3",   "tmp_tclk2"     , tmp_tclk3, tmp_tclk2)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk4",   "tmp_tclk3"     , tmp_tclk4, tmp_tclk3)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk6",   "tmp_tclk4"     , tmp_tclk6, tmp_tclk4)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk7",   "tmp_tclk6"     , tmp_tclk7, tmp_tclk6)
+      tmp_tclk2 =   self.check_time_order (tmp_min_time, "tmp_tclk2",   "tmp_tclk1"     , tmp_tclk2, tmp_tclk1)
+      tmp_tclk3 =   self.check_time_order (tmp_min_time, "tmp_tclk3",   "tmp_tclk2"     , tmp_tclk3, tmp_tclk2)
+      tmp_tclk4 =   self.check_time_order (tmp_min_time, "tmp_tclk4",   "tmp_tclk3"     , tmp_tclk4, tmp_tclk3)
+      tmp_tclk6 =   self.check_time_order (tmp_min_time, "tmp_tclk6",   "tmp_tclk4"     , tmp_tclk6, tmp_tclk4)
+      tmp_tclk7 =   self.check_time_order (tmp_min_time, "tmp_tclk7",   "tmp_tclk6"     , tmp_tclk7, tmp_tclk6)
+      tmp_tsimend = self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tclk7"     , tmp_tsimend, tmp_tclk7)
     if((self.target_clock_val == "010") or (self.target_clock_val == "101")):
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk2",   "tmp_tclk1"     , tmp_tclk2, tmp_tclk1)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk3",   "tmp_tclk2"     , tmp_tclk3, tmp_tclk2)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tclk4",   "tmp_tclk3"     , tmp_tclk4, tmp_tclk3)
+      tmp_tclk2 =   self.check_time_order (tmp_min_time, "tmp_tclk2",   "tmp_tclk1"     , tmp_tclk2, tmp_tclk1)
+      tmp_tclk3 =   self.check_time_order (tmp_min_time, "tmp_tclk3",   "tmp_tclk2"     , tmp_tclk3, tmp_tclk2)
+      tmp_tclk4 =   self.check_time_order (tmp_min_time, "tmp_tclk4",   "tmp_tclk3"     , tmp_tclk4, tmp_tclk3)
+      tmp_tsimend = self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tclk4"     , tmp_tsimend, tmp_tclk7)
     ## RST                                             
     if((self.target_reset_val == "01") or (self.target_reset_val == "10")):
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
+      tmp_tstart2 = self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
+      tmp_tend1 =   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
+      tmp_tend2 =   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
+      tmp_tsimend = self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tend2"     , tmp_tsimend, tmp_tend2)
     ## SET                                             
     if((self.target_set_val == "01") or (self.target_set_val == "10")):
-      error_sum += self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
-      error_sum +=   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
-
-    ## round-down pwltime to prevent "min-time-step" error in ngspice
-    tmp_tclk1 =  self.round_down_pwltime(targetCell, tmp_tclk1) 
-    tmp_tclk2 =  self.round_down_pwltime(targetCell, tmp_tclk2) 
-    tmp_tclk3 =  self.round_down_pwltime(targetCell, tmp_tclk3) 
-    tmp_tclk4 =  self.round_down_pwltime(targetCell, tmp_tclk4) 
-    tmp_tclk5 =  self.round_down_pwltime(targetCell, tmp_tclk5) 
-    tmp_tstart1 =self.round_down_pwltime(targetCell, tmp_tstart1) 
-    tmp_tstart2 =self.round_down_pwltime(targetCell, tmp_tstart2)
-    tmp_tend1 =  self.round_down_pwltime(targetCell, tmp_tend1) 
-    tmp_tend2 =  self.round_down_pwltime(targetCell, tmp_tend2) 
-    tmp_tclk6 =  self.round_down_pwltime(targetCell, tmp_tclk6) 
-    tmp_tclk7 =  self.round_down_pwltime(targetCell, tmp_tclk7) 
-    tmp_tsimend =self.round_down_pwltime(targetCell, tmp_tsimend)
-
-    # abort simulation if time order is not as expected
-    if(error_sum < 0):
-      tmp_tsimend = 0
+      tmp_tstart2 = self.check_time_order (tmp_min_time, "tmp_tstart2", "tmp_tstart1"   , tmp_tstart2, tmp_tstart1)
+      tmp_tend1 =   self.check_time_order (tmp_min_time, "tmp_tend1",   "tmp_tstart2"   , tmp_tend1, tmp_tstart2)
+      tmp_tend2 =   self.check_time_order (tmp_min_time, "tmp_tend2",   "tmp_tend1"     , tmp_tend2, tmp_tend1)
+      tmp_tsimend = self.check_time_order (tmp_min_time, "tmp_tsimend", "tmp_tend2"     , tmp_tsimend, tmp_tend2)
 
     ## generate spice lines
     outlines = []
-    outlines.append(".param _tclk1 =   "+str(f'{tmp_tclk1:.3f}')+str(targetLib.time_unit)+" \n")                         
-    outlines.append(".param _tclk2 =   "+str(f'{tmp_tclk2:.3f}')+str(targetLib.time_unit)+" \n")                         
-    outlines.append(".param _tclk3 =   "+str(f'{tmp_tclk3:.3f}')+str(targetLib.time_unit)+" \n")                         
-    outlines.append(".param _tclk4 =   "+str(f'{tmp_tclk4:.3f}')+str(targetLib.time_unit)+" \n")                         
-    outlines.append(".param _tclk5 =   "+str(f'{tmp_tclk5:.3f}')+str(targetLib.time_unit)+" \n")                         
-    outlines.append(".param _tstart1 = "+str(f'{tmp_tstart1:.3f}')+str(targetLib.time_unit)+" \n")                    
-    outlines.append(".param _tstart2 = "+str(f'{tmp_tstart2:.3f}')+str(targetLib.time_unit)+" \n")                    
-    outlines.append(".param _tend1 =   "+str(f'{tmp_tend1:.3f}')+str(targetLib.time_unit)+" \n")                        
-    outlines.append(".param _tend2 =   "+str(f'{tmp_tend2:.3f}')+str(targetLib.time_unit)+" \n")                        
-    outlines.append(".param _tclk6 =   "+str(f'{tmp_tclk6:.3f}')+str(targetLib.time_unit)+" \n")                        
-    outlines.append(".param _tclk7 =   "+str(f'{tmp_tclk7:.3f}')+str(targetLib.time_unit)+" \n")                        
-    outlines.append(".param _tsimend = "+str(f'{tmp_tsimend:.3f}')+str(targetLib.time_unit)+" \n")                    
+    outlines.append(".param _tclk1 = "+str(tmp_tclk1)+str(targetLib.time_unit)+" \n")                         
+    outlines.append(".param _tclk2 = "+str(tmp_tclk2)+str(targetLib.time_unit)+" \n")                         
+    outlines.append(".param _tclk3 = "+str(tmp_tclk3)+str(targetLib.time_unit)+" \n")                         
+    outlines.append(".param _tclk4 = "+str(tmp_tclk4)+str(targetLib.time_unit)+" \n")                         
+    outlines.append(".param _tclk5 = "+str(tmp_tclk5)+str(targetLib.time_unit)+" \n")                         
+    outlines.append(".param _tstart1 = "+str(tmp_tstart1)+str(targetLib.time_unit)+" \n")                    
+    outlines.append(".param _tstart2 = "+str(tmp_tstart2)+str(targetLib.time_unit)+" \n")                    
+    outlines.append(".param _tend1 = "+str(tmp_tend1)+str(targetLib.time_unit)+" \n")                        
+    outlines.append(".param _tend2 = "+str(tmp_tend2)+str(targetLib.time_unit)+" \n")                        
+    outlines.append(".param _tclk6 = "+str(tmp_tclk6)+str(targetLib.time_unit)+" \n")                        
+    outlines.append(".param _tclk7 = "+str(tmp_tclk7)+str(targetLib.time_unit)+" \n")                        
+    outlines.append(".param _tsimend = "+str(tmp_tsimend)+str(targetLib.time_unit)+" \n")                    
     return outlines
   
   def set_spicef(self, spicef = "not_set"):
@@ -290,26 +263,17 @@ class MyConditionsAndResults:
     else:
       my_exit("mode is not ether  nor ennergy:"+str(mode)) 
 
-  def get_spicefo_seq(self):
-    if(self.is_delay_energy == "delay"):
-      self.spicefo = str(self.spicef)+"_j"+str(self.iternum)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_setup"+str(f'{self.target_tsetup:,.4f}')+"_hold"+str(f'{self.target_thold:,.4f}')+"_d.sp"
-    elif(self.is_delay_energy == "energy"):
-      self.spicefo = str(self.spicef)+"_j"+str(self.iternum)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_setup"+str(f'{self.target_tsetup:,.4f}')+"_hold"+str(f'{self.target_thold:,.4f}')+"_e.sp"
-    else:
-      print("self.is_delay_energy is not matched with delay/energy: "+str(self.is_delay_energy))
-    return self.spicefo
+  def get_spicefo_seq(self, stage=None):
+    return str(self.spicef)+"_j"+str(self.iternum)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_setup"+str(f'{self.target_tsetup:,.4f}')+"_hold"+str(f'{self.target_thold:,.4f}')+"_d.sp"
 
-#  def get_spicefo_seq_energy(self, stage=None):
-#    self.spicefo = str(self.spicef)+"_j"+str(self.iternum)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_setup"+str(f'{self.target_tsetup:,.4f}')+"_hold"+str(f'{self.target_thold:,.4f}')+"_e.sp"
-#    return self.spicefo
+  def get_spicefo_seq_energy(self, stage=None):
+    return str(self.spicef)+"_j"+str(self.iternum)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_setup"+str(f'{self.target_tsetup:,.4f}')+"_hold"+str(f'{self.target_thold:,.4f}')+"_e.sp"
 
   def get_spicefo_comb(self, stage=None):
-    self.spicefo =  str(self.spicef)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_d.sp"
-    return self.spicefo
+    return str(self.spicef)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_d.sp"
 
   def get_spicefo_comb_energy(self, stage=None):
-    self.spicefo = str(self.spicef)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_e.sp"
-    return self.spicefo
+    return str(self.spicef)+"_"+str(self.target_load)+"_"+str(self.target_slope)+"_e.sp"
 
   def set_direction(self, outport="tmp"):
     if(outport == '01'):
@@ -1503,7 +1467,7 @@ class MyConditionsAndResults:
     # max
     self.lut_hold_mintomax.append(str("{:5f}".format(np.amax(self.list2_hold)/targetLib.time_mag)))
 
-  def print_setuphold_msg(self, targetLib, targetCell, stage=None, tstep_mag=None):
+  def print_setuphold_msg(self, targetCell, stage=None, tstep_mag=None):
     if(stage == 1):
       msg = "1st stage sparse "+str(self.mode)+" search, timestep: "
     elif(stage == 2):
@@ -1517,17 +1481,17 @@ class MyConditionsAndResults:
       my_exit()
 
     if(self.mode == "setup" or self.mode == "recov"):
-      targetLib.print_msg_sim("(slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)+") " \
+      print("(slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)+") " \
         + str(msg)+ str(targetCell.sim_setup_timestep * tstep_mag))
     elif(self.mode == "hold" or self.mode == "remov"):
-      targetLib.print_msg_sim("(slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)+") " \
+      print("(slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)+") " \
         + str(msg)+ str(targetCell.sim_hold_timestep * tstep_mag))
     else:
       print("argument self.mode: "+str(self.mode)+" is not matched with setup/hold/recov/remov, die\n")
       my_exit()
       
   def print_setuphold_intl_msg(self, targetLib, targetCell, stage=None):
-      targetLib.print_msg_sim("["+str(self.mode)+" (slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)
-        +")] tsetup_search: "+str(f'{self.target_tsetup:,.4f}')+str(targetLib.time_unit)
-        +" thold_search: "+str(f'{self.target_thold:,.4f}')+str(targetLib.time_unit)+" stg:"+str(stage)) #+" sp: "+str(self.spicefo))
+      print("["+str(self.mode)+" (slope/load=" +str(self.target_slope)+ "/" +str(self.target_load)
+        +")] tsetup: "+str(f'{self.target_tsetup:,.4f}')+str(targetLib.time_unit)
+        +" thold: "+str(f'{self.target_thold:,.4f}')+str(targetLib.time_unit)+" stage:"+str(stage))
       

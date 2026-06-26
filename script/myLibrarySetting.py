@@ -347,12 +347,12 @@ class MyLibrarySetting:
   def set_run_sim(self, line="true"):
     tmp_array = line.split()
     self.runsim = tmp_array[1] 
-    #print(tmp_array[1])
+    print(tmp_array[1])
 
   def set_num_thread(self, line="true"):
     tmp_array = line.split()
     self.num_thread = int(tmp_array[1]) 
-    #print(line)
+    print(line)
 
   def set_supress_message(self, line="false"):
     tmp_array = line.split()

@@ -215,7 +215,7 @@ class MyLogicCell:
         
     ## if cell name is not found, show error
     if(self.definition == None):
-      if((self.cell == None) and (self.cell == None)):
+      if((self.cell == None) and (self.logic == None)):
         print("Cell definition not found. Please use add_cell command to add your cell")
       elif(self.cell == None):
         print("Cell is not defined by add_cell. Please use add_cell command to add your cell")
@@ -395,7 +395,7 @@ class MyLogicCell:
     #remove# and simulation failed
     if ((tmp_array[1] == 'auto') and (self.slope[-1] != None)):
       #self.sim_hold_lowest = float(self.slope[-1]) * -5 
-      self.sim_hold_lowest = float(self.slope[-1]) * -1 
+      self.sim_hold_lowest = float(self.slope[-1]) * -10 
       #self.sim_hold_lowest = float(self.slope[-1]) * 0.001 
       self.print_msg ("auto set hold simulation time lowest limit")
     else:

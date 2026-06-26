@@ -1,4 +1,4 @@
-#!/usr/bin/env pytghon
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
 import argparse, re, os, shutil, subprocess, sys, inspect, datetime 
@@ -36,13 +36,13 @@ def main():
       if(line.startswith('set_lib_name')):
         targetLib.set_lib_name(line) 
 
-      if(line.startswith('set_dotlib_name')):
+      elif(line.startswith('set_dotlib_name')):
         targetLib.set_dotlib_name(line) 
 
-      if(line.startswith('set_doc_name')):
+      elif(line.startswith('set_doc_name')):
         targetLib.set_doc_name(line)
                 
-      if(line.startswith('set_verilog_name')):
+      elif(line.startswith('set_verilog_name')):
         targetLib.set_verilog_name(line) 
 
       ## set_cell_name_suffix
@@ -291,8 +291,8 @@ def main():
 
 ##-- execution --#
       ## initialize
-      elif(line.startswith('create')):
-        initializeFiles(targetLib, targetCell) 
+      elif(line.startswith('initialize')):
+        initializeFiles(targetLib) 
 
       ## create
       elif(line.startswith('characterize')):
@@ -312,7 +312,7 @@ def main():
 
 
 
-def initializeFiles(targetLib, targetCell):
+def initializeFiles(targetLib):
   ## initialize working directory
   if (targetLib.runsim.lower() == "true"):
     if os.path.exists(targetLib.work_dir):
