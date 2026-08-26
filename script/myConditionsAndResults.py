@@ -511,21 +511,21 @@ class MyConditionsAndResults:
     self.lut_prop.append(outline)
     ## values
     self.lut_prop.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_prop[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_prop[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_prop[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_prop[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_prop[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_prop[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_prop[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_prop[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_prop[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_prop[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_prop.append(outline)
     self.lut_prop.append(");")
@@ -573,21 +573,21 @@ class MyConditionsAndResults:
     self.lut_tran.append(outline)
     ## values
     self.lut_tran.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_tran[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_tran[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_tran[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_tran[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_tran[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_tran[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_tran[i][len(jlist)-1])+"\", \\"
-        #tmp_line = str("{:5f}".format(self.list2_prop[i][len(jlist)-1]/targetLib.time_mag))
-        tmp_line = str("{:5f}".format(self.list2_tran[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_tran[len(ilist)-1][j])+"\", \\"
+        #tmp_line = str("{:5f}".format(self.list2_prop[len(ilist)-1][j]/targetLib.time_mag))
+        tmp_line = str("{:5f}".format(self.list2_tran[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_tran.append(outline)
     self.lut_tran.append(");")
@@ -630,21 +630,21 @@ class MyConditionsAndResults:
     self.lut_prop_set.append(outline)
     ## values
     self.lut_prop_set.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_prop_set[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_prop_set[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_prop_set[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_set[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_prop_set[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_prop_set[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_set[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_prop_set[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_prop_set.append(outline)
     self.lut_prop_set.append(");")
@@ -687,20 +687,20 @@ class MyConditionsAndResults:
     self.lut_tran_set.append(outline)
     ## values
     self.lut_tran_set.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_tran_set[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_tran_set[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_set[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_reset[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_tran_set.append(outline)
     self.lut_tran_set.append(");")
@@ -743,21 +743,21 @@ class MyConditionsAndResults:
     self.lut_prop_reset.append(outline)
     ## values
     self.lut_prop_reset.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_prop_reset[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_prop_reset[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_prop_reset[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_reset[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_prop_reset[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_prop_reset[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_reset[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_prop_reset[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_prop_reset.append(outline)
     self.lut_prop_reset.append(");")
@@ -800,20 +800,20 @@ class MyConditionsAndResults:
     self.lut_tran_set.append(outline)
     ## values
     self.lut_tran_set.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_tran_set[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_tran_set[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_set[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_reset[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_tran_set.append(outline)
     self.lut_tran_set.append(");")
@@ -856,20 +856,20 @@ class MyConditionsAndResults:
     self.lut_eintl.append(outline)
     ## values
     self.lut_eintl.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_eintl[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_eintl[i][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_eintl[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_eintl[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_eintl[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_eintl[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_eintl[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_eintl[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+        #outline += str(self.list2_eintl[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_eintl[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       self.lut_eintl.append(outline)
     self.lut_eintl.append(");")
@@ -912,21 +912,21 @@ class MyConditionsAndResults:
     self.lut_prop_reset.append(outline)
     ## values
     self.lut_prop_reset.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_prop_reset[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_prop_reset[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_prop_reset[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_reset[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_prop_reset[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_prop_reset[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_reset[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_prop_reset[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_prop_reset.append(outline)
     self.lut_prop_reset.append(");")
@@ -970,20 +970,20 @@ class MyConditionsAndResults:
     self.lut_tran_reset.append(outline)
     ## values
     self.lut_tran_reset.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_tran_reset[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_tran_reset[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_tran_reset[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_reset[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_tran_reset[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_tran_reset[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_reset[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_tran_reset[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_reset[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_tran_reset.append(outline)
     self.lut_tran_reset.append(");")
@@ -1026,21 +1026,21 @@ class MyConditionsAndResults:
     self.lut_prop_set.append(outline)
     ## values
     self.lut_prop_set.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_prop_set[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_prop_set[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_prop_set[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_set[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_prop_set[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_prop_set[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_prop_set[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_prop_set[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_prop_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_prop_set.append(outline)
     self.lut_prop_set.append(");")
@@ -1083,20 +1083,20 @@ class MyConditionsAndResults:
     self.lut_tran_set.append(outline)
     ## values
     self.lut_tran_set.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_tran_set[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_tran_set[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_set[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_tran_set[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_tran_set[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_tran_set[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_tran_set[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
       self.lut_tran_set.append(outline)
     self.lut_tran_set.append(");")
@@ -1140,20 +1140,20 @@ class MyConditionsAndResults:
     self.lut_eintl.append(outline)
     ## values
     self.lut_eintl.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_eintl[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_eintl[i][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_eintl[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_eintl[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_eintl[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_eintl[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_eintl[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_eintl[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+        #outline += str(self.list2_eintl[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_eintl[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       self.lut_eintl.append(outline)
     self.lut_eintl.append(");")
@@ -1195,20 +1195,20 @@ class MyConditionsAndResults:
     self.lut_ein.append(outline)
     ## values
     self.lut_ein.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_ein[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_ein[i][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_ein[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_ein[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_ein[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_ein[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_ein[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_ein[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+        #outline += str(self.list2_ein[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_ein[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\", \\"
       self.lut_ein.append(outline)
     self.lut_ein.append(");")
@@ -1274,20 +1274,20 @@ class MyConditionsAndResults:
     self.lut_eclk.append(outline)
     ## values
     self.lut_eclk.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_eclk[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_eclk[i][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+", "
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_eclk[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_eclk[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_eclk[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_eclk[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_eclk[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_eclk[i][len(jlist)-1]*targetLib.voltage_mag/targetLib.energy_mag))
+        #outline += str(self.list2_eclk[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_eclk[len(ilist)-1][j]*targetLib.voltage_mag/targetLib.energy_mag))
         outline += tmp_line+"\", \\"
       self.lut_eclk.append(outline)
     self.lut_eclk.append(");")
@@ -1377,22 +1377,22 @@ class MyConditionsAndResults:
     self.lut_setup.append(outline)
     ## values
     self.lut_setup.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_setup[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_setup[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
 
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_setup[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_setup[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_setup[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_setup[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_setup[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_setup[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_setup[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_setup[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
 
       self.lut_setup.append(outline)
@@ -1437,22 +1437,22 @@ class MyConditionsAndResults:
     self.lut_hold.append(outline)
     ## values
     self.lut_hold.append("values ( \\")
-    for i in range(len(ilist)):
+    for j in range(len(jlist)):
       outline = "\""
-      for j in range(len(jlist)-1):
+      for i in range(len(ilist)-1):
         #outline += str(self.list2_hold[i][j])+", "
         tmp_line = str("{:5f}".format(self.list2_hold[i][j]/targetLib.time_mag))
         outline += tmp_line+", "
 
       ## do not add "," for last line
-      if(i == (len(ilist)-1)): 
-        #outline += str(self.list2_hold[i][len(jlist)-1])+"\" \\"
-        tmp_line = str("{:5f}".format(self.list2_hold[i][len(jlist)-1]/targetLib.time_mag))
+      if(j == (len(jlist)-1)): 
+        #outline += str(self.list2_hold[len(ilist)-1][j])+"\" \\"
+        tmp_line = str("{:5f}".format(self.list2_hold[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\" \\"
       ##  add "," for else 
       else: 
-        #outline += str(self.list2_hold[i][len(jlist)-1])+"\", \\"
-        tmp_line = str("{:5f}".format(self.list2_hold[i][len(jlist)-1]/targetLib.time_mag))
+        #outline += str(self.list2_hold[len(ilist)-1][j])+"\", \\"
+        tmp_line = str("{:5f}".format(self.list2_hold[len(ilist)-1][j]/targetLib.time_mag))
         outline += tmp_line+"\", \\"
 
       self.lut_hold.append(outline)
